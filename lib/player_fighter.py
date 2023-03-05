@@ -135,7 +135,7 @@ class FighterPLAYER:
                             self.attack(surface, target, 2.9, hit)
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 16
-                            hit = 24
+                            hit = 20
                             self.attack(surface, target, 2.4, hit)
                 # walker
                 case 10:
@@ -195,7 +195,7 @@ class FighterPLAYER:
                             self.attack(surface, target, 2.9, hit)
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 16
-                            hit = 24
+                            hit = 18
                             self.attack(surface, target, 2.4, hit)
 
                 # kingartema

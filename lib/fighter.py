@@ -256,8 +256,7 @@ class FighterEnemy:
 
                 # robot_woman
                 case 17:
-                    SPEED += 1
-                    SPEED += 1.5 * display.scr_w
+                    SPEED += 1 * display.scr_w
                     # атаковать ли
                     bot_attack_check_rect = pygame.Rect(self.rect.centerx - (2.3 * self.rect.width * self.flip),
                                                         self.rect.y,
@@ -274,11 +273,11 @@ class FighterEnemy:
                         attack_rand = randint(1, 2)
                         if attack_rand == 1:
                             self.attack_type = 18
-                            hit = 18
+                            hit = 23
                             self.attack(surface, target, 2.1, hit)
                         elif attack_rand == 2:
                             self.attack_type = 17
-                            hit = 22
+                            hit = 15
                             self.attack(surface, target, 2.3, hit)
                     self.move_ai((1.7, 1.1), (1.2, 1), SPEED, target)
                 # bulat
