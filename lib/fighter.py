@@ -9,17 +9,18 @@ from lib.Settings import settings
 player_spec = [7, 8, 10, 11, 1, 15, 16, 18, 22, 25]
 player_attack3 = [1, 15, 16, 18, 22]
 player_shield = [10, 1, 14, 16, 20, 22]
-bomb_levels = [7, 15, 16]
+bomb_levels = [7, 15, 16, 23, 41, 45]
 
 
 class FighterEnemy:
     def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite,
                  specified_particle=None):
+        self.data = data
         self.player, self.size, self.image_scale, self.offset = player, data[0], data[1], data[2]
         self.start_pos = (x, y, flip)
         self.flip = flip
         self.animation_list = self.load_images(sprite_sheet, animation_steps)
-        self.rect = pygame.Rect((x, y, 200 * display.scr_w, 400 * display.scr_h))
+        self.rect = pygame.Rect((x, y, data[3][0], data[3][1]))
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
         self.image = self.animation_list[self.action][self.frame_index]
@@ -46,9 +47,6 @@ class FighterEnemy:
         self.attacking = False
         self.dashing = False
         self.was_stunned = False
-        if player == 10 or player == 15 or self.player == 20 or self.player == 22:
-            if player == 10 or self.player == 20 or self.player == 22:
-                self.rect = pygame.Rect((x, y, 400 * display.scr_w, 600 * display.scr_h))
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
@@ -64,6 +62,7 @@ class FighterEnemy:
 
     def reset_params(self):
         x, y, self.flip = self.start_pos
+        self.rect = pygame.Rect((x, y, self.data[3][0], self.data[3][1]))
         self.hit = False
         self.shield_on = False
         self.invisibility = False
@@ -83,14 +82,6 @@ class FighterEnemy:
         self.health = 100
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
-        self.rect = pygame.Rect((x, y, 200 * display.scr_w, 400 * display.scr_h))
-        if self.player == 10 or self.player == 15 or self.player == 20 or self.player == 22:
-            if self.player == 10 or self.player == 20 or self.player == 22:
-                self.rect = pygame.Rect((x, y, 400 * display.scr_w, 600 * display.scr_h))
-                self.shield_on_sfx = pygame.mixer.Sound(r"assets\audio\sounds\shield_broke.wav")
-                self.shield_on_sfx.set_volume(0.5)
-            self.shield_sfx = pygame.mixer.Sound(r"assets\audio\sounds\shield_on.wav")
-            self.shield_sfx.set_volume(0.5)
 
     def move(self, surface, target, round_over, game_progress):
         if game_progress in bomb_levels:
@@ -308,7 +299,7 @@ class FighterEnemy:
                             self.attack_type = 19
                             hit = 45
                             self.attack(surface, target, 2.5, hit)
-                        elif self.shield_cooldown <= 0:
+                        elif self.shield_cooldown <= 0 and game_progress > 10:
                             self.attack_type = 21
                             hit = 22
                             self.attack(surface, target, 1.05, hit)
@@ -584,7 +575,10 @@ class FighterEnemy:
                             self.attack(surface, target, 1.5, hit)
                         elif self.shield_cooldown == 0:
                             self.attack_type = 20
-                            self.attack(surface, target, 1.5, hit)
+                            heal = 15
+                            if game_progress > 42:
+                                heal = 5
+                            self.attack(surface, target, heal, hit)
                     self.move_ai((1.4, 1), (0.5, 1), SPEED, target)
                 # pau enemy
                 case 11:
@@ -899,7 +893,7 @@ class FighterEnemy:
                 # shield
                 case 20:
                     self.shield_on = True
-                    self.heal(15)
+                    self.heal(hg_att)
                     attacking_rect = pygame.Rect(self.rect.centerx - (0.6 * self.rect.width * self.flip),
                                                  self.rect.y * 1.35,
                                                  0.6 * self.rect.width, self.rect.height)
@@ -949,12 +943,14 @@ class FighterEnemy:
                     bullet_data = [200, 0.6 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_rocket(bullet_rect, bullet_data, target, hit)
                 case 3:
-                    bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
-                                              self.rect.y + self.rect.height * 0.35,
-                                              50 * display.scr_w, 50 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
-                    offset = 10
-                    bullet_data = [20, 9.1 * display.scr_w, (offset, 10), [2, 2], self.flip]
+                    size = 25
+                    bullet_data = [20, 4.55 * display.scr_w, (10, 6), [2, 2], self.flip]
+                    if self.player in [7, 14, 22, 25]:
+                        size = 50
+                        bullet_data = [20, 9.1 * display.scr_w, (10, 6), [2, 2], self.flip]
+                    bullet_rect = pygame.Rect(self.rect.right - (self.rect.width * self.flip),
+                                              self.rect.y + self.rect.height * 0.4,
+                                              size * display.scr_w, size * display.scr_h)
                     create_bullet(bullet_rect, bullet_data, target, hit)
                 case 25:
                     bullet_rect = pygame.Rect(self.rect.centerx,

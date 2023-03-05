@@ -48,7 +48,7 @@ class Game:
         self.idx = 0
         self.round_over_time = 1
         self.fighter_id = 0
-        self.GAME_PROGRESS = 22
+        self.GAME_PROGRESS = 45
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -93,10 +93,10 @@ class Game:
                            "Flying El. Dumpling (Kingartema)")
             case 12:
                 self.fight_survival([fighter.super_pau, fighter.bt25t, fighter.aksenov, fighter.bulat],
-                                    [fighter.tagir_enemy, fighter.egor_enemy, fighter.kingartema_enemy,
+                                    [fighter.tagir_enemy, fighter.egor_enemy, fighter.egor_enemy,
                                      fighter.kingartema_enemy],
                                     4, ["Super PAU", "Bt25t", "Aksenov", "Bulat"],
-                                    ["NightButterfly (Tagir)", "Egor", "Flying El. Dumpling (Kingartema)",
+                                    ["NightButterfly (Tagir)", "Egor", "Egor",
                                      "Flying El. Dumpling (Kingartema)"])
             case 13:
                 self.fight(fighter.super_pau, fighter.moiseev, 3, "Super PAU", "Moiseev")
@@ -135,10 +135,10 @@ class Game:
                                      "Bt25t", "Bt25t"])
             case 23:
                 self.fight_survival([fighter.tagir, fighter.tagir, fighter.aksenov, fighter.aksenov],
-                                    [fighter.bt25t_enemy, fighter.trio_enemy, fighter.egor_enemy,
+                                    [fighter.egor_enemy, fighter.trio_enemy, fighter.bt25t_enemy,
                                      fighter.kingartema_enemy],
                                     4, ["NightButterfly (Tagir)", "NightButterfly (Tagir)", "Aksenov", "Aksenov"],
-                                    ["Bt25t", "Trio", "Egor", "Flying El. Dumpling (Kingartema)"])
+                                    ["Egor", "Trio", "Bt25t", "Flying El. Dumpling (Kingartema)"])
             case 24:
                 self.fight_survival([fighter.bt25t, fighter.super_pau, fighter.bt25t, fighter.super_pau,
                                      fighter.super_pau, fighter.super_pau, fighter.bt25t, fighter.super_pau],
@@ -163,39 +163,77 @@ class Game:
             case 30:
                 self.fight(fighter.lisa, fighter.yacuji, 3, 'Lisa', "YACUJI")
             case 31:
+                self.fight(fighter.vasisa, fighter.moiseev_bot, 3, 'Vasisa', "USA Bot")
+            case 32:
                 self.fight_survival([fighter.lisa, fighter.lisa], [fighter.police, fighter.japan_soldier], 2,
                                     ["Lisa", "Lisa"], ["Berkutci", "Berkutci"])
-            case 32:
-                self.fight(fighter.aksenov, fighter.yacuji, 2, 'Aksenov', "YACUJI")
             case 33:
-                self.fight(fighter.lisa, fighter.artestro, 3, 'Lisa', "Artestro")
+                self.fight(fighter.aksenov, fighter.yacuji, 2, 'Aksenov', "YACUJI")
             case 34:
-                self.fight(fighter.aksenov, fighter.japan_soldier, 2, 'Aksenov', "Lisa`s Soldier")
+                self.fight(fighter.lisa, fighter.artestro, 3, 'Lisa', "Artestro")
             case 35:
-                self.fight(fighter.super_pau, fighter.lisa_boss, 2, "SuperPAU", "Lisa")
+                self.fight(fighter.aksenov, fighter.japan_soldier, 2, 'Aksenov', "Lisa`s Soldier")
             case 36:
-                self.fight(fighter.aksenov, fighter.lisa_boss, 3, "Aksenov", "Lisa")
+                self.fight(fighter.super_pau, fighter.lisa_boss, 2, "SuperPAU", "Lisa")
             case 37:
-                self.fight(fighter.aksenov, fighter.negrominator, 2, "Aksenov", "Negrominator")
+                self.fight(fighter.aksenov, fighter.lisa_boss, 3, "Aksenov", "Lisa")
             case 38:
-                self.fight(fighter.aksenov, fighter.soldier, 2, "Aksenov", "survivor")
+                self.fight(fighter.aksenov, fighter.negrominator, 2, "Aksenov", "Negrominator")
             case 39:
+                self.fight(fighter.aksenov, fighter.soldier, 2, "Aksenov", "survivor")
+            case 40:
                 self.fight_survival([fighter.aksenov, fighter.aksenov], [fighter.police, fighter.japan_soldier], 2,
                                     ["Aksenov", "Aksenov"], ["survivor", "survivor"])
-            case 40:
+            case 41:
                 self.fight_survival([fighter.aksenov, fighter.aksenov, fighter.aksenov, fighter.aksenov],
                                     [fighter.negrominator, fighter.negrominator, fighter.walker_enemy,
                                      fighter.walker_enemy], 4,
                                     ["Aksenov", "Aksenov", "Aksenov", "Aksenov"], ["Negrominator", "Negrominator",
                                                                                    "Walker", "Walker"])
-            case 41:
-                self.fight(fighter.aksenov, fighter.general, 3, "Aksenov", "Army General")
             case 42:
-                self.fight(fighter.vasisa, fighter.supertank, 3, "Aksenov", "Army General")
+                self.fight(fighter.aksenov, fighter.general, 3, "Aksenov", "Army General")
             case 43:
-                self.fight(fighter.bt25t, fighter.vasisa_enemy, 3, "Aksenov", "Army General")
+                self.fight(fighter.aksenov, fighter.walker_enemy, 1, "Aksenov", "Walker")
             case 44:
-                self.fight(fighter.bt_final_battle, fighter.super_pau_final_boss, 3, "Aksenov", "Army General")
+                self.fight(fighter.aksenov, fighter.negrominator, 1, "Aksenov", "negrominator")
+            case 45:
+                self.fight_survival([fighter.tagir, fighter.aksenov, fighter.kingartema, fighter.bt25t, fighter.egor],
+                            [fighter.negrominator, fighter.walker_enemy, fighter.walker_enemy, fighter.walker_enemy,
+                             fighter.general], 5,
+                            ["Tagir", "Aksenov", "kingartema", "Bt25t", "Egor"], ["Negrominator", "Walker",
+                                                                                  "Walker", "Walker", "General"])
+            case 46:
+                self.fight(fighter.vasisa, fighter.robot_woman, 3, "Vasisa", "Robot_killer")
+            case 47:
+                self.fight_survival([fighter.trio, fighter.trio],
+                                    [fighter.moiseev_bot, fighter.robot_woman], 2,
+                                    ["Trio", "Trio"], ["USA Bot", "Robot_killer"])
+            case 48:
+                self.fight_survival([fighter.aksenov, fighter.tagir, fighter.bt25t],
+                            [fighter.negrominator, fighter.negrominator, fighter.general], 3,
+                            ["Aksenov", "Tagir", "Bt25t"], ["Negrominator", "Negrominator", "General"])
+            case 49:
+                self.fight(fighter.walker, fighter.negrominator, 2, "Walker Hacked", "Negrominator")
+            case 50:
+                self.fight_survival([fighter.kingartema, fighter.egor],
+                                    [fighter.moiseev_bot, fighter.general], 2,
+                                    ["kingartema", "Egor"], ["USA Bot", "General"])
+            case 51:
+                self.fight_survival([fighter.aksenov, fighter.aksenov, fighter.tagir, fighter.tagir,
+                                     fighter.trio, fighter.trio, fighter.bt25t, fighter.bt25t],
+                                    [fighter.moiseev_bot, fighter.negrominator, fighter.negrominator,
+                                     fighter.robot_woman, fighter.walker_enemy, fighter.general, fighter.robot_woman,
+                                     fighter.general], 8,
+                                    ["Aksenov", "Aksenov", "Tagir", "Tagir", "Trio", "Trio", "Bt25t", "Bt25t"],
+                                    ["USA Bot", "Negrominator", "Negrominator",
+                                     "Robot_killer", "Walker", "General", "Robot_killer", "General"])
+            case 52:
+                self.fight(fighter.vasisa, fighter.supertank, 3, "Vasisa", "Stolberg")
+            case 53:
+                self.fight(fighter.bt25t, fighter.vasisa_enemy, 3, "Bt25t", "Vasisa")
+            case 54:
+                self.fight(fighter.bt_final_battle, fighter.super_pau_final_boss, 4, "Kamil", "Semen")
+
         all_sprites.update()
         all_sprites.draw(display.screen)
         bullet_sprites.update()

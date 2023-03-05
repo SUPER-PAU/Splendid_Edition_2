@@ -8,8 +8,8 @@ class Display:
         # Нативное разрешение пользователя
         self.screen_width = windll.user32.GetSystemMetrics(0)
         self.screen_height = windll.user32.GetSystemMetrics(1)
-        # self.screen_width = 2400
-        # self.screen_height = 1600
+        # self.screen_width = 800
+        # self.screen_height = 400
         # settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
         # self.refresh_rate = int(getattr(settings, 'DisplayFrequency'))
         self.refresh_rate = 60
