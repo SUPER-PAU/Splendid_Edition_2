@@ -125,11 +125,12 @@ class Bullet(pygame.sprite.Sprite):
             self.target.take_damage(self.damage)
 
     def draw(self):
+        # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
         img = pygame.transform.flip(self.image, self.flip, False)
         display.screen.blit(img,
                             (self.rect.x - self.offset[0] * self.image_scale,
                              self.rect.y - self.offset[1] * self.image_scale))
-        # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
+
 
 
 class Dash(pygame.sprite.Sprite):

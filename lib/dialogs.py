@@ -19,11 +19,11 @@ semen = (r"assets\images\dialog\semen_dial.png", "Семён")
 kamil = (r"assets\images\dialog\kamil_dial.png", "Камиль")
 semen_old = (r"assets\images\dialog\semen_old_dial.png", "Семён")
 kamil_old = (r"assets\images\dialog\kamil_old_dial.png", "Камиль")
-egor = (r"assets\images\dialog\egor.png", "Егор")  # s
+egor = (r"assets\images\dialog\egor.png", "Егор")
 artem = (r"assets\images\dialog\artem.png", "Артём")  # s
 tagir = (r"assets\images\dialog\tagir 2.png", "Тагир")
 bt25 = (r"assets\images\dialog\bt25.png", "BT25t")  # s
-vesisa = (r"assets\images\dialog\vesisa_dial.png", "Весиса")
+vasisa = (r"assets\images\dialog\vesisa_dial.png", "Васиса")
 USAarmy = (r"assets\images\dialog\soldier_dial.png", "ПехотаСША")
 trio = (r"assets\images\dialog\civil_dial.png", "Трое")  # s
 albina = (r"assets\images\dialog\albina.png", "Альбина")  # s
@@ -42,7 +42,9 @@ moiseev_bot = (r"assets\images\dialog\civil_dial.png", "Моисеев Бот") 
 gos_army = (r"assets\images\dialog\soldier_dial.png", "Государственный Наемник")  # s
 bulat_phone = (r"assets\images\dialog\none.png", "Булат")
 question = (r"assets\images\dialog\none.png", "???")
-
+scientist = (r"assets\images\dialog\civil_dial.png", "Ученый")  # s
+stolberg = (r"assets\images\dialog\civil_dial.png", "Столберг")  # s
+vasisa_normal = (r"assets\images\dialog\civil_dial.png", "Васиса")  # s
 
 # (, "", bg.),
 def dialogs_texts():
@@ -278,7 +280,7 @@ def dialogs_texts():
          [(None, ("Из колбы под лестницей начало вылезать большая,",
                   "несокрушимая, напряженная масса, напоминавшая..."), bg.black),
           (pau, "ЛЕТАЮЩИЙ ЭЛЕКТРИЧЕСКИЙ ПЕЛЬМЕНЬ!", bg.saratov_moiseev),
-          (None, "Камиль, из-за нехватки ловкости быстро отлетел.", bg.saratov_moiseev)]
+          (None, "Камиль из-за нехватки ловкости быстро отлетел.", bg.saratov_moiseev)]
          ],
         # 12
         [[(None, ("Егор, очнувшись, решил добить гада и кинул в него Легендарный МЕШОК С обувью!",
@@ -806,18 +808,49 @@ def dialogs_texts():
          ],
         # (, "", bg.),
         # 26
-        [[],
+        [[(pau, "Наконец я замочил его. Он уже сделал достаточно.", bg.broken_robot),
+          (bt25, "Спасибо, что ты поступил так. Ему бы всё равно дали пожизненное.", bg.broken_robot),
+          (pau, "Могу?", bg.broken_robot),
+          (bt25, "Да.", bg.broken_robot),
+          (None, "Камиль больше не является обладателем ABOBA OS", bg.broken_robot),
+          (pau, ("Дело сделано. Столько людей пострадало. На Земле остался только 1",
+           "экземпляр, и всё, что мне осталось сделать, чтобы закончить эту эпопею,",
+           " так это..."), bg.broken_robot),
+          (None, "...", bg.broken_robot),
+          (None, "Пару дней спустя.", bg.black),
+          (kamil, "Как я ненавижу Химию!", bg.adymnar),
+          (semen, "Ты не один такой.", bg.adymnar),
+          (tagir, "Ага, эти контрольные просто ужас", bg.adymnar),
+          (egor, "Всё, я дописал.", bg.adymnar),
+          (kamil, "О, Гномик вернулся)", bg.adymnar),
+          (egor, "Я блин Карлик", bg.adymnar),
+          (adel, "Классный мяч ты купил, теперь будем весь день баскет тренировать", bg.adymnar),
+          (turov, "Мама денег дала)", bg.adymnar),
+          (aynur, "Теперь нам есть что сказать, когда мы в следующий раз не придем на химию.", bg.adymnar),
+          (artem, "что-то тут темно, видимо давно не...", bg.black),
+          (kids, "Дядя, это ты? Мы тут уже много времени сидим. Нам холодно и хочется кушать.", bg.black),
+          (artem, "Эм... Не помню, чтобы я заводил детей. Но позаботиться о них надо.", bg.black),
+          (None, "...", bg.black),
+          (moiseev, "Алё, это Президент? Наша сделка всё еще в силе?", bg.broken_robot),
+          (moiseev, "Да? отлично! Мне бы, кроме денег, здание для создания лаборатории...", bg.broken_robot),
+          (moiseev, ("Как раз закрылось отделение ISKHAKOV INDUSTRIES в Казани?",
+           "Вы меня выручаете господин президент..."), bg.broken_robot),
+          (moiseev, "Да, Спасибо. До свидания. Вам тоже удачи.", bg.broken_robot),
+          (moiseev, "Похоже я нашел то, что искал. Этим можно заняться!", bg.broken_robot),
+          (moiseev, "Ну-ка что там написано?", bg.broken_robot),
+          (None, '"ABOBA OS"', bg.black),
+          ],
          [(aksenov, 'Где я?', bg.broken_robot), (aksenov, 'Что произошло?', bg.broken_robot),
           (aksenov, 'Где Булат?', bg.broken_robot), (aksenov, '... *Он* убил его?', bg.broken_robot),
           (aksenov, "Если это так, то мне нужно уходить отсюда.", bg.broken_robot),
-          (aksenov, "ВОТ ЧЁРТ, АРМИЯ ГОСУДАРСТВА!", bg.broken_robot),
+          (aks_mech, "ВОТ ЧЁРТ, АРМИЯ ГОСУДАРСТВА!", bg.broken_robot),
           (None, '', bg.fight_tip)]],
         # 27
         [[(aksenov, 'Мне нужно убираться отсюда куда подальше.', bg.broken_robot),
           (aksenov, 'Я не могу позволить ему забрать абобу.', bg.broken_robot),
           (aksenov, "Я валю в Японию...", bg.broken_robot),
           (aksenov, "...Давно хотел там побывать...", bg.broken_robot),
-          (None, "Казань", bg.lab_mais), (None, "В лаборотирии исхаков индастриз", bg.lab_mais),
+          (None, "Казань", bg.iskhakov_industries), (None, "В лаборотирии исхаков индастриз", bg.lab_mais),
           (moiseev, "наконец, я смог скопировать Абобу ос", bg.lab_mais),
           (artestro, "блин, слушай, круто", bg.lab_mais),
           (artestro, " А что это?", bg.lab_mais),
@@ -864,7 +897,7 @@ def dialogs_texts():
           (lisa, 'Боже, вы тут все как один. Я должна что-то сделать с этим местом.', bg.shop),
           (lisa, ' ?', bg.shop),
           (lisa, ' !?', bg.shop),
-          (None, 'Казань.', bg.lab_mais),
+          (None, 'Казань.', bg.daun_corp),
           (moiseev, 'Похоже, что наш объект превосходит по силе всех, кто встает на ее пути!', bg.lab_mais),
           (moiseev, 'это именно то, чего я пытался добиться!', bg.lab_mais),
           (artestro, ' Сэр, похоже, что у нее сейчас какие-то проблемы', bg.lab_mais),
@@ -894,12 +927,29 @@ def dialogs_texts():
           (moiseev, 'даже с помощью техники этого клоуна!', bg.lab_mais),
           (moiseev, 'одна деталь может и не достигать нанометра!', bg.lab_mais),
           (moiseev, 'похоже, мне понядобятся 10-тилетия на доскональное изучение', bg.lab_mais)],
-         [(lisa, 'И как, мне донести речь до этой жалкой страны? ', bg.city_center),
+         [(None, "Тем временем в Америке происходили массовые протесты. ", bg.america_streets),
+          (None, ("Люди были недовольны исходом войны с Государством и требуют",
+           "смены правительства и политического строя. "), bg.america_streets),
+          (None, ("ВС США присутствовали на каждом митинге и разгоняли протестующих",
+           "газовыми бомбами и огнестрельным оружием. "), bg.america_streets),
+          (None, ("Продолжаться так больше не могло. Американское правительство решило",
+           "пойти на уступку народу и передало власть корпорации DeTech. По сути",
+           "это только усугубило ситуацию для народа."), bg.america_streets),
+          (None, ("Вместо полицейских на улицах стали появляться роботы, которые при",
+           "малейшем отклонении могли превратить человека в пепел.",
+           "О свободе слова можно даже и не упоминать."), bg.america_streets),
+          (vasisa_normal, "Я хочу послушать новый трек, но до ЗП осталось еще несколько месяцев.", bg.america_streets),
+          (vasisa_normal, "Конечно, есть возможность воспользоваться торрен...", bg.america_streets),
+          (None, "Обнаружена несанкционированная деятельность.", bg.america_streets),
+          (vasisa_normal, "НЕЕЕЕТ!!!", bg.america_streets),
+          (None, "...", bg.america_streets),
+          (None, "Япония...", bg.city_center),
+          (lisa, 'И как, мне донести речь до этой жалкой страны? ', bg.city_center),
           (yakuji, 'это она! Она!', bg.city_center),
           (yakuji, 'знаешь, за свои поступки надо отвечать.', bg.city_center),
           (lisa, 'да откуда вас столько?', bg.city_center)]
          ],
-        # 32
+        # 31
         [[(lisa, 'Вам всем тут надо головы поотрубать!', bg.city_center),
           (yakuji, 'нет, не надо!', bg.city_center),
           (yakuji, 'Что мы можем сделать для вас?', bg.city_center),
@@ -917,10 +967,32 @@ def dialogs_texts():
           (lisa, 'вы видели, на что я способна? У них и шанса не будет.', bg.city_center),
           (lisa, 'у меня есть регенерационные способности и невероятная сила', bg.city_center),
           (yakuji, 'ну тут поспорить сложно. Ладно. На это потребуется время.', bg.city_center),
-          (yakuji, 'Пошли с нами.', bg.city_center),
+          (yakuji, 'Пошли с нами.', bg.city_center)],
+         [(None, "...", bg.black),
+          (vasisa, "Где... Я?", bg.corporation_lab),
+          (vasisa, "Что со мной случилось?", bg.corporation_lab),
+          (None, "Тело Васисы напоминало кибернетическое. Она была подсоединена к креслу.", bg.corporation_lab),
+          (vasisa, "Нужно выбраться отсюда. ", bg.corporation_lab),
+          (None, "Васиса без труда выбралась из оков. ", bg.corporation_lab),
+          (vasisa, "Как мне удалось так легко это сделать?", bg.corporation_lab),
+          (None, "В это время мимо камеры с Васисой проходили ученые", bg.corporation_lab),
+          (stolberg, "Вот поэтому нам необходимо досконально изучить это устройство.", bg.corporation_lab),
+          (scientist, "Друзья! Мы можем забыть о роботах! Тест с Киборгами прошел успешно!", bg.corporation_lab),
+          (scientist, ("Нет необходимости производить модель человека, когда можно найти",
+           "живого человека и использовать устройство на нем!"), bg.corporation_lab),
+          (stolberg, "Гений! Это будет дешевле в несколько раз! ", bg.corporation_lab),
+          (scientist, ("Да, но похищать Американцев скоро станет невозможно.",
+                       "Их здесь не бесконечность."), bg.corporation_lab),
+          (stolberg, "Мы подумаем над этим.", bg.corporation_lab),
+          (vasisa, "Эй, а кто это?", bg.corporation_lab),
+          (None, "ВНИМАНИЕ ПРОПАЖА ПОДОПЫТНОГО. НАЙТИ. ЗАДЕРЖАТЬ. УСТРАНИТЬ. ", bg.corporation_lab)]],
+        # 32
+        [[
+          (None, "Васисе удалось скрыться. ", bg.corporation_lab),
+          (None, '...', bg.city_center)
+          ],
+         [(None, '28 лет спустя. Япония.', bg.city_center),
           (None, '...', bg.city_center),
-          (None, '28 лет спустя', bg.city_center)],
-         [(None, '...', bg.city_center),
           (civil, 'Нет Х###Ю!!! НЕТ П###О! СВЕРГНУТЬ ВЛАСТЬ!!!', bg.parlament),
           (police, 'Держимся вместе!', bg.parlament),
           (lisa, 'вы нас не остановите, Беркутцы!', bg.parlament)]],
@@ -1101,15 +1173,122 @@ def dialogs_texts():
           (aks_mech, 'Я спешу к ним на помощь.', bg.explosion),
           (None, '...', bg.explosion)],
          []],
+         # 44
+        [[(aks_mech, ("Хорошо, что под рукой попался транспортник Американцев.",
+           "Так бы я за короткий срок не долетел."), bg.destroyed_daun_corp),
+          (negrominator, "Они используют прототип Абоба ос 4", bg.destroyed_daun_corp),
+          (negrominator, "Нам нужно больше огневой мощи...", bg.destroyed_daun_corp),
+          (aks_mech, "Семен!", bg.destroyed_daun_corp)],
+         []
+         ],
+        # 45
+        [[(None, "Все начало повторяться вновь.", bg.destroyed_daun_corp),
+          (pau, "МОИСЕЕВ!", bg.portal_albina),
+          (moiseev_ten, "Ты опоздал! Этот портал рассчитан только на двоих!", bg.portal_albina),
+          (pau, "Зачем ты это делаешь?", bg.portal_albina),
+          (moiseev_ten, "Чтобы стереть мои ошибки, как и вас!", bg.portal_albina),
+          (moiseev_ten, "Я больше не позволю вам притронуться к ней!", bg.portal_albina),
+          (None, "Моисеев начал двигаться в сторону портала. Альбина поползла за ним.", bg.portal_albina),
+          (None, " ... Бункер ... ", bg.bunker),
+          (dumpling, ("Хватит сражаться! Если мы не покинем это место в",
+           "ближайшее время, то это мы взлетим на воздух вместе с этим местом "), bg.bunker),
+          (aks_mech, "Вам тоже это известно? ", bg.bunker),
+          (egor, "Да, Моисеев предупредил нас об этом.", bg.bunker),
+          (bt25, "Уходим, Быстрее! ", bg.bunker),
+          (tagir_butterfly, "А где Булат? Он только что был здесь.", bg.bunker),
+          (None, "Смертельная волна энергии Абобы прошлась по всему Государству.  ", bg.bunker),
+          (None, "Бункер был практически разрушен.", bg.bunker),
+          (None, "Опять... ", bg.bunker)
+          ],
+         [(None, "Защитный купол был уничтожен вместе со взрывом.", bg.destroyed_iskhakov),
+          (None, "Негроминаторы полезли из всех щелей. ", bg.destroyed_iskhakov),
+          (aks_mech, "НЕТ!", bg.destroyed_iskhakov)]
+         ],
+        # 46
+        [[(None, "Негроминаторов становилось все больше и больше", bg.destroyed_iskhakov),
+          (None, ("После продолжительной битвы удалось скрыться только Егору",
+           "с Артемом. Остальных захватили Негроминаторы. "), bg.destroyed_iskhakov),
+          (negrominator, "Похоже, что они не являлись войсками ВС Г. ", bg.destroyed_iskhakov),
+          (general, "Интересно... Можно взять их изучение.", bg.destroyed_iskhakov),
+          (egor, "Где Булат, когда он так нужен? ", bg.destroyed_iskhakov),
+          (dumpling, "Не знаю. Спасать своих надо. Сядем на следующий транспортник.", bg.destroyed_iskhakov),
+          (negrominator, "Похоже наши двигатели частично отказывают.  ", bg.destroyed_iskhakov),
+          (general, "Запрос принят. Летим на базу. ", bg.destroyed_iskhakov),
+          (None, "Америка.", bg.america_rooftops),
+          (vasisa, "Похоже я опять в этом месте.", bg.corporation_lab),
+          (vasisa, "Судьба водит меня сюда снова и снова", bg.corporation_lab),
+          (vasisa, ("По некоторым источникам именно здесь хранится их новая",
+           "разработка - модуль невидимости "), bg.corporation_lab),
+          (stolberg, ("Великолепная идея - поработить Африканские страны. Людей там так много,",
+           "что можно и не переживать о том. Что нас когда-либо свергнут. Особенно после",
+           "уничтожения Государства! Теперь останется только Китай."), bg.corporation_lab),
+          (vasisa, "Опять он! Если получится пройти незаметно, то … ", bg.corporation_lab)
+          ],
+         [(None, "ВНИМАНИЕ! НЕЗАКОННОЕ ПРОНИКНОВЕНИЕ. ЦЕЛЬ - УНИЧТОЖИТЬ. ", bg.corporation_lab),
+          (stolberg, "Опять ты...", bg.corporation_lab)]
+         ],
+        # 47
+        [[(vasisa, "Это было непросто!", bg.corporation_lab),
+          (vasisa, "Я нашла его!", bg.corporation_lab),
+          (stolberg, "УНИЧТОЖИТЬ! ", bg.corporation_lab),
+          (vasisa, "Еще роботы!", bg.corporation_lab)
+          ],
+         [(None, "Пока Васиса сражалась, она нагинатой задела пульт управления ", bg.corporation_lab),
+          (trio, "Мы свободны!", bg.corporation_lab)]
+         ],
+         # 48
+        [[(None, "После победы над ботами Троица тут же убежала, оставив Васису. ", bg.corporation_lab),
+          (stolberg, ("Вам все равно не остановить нас. Судьба уже решилась.",
+           "Мы исключим вас из прошлого!"), bg.corporation_lab),
+          (vasisa, "О чем он говорит?", bg.corporation_lab),
+          (None, "Количество роботов все увеличивалось и увеличивалось.", bg.corporation_lab),
+          (vasisa, "Похоже мне тоже пора убираться. ", bg.corporation_lab)
+          ],
+         [(None, "Пару часов спустя. ", bg.black),
+          (negrominator, "Как вы думаете, они не проснутся?", bg.black),
+          (general, "Не должны. Мы их так размотали, что никто бы уже не встал. ", bg.black),
+          (None, "Транспортник приземлился.", bg.black),
+          (negrominator, "Что ж пора их доставать.", bg.black),
+          (tagir_butterfly, "Не тут-то было!", bg.america_rooftops)]
+         ],
+         # 49
+        [[(bt25, "Уходим отсюда!", bg.america_rooftops),
+          (tagir_butterfly, "Смотри, это здание!", bg.america_rooftops),
+          (aks_mech, "похоже на то, что мы видели в кинотеатре.", bg.america_rooftops),
+          (bt25, "Это не к добру. Пойдем туда.", bg.america_rooftops)],
+         [(None, "В то же время... Где-то в Африке.", bg.black),
+          (artem_old, "Что это за место?", bg.africa_conveyer),
+          (artem_old, "Похоже, что тут производят негроминаторов из обычных людей.", bg.africa_conveyer),
+          (artem_old, ("Если мы не отключим конвейер вовремя, то нас могут засечь.",
+           "Будет очень плохо."), bg.africa_conveyer),
+          (egor, "Пока ты болтал, я взломал одного из шагоходов.", bg.africa_conveyer),
+          (dumpling, "Значит устроим здесь мясорубку)", bg.africa_conveyer)
+          ]
+         ],
+         # 50
+        [[(dumpling, "Конвейер отключен!", bg.broken_conveyer),
+          (egor, "Походу все негроминаторы начали агриться на нас!", bg.broken_conveyer)],
+         []
+        ],
+         # 51
+        [[(egor, "Нет! Их слишком много! Похоже, это конец!", bg.broken_conveyer),
+          (dumpling, "Главное, что мы сделали благое дело. ", bg.broken_conveyer)],
+         []
+         ],
+         # 52
         [[],
          []
          ],
+
+        # 53
         [[],
          []
          ],
+         # 54
         [[],
          []
          ],
+        # 55 (, "", bg.),
         [[],
          []
          ],

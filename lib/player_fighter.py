@@ -3,9 +3,8 @@ from random import choice
 import pygame
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_rocket, create_stone, \
-    create_damage_number, create_beam
-from constants.audio.effects import shield_sfx
-
+    create_damage_number, create_beam, create_explosion
+from constants.audio.effects import shield_sfx, explosion_sounds
 
 player_spec = [1, 9, 12]
 player_attack3 = [1, 9]
@@ -15,11 +14,12 @@ player_shield = [9]
 class FighterPLAYER:
     def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite,
                  specified_particle=None):
+        self.data = data
         self.player, self.size, self.image_scale, self.offset = player, data[0], data[1], data[2]
         self.start_pos = x, y, flip
         self.flip = flip
         self.animation_list = self.load_images(sprite_sheet, animation_steps)
-        self.rect = pygame.Rect((x, y, 200 * display.scr_w, 400 * display.scr_h))
+        self.rect = pygame.Rect((x, y, data[3][0], data[3][1]))
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
         self.image = self.animation_list[self.action][self.frame_index]
@@ -42,8 +42,6 @@ class FighterPLAYER:
         self.hit = False
         self.shield_on = False
         self.alive = True
-        if self.player == 10:
-            self.rect = pygame.Rect((x, y, 400 * display.scr_w, 600 * display.scr_h))
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
@@ -59,7 +57,7 @@ class FighterPLAYER:
 
     def reset_params(self):
         x, y, self.flip = self.start_pos
-        self.rect = pygame.Rect((x, y, 200 * display.scr_w, 400 * display.scr_h))
+        self.rect = pygame.Rect((x, y, self.data[3][0], self.data[3][1]))
         self.hit = False
         self.shield_on = False
         self.dashing = False
@@ -77,8 +75,6 @@ class FighterPLAYER:
         self.health = 100
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
-        if self.player == 10:
-            self.rect = pygame.Rect((x, y, 400 * display.scr_w, 600 * display.scr_h))
 
     def move(self, surface, target, round_over):
         SPEED = 9 * display.scr_w
@@ -124,6 +120,7 @@ class FighterPLAYER:
                                 hit = 15
                                 self.huge_attack_cooldown = 300
                         self.attack(surface, target, 1.09, hit)
+                # trio
                 case 11:
                     SPEED += 2 * display.scr_w
                     # jump
@@ -478,7 +475,7 @@ class FighterPLAYER:
                 # laser_beam
                 case 7:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
-                                              self.rect.y + self.rect.height * 0.35,
+                                              self.rect.y + self.rect.height * 0.4,
                                               50 * display.scr_w, 50 * display.scr_h)
                     pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
@@ -540,9 +537,19 @@ class FighterPLAYER:
                                                  hg_att * self.rect.width, self.rect.height * 2)
                 # upd action 7
                 case 18:
-                    attacking_rect = pygame.Rect(self.rect.centerx - (hg_att * self.rect.width * self.flip),
-                                                 self.rect.y,
-                                                 hg_att * self.rect.width, self.rect.height)
+                    pygame.mixer.Sound.play(choice(explosion_sounds))
+                    explosion_rect1 = pygame.Rect(self.rect.centerx - (400 * display.scr_w),
+                                                  display.screen_height - 710 * display.scr_h,
+                                                  400 * display.scr_w, 600 * display.scr_h)
+                    explosion_rect2 = pygame.Rect(self.rect.centerx,
+                                                  display.screen_height - 710 * display.scr_h,
+                                                  400 * display.scr_w, 600 * display.scr_h)
+                    offset = 34
+                    if self.flip:
+                        offset = 40
+                    explosion_data = [127, 7.7 * display.scr_w, (offset, 10), [5], self.flip]
+                    create_explosion(explosion_rect1, explosion_data, target, hit)
+                    create_explosion(explosion_rect2, explosion_data, target, hit)
                 # walker splash for upd action 3
                 case 22:
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.4 * self.rect.width * self.flip),
@@ -553,7 +560,7 @@ class FighterPLAYER:
                                                    0.8 * self.rect.width, self.rect.height)
                 # stone attack
                 case 27:
-                    bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
+                    bullet_rect = pygame.Rect(self.rect.right - (self.rect.width * self.flip),
                                               self.rect.y + self.rect.height * 0.35,
                                               100 * display.scr_w, 100 * display.scr_h)
                     pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
@@ -561,12 +568,14 @@ class FighterPLAYER:
                     bullet_data = [200, 0.6 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_stone(bullet_rect, bullet_data, target, hit)
                 case 3:
-                    bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
-                                              self.rect.y + self.rect.height * 0.35,
-                                              50 * display.scr_w, 50 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
-                    offset = 10
-                    bullet_data = [20, 9.1 * display.scr_w, (offset, 10), [2, 2], self.flip]
+                    size = 25
+                    bullet_data = [20, 4.55 * display.scr_w, (10, 6), [2, 2], self.flip]
+                    if self.player == 4:
+                        size = 50
+                        bullet_data = [20, 9.1 * display.scr_w, (10, 6), [2, 2], self.flip]
+                    bullet_rect = pygame.Rect(self.rect.right - (self.rect.width * self.flip),
+                                              self.rect.y + self.rect.height * 0.4,
+                                              size * display.scr_w, size * display.scr_h)
                     create_bullet(bullet_rect, bullet_data, target, hit)
 
             # pygame.draw.rect(surface, (255, 255, 0), attacking_rect)

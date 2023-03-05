@@ -5,23 +5,16 @@ import constants.textures.sprites as sheet
 from lib.display import display
 
 # define fighter variables
-WARRIOR_SIZE = 162
-WARRIOR_SCALE = 9
-WARRIOR_OFFSET = [72, 56]
-WARRIOR_DATA = [WARRIOR_SIZE, WARRIOR_SCALE, WARRIOR_OFFSET]
-MAGE_SIZE = 250
-MAGE_SCALE = 7 * display.scr_h
-MAGE_OFFSET = [112, 110]
-MAGE_DATA = [MAGE_SIZE, MAGE_SCALE, MAGE_OFFSET]
 AKSENOV_SIZE = 486
 AKSENOV_SCALE = 3 * display.scr_h
 AKSENOV_OFFSET = [216, 168]
-AKSENOV_DATA = [AKSENOV_SIZE, AKSENOV_SCALE, AKSENOV_OFFSET]
+AKSENOV_DATA = [AKSENOV_SIZE, AKSENOV_SCALE, AKSENOV_OFFSET, (200 * display.scr_w, 400 * display.scr_h)]
 LISA_SIZE = 486
 LISA_SCALE = 3 * display.scr_h
 LISA_OFFSET = [216, 168]
-LISA_DATA = [LISA_SIZE, LISA_SCALE, LISA_OFFSET]
-GENERAL_DATA = [486, LISA_SCALE, [180, 110]]
+LISA_DATA = [LISA_SIZE, LISA_SCALE, LISA_OFFSET, (200 * display.scr_w, 400 * display.scr_h)]
+GENERAL_DATA = [486, LISA_SCALE, [180, 110], (400 * display.scr_w, 600 * display.scr_h)]
+EGOR_DATA = [486, 1.5 * display.scr_h, [216, 168], (100 * display.scr_w, 200 * display.scr_h)]
 
 # define number of steps in each animation
 WARRIOR_ANIMATION_STEPS = [10, 8, 1, 8, 8, 3, 7]
@@ -76,7 +69,7 @@ def reset_players():
     kingartema = FighterPLAYER(7, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.kingartema,
                                KINGARTEMA_ANIMATION_STEPS,
                                boss_sound, sheet.dumplings)
-    egor = FighterPLAYER(6, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.egor,
+    egor = FighterPLAYER(6, 400 * display.scr_w, 740 * display.scr_h, False, EGOR_DATA, sheet.egor,
                          LISA_ANIMATION_STEPS,
                          human_sound, sheet.blood)
     super_pau = FighterPLAYER(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.super_pau,
@@ -138,7 +131,7 @@ def reset_players():
     kingartema_enemy = FighterEnemy(14, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, sheet.kingartema,
                                     KINGARTEMA_ANIMATION_STEPS,
                                     human_sound, sheet.dumplings)
-    egor_enemy = FighterEnemy(13, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, sheet.egor,
+    egor_enemy = FighterEnemy(13, 1400 * display.scr_w, 740 * display.scr_h, True, EGOR_DATA, sheet.egor,
                               LISA_ANIMATION_STEPS,
                               human_sound, sheet.blood)
     tagir_enemy = FighterEnemy(12, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA,

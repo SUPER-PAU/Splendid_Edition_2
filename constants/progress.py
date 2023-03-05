@@ -36,18 +36,29 @@ pg = [
     (bg.shop, music.streets),  # 28
     (bg.aboba, music.aboba_realm),  # 29
     (bg.city_center, music.city_center),  # 30
-    (bg.parlament, music.parlament),  # 31
-    (bg.parlament, music.city_center),  # 32
-    (bg.buildings, music.valorant_halftrue_remix),  # 33
-    (bg.shop, music.scyscrapers),  # 34
-    (bg.aboba, music.aboba_realm),  # 35
-    (bg.shop, music.lisa_boss),  # 36
-    (bg.city_ruins, music.negrominator_invasion),  # 37
-    (bg.shelter, music.lisa_boss2),  # 38
+    (bg.corporation_lab, music.lower_levels),  # 31
+    (bg.parlament, music.parlament),  # 32
+    (bg.parlament, music.city_center),  # 33
+    (bg.buildings, music.valorant_halftrue_remix),  # 34
+    (bg.shop, music.scyscrapers),  # 35
+    (bg.aboba, music.aboba_realm),  # 36
+    (bg.shop, music.lisa_boss),  # 37
+    (bg.city_ruins, music.negrominator_invasion),  # 38
     (bg.shelter, music.lisa_boss2),  # 39
-    (bg.city_ruins, music.negrominator_invasion),  # 40
-    (bg.explosion, music.final_boss),  # 41
-    (bg.collider_top_1, music.shadow_lord),  # 42
-    (bg.collider_top_2, music.may),  # 42
-    (bg.portal_final_battle, music.titan),  # 42
+    (bg.shelter, music.lisa_boss2),  # 40
+    (bg.city_ruins, music.negrominator_invasion),  # 41
+    (bg.explosion, music.final_boss),  # 42
+    (bg.city_ruins, music.negrominator_invasion),  # 43
+    (bg.destroyed_daun_corp, music.digital_justice),  # 44
+    (bg.destroyed_iskhakov, music.digital_justice),  # 45
+    (bg.corporation_lab, music.lower_levels),  # 46
+    (bg.corporation_lab, music.lower_levels),  # 47
+    (bg.america_rooftops, music.deep_down),  # 48
+    (bg.africa_conveyer, music.war_machines),  # 49
+    (bg.broken_conveyer, music.war_machines),  # 50
+    (bg.american_collider, music.citadel),  # 51
+    (bg.collider_top_1, music.shadow_lord),  # 52
+    (bg.collider_top_2, music.may),  # 53
+    (bg.portal_final_battle, music.titan),  # 54
+    (bg.portal, music.titan),  # 55
 ]

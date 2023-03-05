@@ -1,0 +1,13 @@
+
+# Pycharm
+.idea
+
+# VSCode
+.vscode
+
+# Pyinstaller
+main.spec
+build/
+
+# huge files
+assets/images/cut_scenes/briffing_war.mp4
