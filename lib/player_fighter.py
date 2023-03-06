@@ -570,7 +570,7 @@ class FighterPLAYER:
                 case 3:
                     size = 25
                     bullet_data = [20, 4.55 * display.scr_w, (10, 6), [2, 2], self.flip]
-                    if self.player == 4:
+                    if self.player in [4, 12, 7]:
                         size = 50
                         bullet_data = [20, 9.1 * display.scr_w, (10, 6), [2, 2], self.flip]
                     bullet_rect = pygame.Rect(self.rect.right - (self.rect.width * self.flip),
