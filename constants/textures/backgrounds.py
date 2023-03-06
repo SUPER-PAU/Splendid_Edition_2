@@ -43,7 +43,7 @@ subway = pygame.image.load(r"assets\images\background\subway.png").convert_alpha
 angar2 = pygame.image.load(r"assets\images\background\angar2.png").convert_alpha()
 bulat_lab = pygame.image.load(r"assets\images\background\bulat_lab.png").convert_alpha()
 america_streets = pygame.image.load(r"assets\images\background\america_rooftops.png").convert_alpha()
-destroyed_iskhakov = pygame.image.load(r"assets\images\background\kazanwar.png").convert_alpha()    # 2
+destroyed_iskhakov = pygame.image.load(r"assets\images\background\saratov_ruins.png").convert_alpha()
 american_collider = pygame.image.load(r"assets\images\background\american_collider.png").convert_alpha()
 broken_conveyer = pygame.image.load(r"assets\images\background\broken_conveyer.png").convert_alpha()
 
