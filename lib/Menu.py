@@ -64,7 +64,6 @@ class Button:
         x, y = pygame.mouse.get_pos()
         if self.rect.collidepoint(x, y):
             if self.clicked_image:
-                print(1)
                 display.screen.blit(self.clicked_image, (0, 0))
             self.change_text(self.text, "Black")
             if pygame.mouse.get_pressed()[0] and mouse_click:

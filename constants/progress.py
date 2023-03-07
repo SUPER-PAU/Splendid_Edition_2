@@ -5,7 +5,7 @@ import constants.textures.backgrounds as bg
 # Используется как аргументы для функции check_game_progress() в файле main.py
 #   (bg., music.),
 pg = [
-    (bg.lab_mais_tutorial, music.buildings),    # 0
+    (bg.lab_mais_tutorial, music.lisa_boss),    # 0
     (bg.lab_mais, music.scyscrapers),   # 1
     (bg.kazan_city_2050, music.streets),    # 2
     (bg.kazan_city_2050, music.streets),    # 3
@@ -42,7 +42,7 @@ pg = [
     (bg.buildings, music.valorant_halftrue_remix),  # 34
     (bg.shop, music.scyscrapers),  # 35
     (bg.aboba, music.aboba_realm),  # 36
-    (bg.shop, music.lisa_boss),  # 37
+    (bg.shop, music.the_stranger_i_remain),  # 37
     (bg.city_ruins, music.negrominator_invasion),  # 38
     (bg.shelter, music.lisa_boss2),  # 39
     (bg.shelter, music.lisa_boss2),  # 40
@@ -58,7 +58,7 @@ pg = [
     (bg.broken_conveyer, music.war_machines),  # 50
     (bg.american_collider, music.citadel),  # 51
     (bg.collider_top_1, music.shadow_lord),  # 52
-    (bg.collider_top_2, music.may),  # 53
+    (bg.collider_top_2, music.shadow_throne),  # 53
     (bg.portal_final_battle, music.titan),  # 54
     (bg.portal, music.titan),  # 55
 ]

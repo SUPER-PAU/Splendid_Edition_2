@@ -64,7 +64,10 @@ africa_conveyer = VideoReader(r"assets\images\animated_background\africa_conveye
 portal_final_battle = VideoReader(r"assets\images\animated_background\portal.mp4")
 destroyed_daun_corp = VideoReader(r"assets\images\animated_background\iskhakov_corp_destroyed.mp4")
 
-# cut-scenes
-briff_war = CutScene(r"assets\images\cut_scenes\briffing_war.mp4", r"assets\images\cut_scenes\briffing_war.mp3")
 bgs = [ruins, shop, buildings, broken_robot, lab_mais, parlament, city_ruins, aboba,
        velicolepnoye, shelter, explosion, city_center, yellow, fight_tip]
+
+# cut-scenes
+briff_war = CutScene(r"assets\images\cut_scenes\briffing_war.mp4", r"assets\images\cut_scenes\briffing_war.mp3")
+end_cutscene_1 = CutScene(r"assets\images\cut_scenes\final_cutscene_1.mp4",
+                          r"assets\images\cut_scenes\final_cutscene_1.mp3")

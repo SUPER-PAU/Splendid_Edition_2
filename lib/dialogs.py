@@ -22,29 +22,30 @@ kamil_old = (r"assets\images\dialog\kamil_old_dial.png", "Камиль")
 egor = (r"assets\images\dialog\egor.png", "Егор")
 artem = (r"assets\images\dialog\artem.png", "Артём")  # s
 tagir = (r"assets\images\dialog\tagir 2.png", "Тагир")
-bt25 = (r"assets\images\dialog\bt25.png", "BT25t")  # s
+bt25 = (r"assets\images\dialog\bt25.png", "Bt25t")
 vasisa = (r"assets\images\dialog\vesisa_dial.png", "Васиса")
-USAarmy = (r"assets\images\dialog\soldier_dial.png", "ПехотаСША")
-trio = (r"assets\images\dialog\civil_dial.png", "Трое")  # s
-albina = (r"assets\images\dialog\albina.png", "Альбина")  # s
+USAarmy = (r"assets\images\dialog\soldier_dial.png", "ПехотаСША")    # s
+trio = (r"assets\images\dialog\trio.png", "Трое")
+albina = (r"assets\images\dialog\albina.png", "Альбина")
 bulat = (r"assets\images\dialog\bulat.png", "Булат")
-moiseev_ten = (r'assets\images\dialog\maiseev_ten.png', "Моисеев")  # s
+moiseev_ten = (r'assets\images\dialog\maiseev_ten.png', "Моисеев")
 tagir_butterfly = (r"assets\images\dialog\tagir 1.png", "Тагир")
 artem_old = (r"assets\images\dialog\artem.png", "Артём")  # s
-dumpling = (r"assets\images\dialog\artem.png", "Артём")  # s
-adel = (r"assets\images\dialog\adel.png", "Адель")  # s
-aynur = (r"assets\images\dialog\aynur.png", "Айнур")  # s
-turov = (r"assets\images\dialog\turov.png", "Туров")  # s
-president = (r"assets\images\dialog\civil_dial.png", "Президент")  # s
-minobr = (r"assets\images\dialog\civil_dial.png", "МинОброныГос.")  # s
-kids = (r"assets\images\dialog\civil_dial.png", "Дети на улице")  # s
-moiseev_bot = (r"assets\images\dialog\civil_dial.png", "Моисеев Бот")  # s
+dumpling = (r"assets\images\dialog\dumpling.png", "Артём")
+adel = (r"assets\images\dialog\adel.png", "Адель")
+aynur = (r"assets\images\dialog\aynur.png", "Айнур")
+turov = (r"assets\images\dialog\turov.png", "Туров")
+president = (r"assets\images\dialog\president.png", "Президент")
+minobr = (r"assets\images\dialog\president.png", "МинОброныГос.")
+kids = (r"assets\images\dialog\kids.png", "Дети на улице")
+moiseev_bot = (r"assets\images\dialog\moiseev_bot.png", "Моисеев Бот")
 gos_army = (r"assets\images\dialog\soldier_dial.png", "Государственный Наемник")  # s
 bulat_phone = (r"assets\images\dialog\none.png", "Булат")
 vasisa_in_sphere = (r"assets\images\dialog\none.png", "Голос Васисы")
 question = (r"assets\images\dialog\none.png", "???")
-scientist = (r"assets\images\dialog\civil_dial.png", "Ученый")  # s
-stolberg = (r"assets\images\dialog\civil_dial.png", "Столберг")  # s
+scientist = (r"assets\images\dialog\scientist.png", "Ученый")
+stolberg_early = (r"assets\images\dialog\stolberg.png", "Столберг")
+stolberg = (r"assets\images\dialog\stolberg_old.png", "Столберг")
 vasisa_normal = (r"assets\images\dialog\civil_dial.png", "Васиса")  # s
 
 
@@ -978,14 +979,14 @@ def dialogs_texts():
           (None, "Васиса без труда выбралась из оков. ", bg.corporation_lab),
           (vasisa, "Как мне удалось так легко это сделать?", bg.corporation_lab),
           (None, "В это время мимо камеры с Васисой проходили ученые", bg.corporation_lab),
-          (stolberg, "Вот поэтому нам необходимо досконально изучить это устройство.", bg.corporation_lab),
+          (stolberg_early, "Вот поэтому нам необходимо досконально изучить это устройство.", bg.corporation_lab),
           (scientist, "Друзья! Мы можем забыть о роботах! Тест с Киборгами прошел успешно!", bg.corporation_lab),
           (scientist, ("Нет необходимости производить модель человека, когда можно найти",
                        "живого человека и использовать устройство на нем!"), bg.corporation_lab),
-          (stolberg, "Гений! Это будет дешевле в несколько раз! ", bg.corporation_lab),
+          (stolberg_early, "Гений! Это будет дешевле в несколько раз! ", bg.corporation_lab),
           (scientist, ("Да, но похищать Американцев скоро станет невозможно.",
                        "Их здесь не бесконечность."), bg.corporation_lab),
-          (stolberg, "Мы подумаем над этим.", bg.corporation_lab),
+          (stolberg_early, "Мы подумаем над этим.", bg.corporation_lab),
           (vasisa, "Эй, а кто это?", bg.corporation_lab),
           (None, "ВНИМАНИЕ ПРОПАЖА ПОДОПЫТНОГО. НАЙТИ. ЗАДЕРЖАТЬ. УСТРАНИТЬ. ", bg.corporation_lab)]],
         # 32

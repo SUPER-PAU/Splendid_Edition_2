@@ -31,6 +31,7 @@ collider = r'assets\audio\music\sf\collider.mp3'
 may = r'assets\audio\music\sf\may.mp3'
 deep_down = r'assets\audio\music\sf\deep-down.mp3'
 citadel = r'assets\audio\music\sf\citadel.mp3'
+shadow_throne = r'assets\audio\music\sf\shadow-throne.mp3'
 
 the_only_thing_i_know = r'assets\audio\music\mgrr\the_only_thing_i_know_for_real.mp3'
 the_stains_of_time = r'assets\audio\music\mgrr\the_stains_of_time.mp3'

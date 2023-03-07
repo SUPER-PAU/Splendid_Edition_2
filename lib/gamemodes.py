@@ -48,7 +48,7 @@ class Game:
         self.idx = 0
         self.round_over_time = 1
         self.fighter_id = 0
-        self.GAME_PROGRESS = 54
+        self.GAME_PROGRESS = get_gp()
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -293,7 +293,12 @@ class Game:
                 if self.post_fight_dial:
                     self.post_fight_dial = False
                     self.main_campain_on = False
-                    game_menu.enable()
+                    if self.GAME_PROGRESS == 55:
+                        bg.end_cutscene_1.play()
+                        display.set_fps(24)
+                        self.playing_cutscene = True
+                    else:
+                        game_menu.enable()
                 self.intro_count = 4
                 return
 
@@ -488,7 +493,9 @@ class Game:
             key = pygame.key.get_pressed()
             if key[pygame.K_c]:
                 bg.briff_war.stop()
-        elif not bg.briff_war.is_playing() and self.playing_cutscene is True:
+        elif bg.end_cutscene_1.is_playing():
+            bg.end_cutscene_1.draw()
+        elif self.playing_cutscene is True:
             self.playing_cutscene = False
             game_menu.enable()
             display.set_fps(60)
