@@ -389,7 +389,7 @@ class CreateBombing:
             a = random.randint(int(50 * display.scr_w), int(1800 * display.scr_w))
             bullet_rect = pygame.Rect(a, -400, 100 * display.scr_w, 100 * display.scr_h)
             ScyRocket(bullet_rect, rocket, self.data, target, 10)
-            self.attack_cooldown = 200
+            self.attack_cooldown = 300
         else:
             self.attack_cooldown -= 1
 

@@ -551,7 +551,7 @@ class FighterEnemy:
                     if bot_attack_check_rect.colliderect(target.rect):
                         if self.shield_cooldown == 0 and game_progress > 15:
                             self.attack_type = 14
-                            hit = 35
+                            hit = 25
                             self.attack(surface, target, 1.5, hit)
                         else:
                             self.attack_type = 22
@@ -904,11 +904,11 @@ class FighterEnemy:
                                                  self.rect.y * 1.35,
                                                  self.rect.width, self.rect.height)
                     hit = 15
-                    self.heal(40)
+                    self.heal(40 * settings.get_difficulty())
                     # ranged
                 # walker splash for upd action 3
                 case 22:
-                    attacking_rect = pygame.Rect(self.rect.centerx - (1.4 * self.rect.width * self.flip),
+                    attacking_rect = pygame.Rect(self.rect.centerx - (1.2 * self.rect.width * self.flip),
                                                  self.rect.y + self.rect.height * 0.6,
                                                  1.4 * self.rect.width, self.rect.height * 0.4)
                     attacking_rect_2 = pygame.Rect(self.rect.centerx - (0.8 * self.rect.width * self.flip),

@@ -216,20 +216,20 @@ class FighterPLAYER:
                 # egor
                 case 6:
                     # movement
-                    SPEED += 3 * display.scr_w
+                    SPEED += 4 * display.scr_w
                     # jump
                     if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
-                        self.vel_y = -42 * display.scr_h
+                        self.vel_y = -52 * display.scr_h
                         self.jump = True
                     # attack
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
                         # determine attack
                         if key[pygame.K_r] or mouse_left:
                             self.attack_type = 5
-                            hit = 17
+                            hit = 22
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 2
-                            hit = 12
+                            hit = 17
                         self.attack(surface, target, 1.3, hit)
                 # tagir
                 case 5:

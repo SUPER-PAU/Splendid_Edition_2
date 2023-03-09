@@ -30,7 +30,7 @@ albina = (r"assets\images\dialog\albina.png", "Альбина")
 bulat = (r"assets\images\dialog\bulat.png", "Булат")
 moiseev_ten = (r'assets\images\dialog\maiseev_ten.png', "Моисеев")
 tagir_butterfly = (r"assets\images\dialog\tagir 1.png", "Тагир")
-artem_old = (r"assets\images\dialog\artem.png", "Артём")  # s
+artem_old = (r"assets\images\dialog\artem_old.png", "Артём")  # s
 dumpling = (r"assets\images\dialog\dumpling.png", "Артём")
 adel = (r"assets\images\dialog\adel.png", "Адель")
 aynur = (r"assets\images\dialog\aynur.png", "Айнур")
@@ -666,12 +666,12 @@ def dialogs_texts():
           (None, "Здание стояло прямо перед Пау.", bg.iskhakov_industries),
           (pau, "Эта тварь далеко не ушла.", bg.iskhakov_industries),
           (None, "Семён зашел в здание. Внутри был администратор.", bg.iskhakov_industries),
-          (artestro, "О, первый посетитель! Как мы можем вам помочь?", bg.iskhakov_industries),
+          (artestro, "О, первый посетитель! Чем мы можем вам помочь?", bg.iskhakov_industries),
           (semen, "Мне нужно найти Булата.", bg.iskhakov_industries),
-          (artestro, "69 этаж.", bg.iskhakov_industries),
+          (artestro, "-69 этаж.", bg.iskhakov_industries),
           (semen, "Спасибо!", bg.iskhakov_industries)
           ],
-         [(None, "Семён поднялся вверх по лифту по лифту. Дверки открылись.", bg.black),
+         [(None, "Семён поднялся вниз по лифту. Дверки открылись.", bg.black),
           (bulat, "Я же сказал, ужин только через час!", bg.bulat_lab),
           (pau, "Ах, хорошо, сейчас уйду!)", bg.bulat_lab),
           (bulat, ("Семен! Искать меня – грозить человечеству смертью!",
@@ -729,8 +729,9 @@ def dialogs_texts():
                    "этой страны, и когда у меня будет достаточно войск, я отправлю их в Америку!"), bg.bulat_lab),
           (dumpling, "Ну допустим.", bg.bulat_lab),
           (trio, "И как ты собираешься это сделать?", bg.bulat_lab),
-          (bulat, "Сделаю ОГРОМНОГО РАЗРУШИТЕЛЬНОГО РОБОТА! А хотя..."
-                  "Он у меня уже есть. *Походу я понял куда делось мое разрушительное оружие в 22-м.*", bg.bulat_lab),
+          (bulat, ("Сделаю ОГРОМНОГО РАЗРУШИТЕЛЬНОГО РОБОТА! А хотя...",
+                  "Он у меня уже есть. *Походу я понял куда делось мое",
+                  "разрушительное оружие в 22-м.*"), bg.bulat_lab),
           (bulat, ("Нет... Если я сделаю..., то это значит... НЕТ. МОЙ ПЛАН - ЛУЧШИЙ.",
                    "Просто предшественник допустил... оплошность."), bg.bulat_lab),
           (bt25, "Разве это не ГЕНОЦИД?", bg.bulat_lab),
@@ -841,13 +842,12 @@ def dialogs_texts():
           (moiseev, "Да, Спасибо. До свидания. Вам тоже удачи.", bg.broken_robot),
           (moiseev, "Похоже я нашел то, что искал. Этим можно заняться!", bg.broken_robot),
           (moiseev, "Ну-ка что там написано?", bg.broken_robot),
-          (None, '"ABOBA OS"', bg.black),
+          (None, '"ABOBA OS"', bg.black)
           ],
          [(aksenov, 'Где я?', bg.broken_robot), (aksenov, 'Что произошло?', bg.broken_robot),
           (aksenov, 'Где Булат?', bg.broken_robot), (aksenov, '... *Он* убил его?', bg.broken_robot),
           (aksenov, "Если это так, то мне нужно уходить отсюда.", bg.broken_robot),
-          (aks_mech, "ВОТ ЧЁРТ, АРМИЯ ГОСУДАРСТВА!", bg.broken_robot),
-          (None, '', bg.fight_tip)]],
+          (aks_mech, "ВОТ ЧЁРТ, АРМИЯ ГОСУДАРСТВА!", bg.broken_robot)]],
         # 27
         [[(aksenov, 'Мне нужно убираться отсюда куда подальше.', bg.broken_robot),
           (aksenov, 'Я не могу позволить ему забрать абобу.', bg.broken_robot),

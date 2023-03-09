@@ -194,6 +194,7 @@ class OptionsMenu:
                                          (600 * scr_w, 800 * scr_h), "БОТИК", EASY_BUTTON)
         self.normal_mode = Button((500 * scr_w, 100 * scr_h),
                                           (1200 * scr_w, 800 * scr_h), "NORMAL", NORMAL_BUTTON)
+
         self.bg = bg
         self.enabled = False
 
