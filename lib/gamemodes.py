@@ -48,7 +48,7 @@ class Game:
         self.idx = 0
         self.round_over_time = 1
         self.fighter_id = 0
-        self.GAME_PROGRESS = 25
+        self.GAME_PROGRESS = get_gp()
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -391,11 +391,11 @@ class Game:
                       20 * display.scr_w,
                       80 * display.scr_h)
 
-            draw_text(f"{f2_names[self.fighter_id]}: {str(self.score[1])} / {1}", font, color.black,
+            draw_text(f"{f2_names[self.fighter_id]}: {str(self.score[1])} / {rounds}", font, color.black,
                       1097 * display.scr_w,
                       83 * display.scr_h)
-            draw_text(f"{f2_names[self.fighter_id]}: {str(self.score[1])} / {1}", font, color.red, 1100 * display.scr_w,
-                      80 * display.scr_h)
+            draw_text(f"{f2_names[self.fighter_id]}: {str(self.score[1])} / {rounds}", font, color.red,
+                      1100 * display.scr_w, 80 * display.scr_h)
             # update fighters
             fighter1.update()
             fighter2.update()
@@ -437,7 +437,7 @@ class Game:
                     fighter2.reset_params()
                     self.fighter_id = self.score[0]
                     self.intro_count = 4
-                    if self.score[1] >= 1:
+                    if self.score[1] >= rounds:
                         self.score = [0, 0]
                         self.fighter_id = 0
                         self.final_round_over = True
