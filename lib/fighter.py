@@ -1,10 +1,13 @@
 import pygame
 from random import randint, choice
+
+from lib.attack import Attack
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_beam, create_rocket, create_bombing, \
     create_energy, create_stone, create_damage_number, create_explosion
 from constants.audio.effects import shield_sfx, shield_on_sfx, explosion_sounds
 from lib.Settings import settings
+from constants.textures.sprites import shield_parts, dust
 
 player_spec = [7, 8, 10, 11, 1, 15, 16, 18, 22, 25]
 player_attack3 = [1, 15, 16, 18, 22]
@@ -13,9 +16,9 @@ bomb_levels = [7, 15, 16, 23, 41, 45]
 
 
 class FighterEnemy:
-    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite,
-                 specified_particle=None):
+    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, attack_frame):
         self.data = data
+        self.attack_frame = attack_frame
         self.player, self.size, self.image_scale, self.offset = player, data[0], data[1], data[2]
         self.start_pos = (x, y, flip)
         self.flip = flip
@@ -37,7 +40,7 @@ class FighterEnemy:
         self.jump_cooldown = 100
         self.shield_cooldown = 200
         self.health = 100
-        self.hurt_sfx, self.particle, self.specified_particle = hurt_fx, particle_sprite, specified_particle
+        self.hurt_sfx, self.particle = hurt_fx, particle_sprite
         self.hit = False
         self.shield_on = False
         self.invisibility = False
@@ -328,7 +331,7 @@ class FighterEnemy:
                             self.invisibility = True
                             shield_sfx.play()
                             self.heal(30)
-                            create_particles((self.rect.centerx, self.rect.top), self.flip, self.specified_particle)
+                            create_particles((self.rect.centerx, self.rect.top), self.flip, dust)
                         elif attack_rand == 1:
                             self.attack_type = 1
                             hit = 19
@@ -775,7 +778,7 @@ class FighterEnemy:
         if self.attack_cooldown == 0 and not self.hit:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)
-            attacking_rect = pygame.Rect(0, 0, 0, 0)
+            attacking_rect = None
 
             hit = int(hit * settings.get_difficulty())
 
@@ -866,7 +869,6 @@ class FighterEnemy:
                     bullet_rect = pygame.Rect(self.rect.centerx + (a * display.scr_w),
                                               self.rect.top,
                                               100 * display.scr_w, 100 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     bullet_data = [200, 0.6 * display.scr_w, (10, 10), [2, 2], self.flip]
                     create_rocket(bullet_rect, bullet_data, target, hit)
                 # tagir dash
@@ -919,7 +921,6 @@ class FighterEnemy:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                               self.rect.y * 1.6,
                                               50 * display.scr_w, 50 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
                     bullet_data = [20, 9.1 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_beam(bullet_rect, bullet_data, target, hit)
@@ -937,7 +938,6 @@ class FighterEnemy:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                               self.rect.y * 1.35,
                                               100 * display.scr_w, 100 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
                     bullet_data = [200, 0.6 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_rocket(bullet_rect, bullet_data, target, hit)
@@ -955,7 +955,6 @@ class FighterEnemy:
                     bullet_rect = pygame.Rect(self.rect.centerx,
                                               self.rect.y * 1.8,
                                               50 * display.scr_w, 50 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
                     bullet_data = [20, 9.1 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_bullet(bullet_rect, bullet_data, target, hit)
@@ -964,7 +963,6 @@ class FighterEnemy:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                               self.rect.y + self.rect.height * 0.35,
                                               100 * display.scr_w, 100 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
                     bullet_data = [200, 0.8 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_energy(bullet_rect, bullet_data, target, hit)
@@ -981,7 +979,6 @@ class FighterEnemy:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                               self.rect.y + self.rect.height * 0.35,
                                               100 * display.scr_w, 100 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
                     bullet_data = [200, 0.6 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_stone(bullet_rect, bullet_data, target, hit)
@@ -1005,10 +1002,8 @@ class FighterEnemy:
             # pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
             # pygame.draw.rect(surface, (255, 255, 0), attacking_rect_2)
             # take damage
-            if attacking_rect.colliderect(target.rect) or attacking_rect_2.colliderect(target.rect):
-                target.take_damage(hit)
-                if self.attack_type == 11:
-                    target.stun()
+            if attacking_rect:
+                Attack(self, attacking_rect, attacking_rect_2, target, hit)
 
     def update_action(self, new_action):
         # check if the new action is different to the previous one
@@ -1118,4 +1113,4 @@ class FighterEnemy:
         else:
             self.shield_on = False
             shield_sfx.play()
-            create_particles((self.rect.centerx, self.rect.top), self.flip, self.specified_particle)
+            create_particles((self.rect.centerx, self.rect.top), self.flip, shield_parts)

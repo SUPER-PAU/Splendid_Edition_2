@@ -5,6 +5,8 @@ from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_rocket, create_stone, \
     create_damage_number, create_beam, create_explosion
 from constants.audio.effects import shield_sfx, explosion_sounds
+from constants.textures.sprites import shield_parts
+from lib.attack import Attack
 
 player_spec = [1, 9, 12]
 player_attack3 = [1, 9]
@@ -12,10 +14,10 @@ player_shield = [9]
 
 
 class FighterPLAYER:
-    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite,
-                 specified_particle=None):
+    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, attack_frame):
         self.data = data
         self.player, self.size, self.image_scale, self.offset = player, data[0], data[1], data[2]
+        self.attack_frame = attack_frame
         self.start_pos = x, y, flip
         self.flip = flip
         self.animation_list = self.load_images(sprite_sheet, animation_steps)
@@ -38,7 +40,7 @@ class FighterPLAYER:
         self.health = 100
         self.dash_x = 0
         self.stunned = 0
-        self.hurt_sfx, self.particle, self.specified_particle = hurt_fx, particle_sprite, specified_particle
+        self.hurt_sfx, self.particle = hurt_fx, particle_sprite
         self.hit = False
         self.shield_on = False
         self.alive = True
@@ -442,7 +444,7 @@ class FighterPLAYER:
         if self.attack_cooldown == 0 and not self.hit:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)
-            attacking_rect = pygame.Rect(0, 0, 0, 0)
+            attacking_rect = None
 
             # att 1
             match self.attack_type:
@@ -454,7 +456,7 @@ class FighterPLAYER:
                 # att 2
                 case 2:
                     attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y,
-                                                 2 * self.rect.width, self.rect.height * 2)
+                                                 2 * self.rect.width, self.rect.height)
                 # att 1
                 case 4:
                     attacking_rect = pygame.Rect(self.rect.centerx - (2.5 * self.rect.width * self.flip), self.rect.y,
@@ -477,7 +479,6 @@ class FighterPLAYER:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                               self.rect.y + self.rect.height * 0.4,
                                               50 * display.scr_w, 50 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
                     bullet_data = [20, 9.1 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_beam(bullet_rect, bullet_data, target, hit)
@@ -499,7 +500,6 @@ class FighterPLAYER:
                     bullet_rect = pygame.Rect(self.rect.centerx + (a * display.scr_w),
                                               self.rect.top,
                                               100 * display.scr_w, 100 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     bullet_data = [200, 0.6 * display.scr_w, (10, 10), [2, 2], self.flip]
                     create_rocket(bullet_rect, bullet_data, target, hit)
                 #  dash bt
@@ -563,7 +563,6 @@ class FighterPLAYER:
                     bullet_rect = pygame.Rect(self.rect.right - (self.rect.width * self.flip),
                                               self.rect.y + self.rect.height * 0.35,
                                               100 * display.scr_w, 100 * display.scr_h)
-                    pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
                     offset = 10
                     bullet_data = [200, 0.6 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_stone(bullet_rect, bullet_data, target, hit)
@@ -586,8 +585,8 @@ class FighterPLAYER:
                 self.same_attack_count = 0
             self.temp_attack = self.attack_type
             # take damage
-            if attacking_rect.colliderect(target.rect) or attacking_rect_2.colliderect(target.rect):
-                target.take_damage(hit)
+            if attacking_rect:
+                Attack(self, attacking_rect, attacking_rect_2, target, hit)
             # punish player for spamming same attacks)))) heheheha!
             if self.same_attack_count == 3 and target.player != 10:
                 target.hit = False
@@ -698,4 +697,4 @@ class FighterPLAYER:
         else:
             self.shield_on = False
             shield_sfx.play()
-            create_particles((self.rect.centerx, self.rect.top), self.flip, self.specified_particle)
+            create_particles((self.rect.centerx, self.rect.top), self.flip, shield_parts)

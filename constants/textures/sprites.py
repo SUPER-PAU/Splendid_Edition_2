@@ -16,6 +16,7 @@ artestro = pygame.image.load(r"assets\images\main hero\Sprites\artestro.png").co
 general = pygame.image.load(r"assets\images\main hero\Sprites\generall.png").convert_alpha()
 super_pau = pygame.image.load(r"assets\images\main hero\Sprites\SUPERPAUK.png").convert_alpha()
 super_pau_boss = pygame.image.load(r"assets\images\main hero\Sprites\Superpau.png").convert_alpha()
+SUPER_PAU = pygame.image.load(r"assets\images\main hero\Sprites\SUPER_PAU.png").convert_alpha()
 bt25t = pygame.image.load(r"assets\images\main hero\Sprites\bt.png").convert_alpha()
 moiseev = pygame.image.load(r"assets\images\main hero\Sprites\moiseev.png").convert_alpha()
 tagir = pygame.image.load(r"assets\images\main hero\Sprites\tagir.png").convert_alpha()

@@ -78,8 +78,8 @@ class Button:
 class MainMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.start_button = Button(
-            (902 * scr_w, 112 * scr_h),
-            (507 * scr_w, 0 * scr_h), "НАЧАТЬ", PLAY_BUTTON)
+            (211 * scr_w, 205 * scr_h),
+            (1003 * scr_w, 341 * scr_h), "", PLAY_BUTTON)
         self.exit_button = Button(
             (503 * scr_w, 28 * scr_h),
             (1416 * scr_w, 0 * scr_h), "выход")

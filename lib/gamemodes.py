@@ -460,7 +460,7 @@ class Game:
             if choose_mode_menu.exit_button.is_clicked():
                 choose_mode_menu.disable()
                 game_menu.enable()
-            if choose_mode_menu.campain_button.is_clicked():
+            if choose_mode_menu.campain_button.is_clicked() and not self.GAME_PROGRESS > 54:
                 self.main_campain_on = True
                 self.final_round_over = True
                 choose_mode_menu.disable()
