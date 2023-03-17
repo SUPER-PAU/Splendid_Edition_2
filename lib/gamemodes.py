@@ -107,7 +107,7 @@ class Game:
             case 16:
                 self.fight(fighter.bt25t, fighter.soldier, 2, "Bt25t", "USA Soldier")
             case 17:
-                self.fight(fighter.egor, fighter.moiseev_bot, 3, "Egor", "Moiseev Bot")
+                self.fight(fighter.egor, fighter.moiseev_bot, 2, "Egor", "Moiseev Bot")
             case 18:
                 self.fight_survival([fighter.super_pau, fighter.super_pau, fighter.super_pau, fighter.super_pau,
                                      fighter.super_pau, fighter.super_pau],

@@ -383,6 +383,7 @@ class FighterPLAYER:
             self.health = 0
             self.alive = False
             self.hit = False
+            self.attacking = False
             self.update_action(6)  # death
         elif self.hit:
             self.update_action(5)  # hit
