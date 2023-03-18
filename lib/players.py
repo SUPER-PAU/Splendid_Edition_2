@@ -12,6 +12,7 @@ AKSENOV_DATA = [AKSENOV_SIZE, AKSENOV_SCALE, AKSENOV_OFFSET, (200 * display.scr_
 LISA_SIZE = 486
 LISA_SCALE = 3 * display.scr_h
 LISA_OFFSET = [216, 168]
+KINGARTEMA_DATA = [LISA_SIZE, LISA_SCALE, [216, 155], (200 * display.scr_w, 450 * display.scr_h)]
 LISA_DATA = [LISA_SIZE, LISA_SCALE, LISA_OFFSET, (200 * display.scr_w, 400 * display.scr_h)]
 GENERAL_DATA = [486, LISA_SCALE, [180, 110], (400 * display.scr_w, 600 * display.scr_h)]
 EGOR_DATA = [486, 1.5 * display.scr_h, [216, 168], (100 * display.scr_w, 200 * display.scr_h)]
@@ -67,7 +68,7 @@ def reset_players():
     vasisa = FighterPLAYER(8, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.vesisa,
                            LISA_ANIMATION_STEPS,
                            woman_sound, sheet.blood, [2, 2])
-    kingartema = FighterPLAYER(7, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.kingartema,
+    kingartema = FighterPLAYER(7, 400 * display.scr_w, 540 * display.scr_h, False, KINGARTEMA_DATA, sheet.kingartema,
                                KINGARTEMA_ANIMATION_STEPS,
                                boss_sound, sheet.dumplings, [2, 2])
     egor = FighterPLAYER(6, 400 * display.scr_w, 740 * display.scr_h, False, EGOR_DATA, sheet.egor,
@@ -129,7 +130,8 @@ def reset_players():
     vasisa_enemy = FighterEnemy(15, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, sheet.vesisa,
                                 LISA_ANIMATION_STEPS,
                                 woman_sound, sheet.blood, [2, 2])
-    kingartema_enemy = FighterEnemy(14, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, sheet.kingartema,
+    kingartema_enemy = FighterEnemy(14, 1400 * display.scr_w, 540 * display.scr_h, True, KINGARTEMA_DATA,
+                                    sheet.kingartema,
                                     KINGARTEMA_ANIMATION_STEPS,
                                     human_sound, sheet.dumplings, [2, 2])
     egor_enemy = FighterEnemy(13, 1400 * display.scr_w, 740 * display.scr_h, True, EGOR_DATA, sheet.egor,

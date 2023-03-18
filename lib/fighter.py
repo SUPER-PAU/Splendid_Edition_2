@@ -354,10 +354,10 @@ class FighterEnemy:
                     if bot_attack_check_rect.colliderect(target.rect):
                         # determine attack
                         self.attack_type = 16
-                        hit = 12
+                        hit = 8
                         if self.shield_cooldown <= 0:
                             self.attack_type = 3
-                            hit = 28
+                            hit = 20
                         self.attack(surface, target, 1.5, hit)
                     self.move_ai((1.2, 1.3), (1.13, 1), SPEED, target)
                 # egor
