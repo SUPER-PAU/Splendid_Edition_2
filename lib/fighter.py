@@ -1101,7 +1101,7 @@ class FighterEnemy:
     def stun(self):
         self.stunned = 50
 
-    def take_damage(self, hit):
+    def take_damage(self, hit, block_break=False):
         if not self.shield_on:
             self.health -= hit
             self.hit = True

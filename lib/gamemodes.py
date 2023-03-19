@@ -48,7 +48,7 @@ class Game:
         self.idx = 0
         self.round_over_time = 1
         self.fighter_id = 0
-        self.GAME_PROGRESS = get_gp()
+        self.GAME_PROGRESS = 22
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])

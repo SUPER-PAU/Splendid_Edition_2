@@ -3,6 +3,7 @@ from lib.player_fighter import FighterPLAYER
 from constants.audio.effects import bt_sound, human_sound, woman_sound, boss_sound
 import constants.textures.sprites as sheet
 from lib.display import display
+from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
 
 # define fighter variables
 AKSENOV_SIZE = 486
@@ -29,7 +30,7 @@ NEGROMINATOR_ANIMATION_STEPS = [8, 8, 1, 7, 5, 3, 6]
 GENERAL_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
 WALKER_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
 SUPER_PAU_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 4]
-SUPER_PAU_PLAYER_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 8]
+SUPER_PAU_PLAYER_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 6, 7, 8]
 SUPER_PAU_BOSS_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 7]
 BULAT_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6, 7]
 bt25_animation_steps = [10, 3, 1, 7, 4, 3, 7]
@@ -74,7 +75,7 @@ def reset_players():
     egor = FighterPLAYER(6, 400 * display.scr_w, 740 * display.scr_h, False, EGOR_DATA, sheet.egor,
                          LISA_ANIMATION_STEPS,
                          human_sound, sheet.blood, [2, 3])
-    super_pau = FighterPLAYER(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.SUPER_PAU,
+    super_pau = SuperPauPlayer(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA,
                               SUPER_PAU_PLAYER_ANIMATION_STEPS, human_sound,
                               sheet.blood, [2, 3, 6])
     lisa = FighterPLAYER(2, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.lisa,
