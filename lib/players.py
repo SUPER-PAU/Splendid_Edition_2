@@ -77,10 +77,18 @@ def reset_players():
     egor = FighterPLAYER(6, 400 * display.scr_w, 740 * display.scr_h, False, EGOR_DATA, sheet.egor,
                          LISA_ANIMATION_STEPS,
                          human_sound, sheet.blood, [2, 3])
-    super_pau = SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.super_pau_2,
+    super_pau = FighterPLAYER(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.SUPER_PAU,
+                              SUPER_PAU_PLAYER_ANIMATION_STEPS, human_sound,
+                              sheet.blood, [2, 3, 6])
+    lisa = FighterPLAYER(2, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.lisa,
+                         LISA_ANIMATION_STEPS,
+                         woman_sound,
+                         sheet.blood, [2, 1])
+    super_pau_online = SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.super_pau_2,
                                SUPER_PAU_PLAYER_ANIMATION_STEPS, human_sound,
                                sheet.blood, [2, 3, 6])
-    lisa = LisaPlayer(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA,
+
+    lisa_online = LisaPlayer(1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA,
                       LISA_2_ANIMATION_STEPS,
                       woman_sound,
                       sheet.blood, [2, 1, 3])

@@ -151,7 +151,7 @@ class Game:
                                      "Trio", "Flying El. Dumpling (Kingartema)", "Flying El. Dumpling (Kingartema)",
                                      "NightButterfly (Tagir)", "NightButterfly (Tagir)"])
             case 25:
-                self.fight(fighter.lisa, fighter.lisa_boss, 4, 'Super PAU', "Bulat")
+                self.fight(fighter.super_pau, fighter.lisa_boss, 4, 'Super PAU', "Bulat")
             case 26:
                 self.fight(fighter.aksenov, fighter.soldier, 2, "Aksenov", "soldier"),
             case 27:
