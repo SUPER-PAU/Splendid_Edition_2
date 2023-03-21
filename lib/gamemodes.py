@@ -48,7 +48,7 @@ class Game:
         self.idx = 0
         self.round_over_time = 1
         self.fighter_id = 0
-        self.GAME_PROGRESS = 22
+        self.GAME_PROGRESS = 25
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -151,7 +151,7 @@ class Game:
                                      "Trio", "Flying El. Dumpling (Kingartema)", "Flying El. Dumpling (Kingartema)",
                                      "NightButterfly (Tagir)", "NightButterfly (Tagir)"])
             case 25:
-                self.fight(fighter.super_pau, fighter.bulat_enemy, 4, 'Super PAU', "Bulat")
+                self.fight(fighter.lisa, fighter.lisa_boss, 4, 'Super PAU', "Bulat")
             case 26:
                 self.fight(fighter.aksenov, fighter.soldier, 2, "Aksenov", "soldier"),
             case 27:

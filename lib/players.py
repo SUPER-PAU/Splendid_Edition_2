@@ -3,6 +3,7 @@ from lib.player_fighter import FighterPLAYER
 from constants.audio.effects import bt_sound, human_sound, woman_sound, boss_sound
 import constants.textures.sprites as sheet
 from lib.display import display
+from lib.players_data.LISA_PLAYER import LisaPlayer
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
 
 # define fighter variables
@@ -23,6 +24,7 @@ WARRIOR_ANIMATION_STEPS = [10, 8, 1, 8, 8, 3, 7]
 MAGE_ANIMATION_STEPS = [8, 8, 1, 5, 5, 3, 7]
 AKSENOV_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6]
 LISA_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6]
+LISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 10]
 KINGARTEMA_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 7]
 SOLDIER_ANIMATION_STEPS = [8, 8, 1, 7, 4, 3, 6]
 YACUGI_ANIMATION_STEPS = [8, 8, 1, 5, 7, 3, 6]
@@ -55,8 +57,8 @@ def reset_players():
     # restore fighter param
     # player
     bt_final_battle = FighterPLAYER(12, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.bt25t,
-                              bt25_animation_steps,
-                              bt_sound, sheet.bt_parts, [0, 2])
+                                    bt25_animation_steps,
+                                    bt_sound, sheet.bt_parts, [0, 2])
     trio = FighterPLAYER(11, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.trio,
                          LISA_ANIMATION_STEPS,
                          human_sound, sheet.blood, [3, 2])
@@ -75,13 +77,13 @@ def reset_players():
     egor = FighterPLAYER(6, 400 * display.scr_w, 740 * display.scr_h, False, EGOR_DATA, sheet.egor,
                          LISA_ANIMATION_STEPS,
                          human_sound, sheet.blood, [2, 3])
-    super_pau = SuperPauPlayer(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA,
-                              SUPER_PAU_PLAYER_ANIMATION_STEPS, human_sound,
-                              sheet.blood, [2, 3, 6])
-    lisa = FighterPLAYER(2, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.lisa,
-                         LISA_ANIMATION_STEPS,
-                         woman_sound,
-                         sheet.blood, [2, 1])
+    super_pau = SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.super_pau_2,
+                               SUPER_PAU_PLAYER_ANIMATION_STEPS, human_sound,
+                               sheet.blood, [2, 3, 6])
+    lisa = LisaPlayer(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA,
+                      LISA_2_ANIMATION_STEPS,
+                      woman_sound,
+                      sheet.blood, [2, 1, 3])
     aksenov = FighterPLAYER(3, 400 * display.scr_w, 540 * display.scr_h, False, AKSENOV_DATA, sheet.aksenov,
                             LISA_ANIMATION_STEPS,
                             woman_sound, sheet.blood, [2, 2])
@@ -94,12 +96,12 @@ def reset_players():
                           human_sound, sheet.blood, [0, 2])
     # enemy
     bt25t_enemy = FighterEnemy(25, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, sheet.bt25t,
-                          bt25_animation_steps,
-                          bt_sound, sheet.bt_parts, [0, 2])
+                               bt25_animation_steps,
+                               bt_sound, sheet.bt_parts, [0, 2])
     moiseev_bot = FighterEnemy(24, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA,
-                           sheet.moiseev_bot,
-                           SOLDIER_ANIMATION_STEPS, human_sound,
-                           sheet.electricity, [3, 1])
+                               sheet.moiseev_bot,
+                               SOLDIER_ANIMATION_STEPS, human_sound,
+                               sheet.electricity, [3, 1])
     albinos = FighterEnemy(23, 1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA,
                            sheet.albinos,
                            LISA_ANIMATION_STEPS, woman_sound,

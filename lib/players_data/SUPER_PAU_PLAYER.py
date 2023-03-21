@@ -1,17 +1,17 @@
 import pygame
+
 from lib.player_fighter import FighterPLAYER
 from random import choice
 
 from lib.display import display
 from lib.particle import create_particles, create_damage_number
 from constants.audio.effects import shield_sfx
-from constants.textures.sprites import shield_parts, super_pau_2
-from lib.attack import Attack
+from constants.textures.sprites import shield_parts, bullet_sprites
 
 
 class SuperPauPlayer(FighterPLAYER):
-    def __init__(self, x, y, flip, data, animation_steps, hurt_fx, particle_sprite, attack_frame):
-        super().__init__(1, x, y, flip, data, super_pau_2, animation_steps, hurt_fx, particle_sprite, attack_frame)
+    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, attack_frame):
+        super().__init__(player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, attack_frame)
         self.sprint = False
 
     def move(self, surface, target, round_over):
@@ -228,3 +228,31 @@ class SuperPauPlayer(FighterPLAYER):
             self.shield_on = False
             shield_sfx.play()
             create_particles((self.rect.centerx, self.rect.top), self.flip, shield_parts)
+
+
+class Attack(pygame.sprite.Sprite):
+    def __init__(self, player, rect, rect2, target, damage, block_break=False):
+        super().__init__(bullet_sprites)
+        match player.attack_type:
+            case 1:  # attack1
+                self.attack_frame = player.attack_frame[0]
+            case 2:  # attack 2
+                self.attack_frame = player.attack_frame[1]
+            # 3rd attack
+            case 3:
+                self.attack_frame = player.attack_frame[2]
+        self.block_break = block_break
+        self.rect, self.rect2 = rect, rect2
+        self.player = player
+        self.target = target
+        self.damage = damage
+        self.hit = False
+
+    def update(self):
+        if self.player.attacking and not self.hit and not self.player.hit:
+            if self.attack_frame == self.player.frame_index:
+                if self.rect.colliderect(self.target.rect) or self.rect2.colliderect(self.target.rect):
+                    self.target.take_damage(self.damage, self.block_break)
+                    self.hit = True
+        else:
+            self.kill()
