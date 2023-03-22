@@ -39,7 +39,7 @@ while game.aplication_run:
         if event.type == frame_timer:
             new_frame = True
 
-    game.game_navigation(keyboard_click, mouse_click)
+    game.game_navigation(keyboard_click, mouse_click, new_frame)
     pygame.display.flip()
     # Обновление кадра дисплея
     pygame.display.update()

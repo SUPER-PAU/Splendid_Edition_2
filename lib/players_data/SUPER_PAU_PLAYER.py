@@ -98,9 +98,15 @@ class SuperPauPlayer(PLAYER):
             self.rect.y += dy
         # apply attack cooldown
         if self.attack_cooldown > 0 and new_frame:
-            self.attack_cooldown -= 1
+            if self.player == 1:
+                self.attack_cooldown -= 0.7
+            else:
+                self.attack_cooldown -= 1
         if self.huge_attack_cooldown > 0 and new_frame:
-            self.huge_attack_cooldown -= 1
+            if self.player == 1:
+                self.huge_attack_cooldown -= 0.7
+            else:
+                self.huge_attack_cooldown -= 1
 
     def check_action(self):
         # check what action the player is performing

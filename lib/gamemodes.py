@@ -366,7 +366,7 @@ class Game:
         # update countdown
         if self.intro_count <= 0:
             # move fighter
-            fighter1.move(display.screen, fighter2, self.round_over)
+            fighter1.move(display.screen, fighter2, self.round_over, new_frame)
         elif not fighter2.is_ready():
             draw_text("Waiting for player...", count_font, color.red, display.screen_width / 2 - 280 * display.scr_w,
                       150 * display.scr_h)

@@ -12,7 +12,7 @@ import pygame
 
 class LisaPlayer(SuperPauPlayer):
     def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(1, x, y, flip, data, attack_frame)
+        super().__init__(2, x, y, flip, data, attack_frame)
 
     def draw_round_statistic(self, name, rounds, font):
         draw_text(f"{name}: {rounds} / {3}", font, black, 1097 * display.scr_w,
