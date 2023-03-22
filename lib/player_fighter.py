@@ -31,6 +31,7 @@ class FighterPLAYER:
         self.dashing = False
         self.jump = False
         self.attacking = False
+        self.blocking = False
         self.attack_type = 0
         self.attack_cooldown = 0
         self.same_attack_count = 0
@@ -64,6 +65,7 @@ class FighterPLAYER:
         self.shield_on = False
         self.dashing = False
         self.alive = True
+        self.blocking = False
         self.running = False
         self.jump = False
         self.attacking = False
@@ -686,7 +688,7 @@ class FighterPLAYER:
     def stun(self):
         self.stunned = 45
 
-    def take_damage(self, hit):
+    def take_damage(self, hit, block_break=False):
         if not self.shield_on:
             self.health -= hit
             self.hit = True

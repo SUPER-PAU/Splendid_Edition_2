@@ -1,8 +1,9 @@
 import pygame
-
 # группа со спрайтами
 all_sprites = pygame.sprite.Group()
 bullet_sprites = pygame.sprite.Group()
+
+attack_group = pygame.sprite.Group()
 
 # Спрайты персов
 aksenov = pygame.image.load(r"assets\images\main hero\Sprites\aksenov.png").convert_alpha()
@@ -31,6 +32,9 @@ trio = pygame.image.load(r"assets\images\main hero\Sprites\trio.png").convert_al
 supertank = pygame.image.load(r"assets\images\main hero\Sprites\supertank.png").convert_alpha()
 albinos = pygame.image.load(r"assets\images\main hero\Sprites\albinos.png").convert_alpha()
 moiseev_bot = pygame.image.load(r"assets\images\main hero\Sprites\moiseev_bot.png").convert_alpha()
+
+super_pau_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\SUPER_PAU.png").convert_alpha()
+lisa_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\lisa.png").convert_alpha()
 # партиклы
 blood = pygame.image.load(r"assets\images\main hero\particles\blood.png").convert_alpha()
 electricity = pygame.image.load(r"assets\images\main hero\particles\electrisity.png").convert_alpha()

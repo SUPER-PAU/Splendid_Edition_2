@@ -61,4 +61,5 @@ pg = [
     (bg.collider_top_2, music.shadow_throne),  # 53
     (bg.portal_final_battle, music.titan),  # 54
     (bg.portal, music.titan),  # 55
+    (bg.american_collider, music.shadow_throne)  # 56 online
 ]

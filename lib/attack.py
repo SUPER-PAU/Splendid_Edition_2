@@ -2,7 +2,7 @@ import pygame
 from constants.textures.sprites import bullet_sprites
 
 class Attack(pygame.sprite.Sprite):
-    def __init__(self, player, rect, rect2, target, damage, is_enemy=False):
+    def __init__(self, player, rect, rect2, target, damage, block_break=False, is_enemy=False):
         super().__init__(bullet_sprites)
         if not is_enemy:
             match player.attack_type:
@@ -23,6 +23,7 @@ class Attack(pygame.sprite.Sprite):
                 # 3rd attack
                 case 12 | 13 | 24 | 19:
                     self.attack_frame = player.attack_frame[2]
+        self.block_break = block_break
         self.rect, self.rect2 = rect, rect2
         self.player = player
         self.target = target
@@ -33,7 +34,7 @@ class Attack(pygame.sprite.Sprite):
         if self.player.attacking and not self.hit and not self.player.hit:
             if self.attack_frame == self.player.frame_index:
                 if self.rect.colliderect(self.target.rect) or self.rect2.colliderect(self.target.rect):
-                    self.target.take_damage(self.damage)
+                    self.target.take_damage(self.damage, self.block_break)
                     self.hit = True
         else:
             self.kill()

@@ -123,14 +123,61 @@ class MainMenu:
         self.is_hide = False
 
 
+class ChooseOnlineModeMenu:
+    def __init__(self, scr_w, scr_h, bg, music):
+        self.connect_button = Button(
+            (450 * scr_w, 699 * scr_h),
+            (928 * scr_w, 95 * scr_h), "connect", STORY_MODE_BUTTON)
+        self.start_server = Button(
+            (450 * scr_w, 699 * scr_h),
+            (1406 * scr_w, 95 * scr_h), "start", SURVIVAL_MODE_BUTTON)
+        self.exit_button = Button(
+            (997 * scr_w, 173 * scr_h),
+            (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON)
+
+        self.bg = bg
+        self.GUI = GAME_MODE_GUI
+        self.enabled = False
+        self.is_hide = False
+        self.music = music
+
+    def show(self, mouse_click):
+        if not self.is_hide:
+            scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
+            display.screen.blit(scaled_bg, (0, 0))
+            scaled_GUI = pygame.transform.scale(self.GUI, (display.screen_width, display.screen_height))
+            display.screen.blit(scaled_GUI, (0, 0))
+            self.connect_button.show()
+            self.exit_button.show()
+            self.start_server.show()
+            self.exit_button.click(mouse_click)
+            self.connect_button.click(mouse_click)
+            self.start_server.click(mouse_click)
+
+    def is_enabled(self):
+        return self.enabled
+
+    def disable(self):
+        self.enabled = False
+
+    def enable(self):
+        self.enabled = True
+
+    def hide(self):
+        self.is_hide = True
+
+    def show_(self):
+        self.is_hide = False
+
+
 class ChooseModeMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.campain_button = Button(
             (450 * scr_w, 699 * scr_h),
             (928 * scr_w, 95 * scr_h), "История", STORY_MODE_BUTTON)
-        self.survival_button = Button(
+        self.online_button = Button(
             (450 * scr_w, 699 * scr_h),
-            (1406 * scr_w, 95 * scr_h), "in development", SURVIVAL_MODE_BUTTON)
+            (1406 * scr_w, 95 * scr_h), "PVP", SURVIVAL_MODE_BUTTON)
         self.exit_button = Button(
             (997 * scr_w, 173 * scr_h),
             (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON)
@@ -159,10 +206,10 @@ class ChooseModeMenu:
             display.screen.blit(scaled_GUI, (0, 0))
             self.campain_button.show()
             self.exit_button.show()
-            self.survival_button.show()
+            self.online_button.show()
             self.exit_button.click(mouse_click)
             self.campain_button.click(mouse_click)
-            self.survival_button.click(mouse_click)
+            self.online_button.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled
