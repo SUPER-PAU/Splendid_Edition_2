@@ -98,15 +98,9 @@ class SuperPauPlayer(PLAYER):
             self.rect.y += dy
         # apply attack cooldown
         if self.attack_cooldown > 0 and new_frame:
-            if self.player == 1:
-                self.attack_cooldown -= 0.7
-            else:
-                self.attack_cooldown -= 1
+            self.attack_cooldown -= 1
         if self.huge_attack_cooldown > 0 and new_frame:
-            if self.player == 1:
-                self.huge_attack_cooldown -= 0.7
-            else:
-                self.huge_attack_cooldown -= 1
+            self.huge_attack_cooldown -= 1
 
     def check_action(self):
         # check what action the player is performing
@@ -213,22 +207,20 @@ class SuperPauPlayer(PLAYER):
                 Attack(self, attacking_rect, attacking_rect_2, target, hit, block_break)
 
     def take_damage(self, hit, block_break=False):
-        if not self.shield_on:
-            if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
-                self.health -= hit
-                self.hit = True
-                create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
-                choice(human_sound).play()
-            else:
-                hit = round(hit * 0.2)
-                self.health -= hit
-                self.blocking = True
-            create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                 self.flip, hit)
-            self.last_damage_number = hit
+        if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
+            self.health -= hit
+            self.hit = True
+            create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
+            choice(human_sound).play()
+            self.player.huge_attack_cooldown -= 100
         else:
-            self.shield_on = False
-            create_particles((self.rect.centerx, self.rect.top), self.flip, shield_parts)
+            hit = round(hit * 0.2)
+            self.health -= hit
+            self.blocking = True
+            self.player.huge_attack_cooldown -= 50
+        create_damage_number((50 * display.scr_w, 150 * display.scr_h),
+                             self.flip, hit)
+        self.last_damage_number = hit
 
 
 class Attack(pygame.sprite.Sprite):
@@ -261,11 +253,14 @@ class Attack(pygame.sprite.Sprite):
                     ratio = 0.2
                     if self.block_break or target.jump or target.sprint or target.attacking:
                         ratio = 1
+                        self.player.huge_attack_cooldown -= 50
+                        create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
+                        choice(woman_sound).play()
+                    else:
+                        self.player.huge_attack_cooldown -= 30
                     create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
                                          target.flip, round(self.damage * ratio))
                     self.hit = True
-                    if not target.blocking:
-                        create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
-                        choice(woman_sound).play()
+
         else:
             self.kill()

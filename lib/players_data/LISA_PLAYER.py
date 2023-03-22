@@ -147,12 +147,14 @@ class LisaPlayer(SuperPauPlayer):
                 self.hit = True
                 choice(woman_sound).play()
                 create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
+                self.player.huge_attack_cooldown -= 100
                 # create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle)
                 # choice(self.hurt_sfx).play()
             else:
                 hit = round(hit * 0.2)
                 self.health -= hit
                 self.blocking = True
+                self.player.huge_attack_cooldown -= 50
             self.last_damage_number = hit
             create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
                                  self.flip, hit)
@@ -234,10 +236,13 @@ class Attack(pygame.sprite.Sprite):
                     ratio = 0.2
                     if self.block_break or target.jump or target.sprint or target.attacking:
                         ratio = 1
-                    create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                         target.flip, round(self.damage * ratio))
-                    if not target.blocking:
+                        self.player.huge_attack_cooldown -= 50
                         create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
                         choice(human_sound).play()
+                    else:
+                        self.player.huge_attack_cooldown -= 30
+                    create_damage_number((50 * display.scr_w, 150 * display.scr_h),
+                                         target.flip, round(self.damage * ratio))
+
         else:
             self.kill()
