@@ -1,14 +1,18 @@
+from random import choice
+
+from constants.audio.effects import woman_sound, human_sound
 from lib.display import display
+from lib.particle import create_damage_number, create_particles
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
-from constants.textures.sprites import lisa_2, bullet_sprites
+from constants.textures.sprites import bullet_sprites, blood
 import pygame
 
 
 class LisaPlayer(SuperPauPlayer):
-    def __init__(self, x, y, flip, data, animation_steps, hurt_fx, particle_sprite, attack_frame):
-        super().__init__(1, x, y, flip, data, lisa_2, animation_steps, hurt_fx, particle_sprite, attack_frame)
+    def __init__(self, x, y, flip, data, attack_frame):
+        super().__init__(1, x, y, flip, data, attack_frame)
 
-    def update(self):
+    def check_action(self):
         # check what action the player is performing
         if self.health <= 0:
             self.health = 0
@@ -18,10 +22,10 @@ class LisaPlayer(SuperPauPlayer):
             self.update_action(5)  # death
         elif self.hit:
             self.update_action(4)  # hit
-            self.rect.x -= 8 - 16 * self.flip
+            self.rect.x -= (8 - 16 * self.flip) * display.scr_w
         elif self.blocking:
             self.update_action(3)  # block
-            self.rect.x -= 4 - 8 * self.flip
+            self.rect.x -= (4 - 8 * self.flip) * display.scr_w
         elif self.attacking:
             match self.attack_type:
                 case 1:
@@ -36,21 +40,21 @@ class LisaPlayer(SuperPauPlayer):
             self.update_action(1)  # run
         else:
             self.update_action(0)  # idle
-        animation_cooldown = 63
-        # update image
-        self.image = self.animation_list[self.action][self.frame_index]
+
+    def update(self, animation_list):
+        animation_cooldown = 70
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
 
         # check if the animation is finished
-        if self.frame_index >= len(self.animation_list[self.action]):
+        if self.frame_index >= len(animation_list[self.action]):
             # check if the player is dead then end animation
             if not self.alive:
                 self.hit = False
                 self.blocking = False
-                self.frame_index = len(self.animation_list[self.action]) - 1
+                self.frame_index = len(animation_list[self.action]) - 1
             else:
                 self.frame_index = 0
                 # check if attack is executed
@@ -77,7 +81,7 @@ class LisaPlayer(SuperPauPlayer):
                 if self.action == 8:
                     self.huge_attack_cooldown = 300
                     if self.frame_index in [2, 3, 7, 8]:
-                        self.rect.x += 23 - 46 * self.flip
+                        self.rect.x += (23 - 46 * self.flip) * display.scr_w
                 self.dash()
 
         # if player is stunned by beam
@@ -129,6 +133,62 @@ class LisaPlayer(SuperPauPlayer):
                 target.attack_cooldown = 8
                 self.same_attack_count = 0
 
+    def take_damage(self, hit, block_break=False):
+        if not self.shield_on:
+            if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
+                self.health -= hit
+                self.hit = True
+                choice(woman_sound).play()
+                create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
+                # create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle)
+                # choice(self.hurt_sfx).play()
+            else:
+                hit = round(hit * 0.2)
+                self.health -= hit
+                self.blocking = True
+            self.last_damage_number = hit
+            create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
+                                 self.flip, hit)
+        else:
+            self.shield_on = False
+
+    def draw_cooldown_stats(self, surface):
+        # draw atk cooldown
+        pygame.draw.rect(surface, (255, 255, 255),
+                         ((1450 - 2) * display.scr_w, (1020 - 2) * display.scr_h, (440 + 4) * display.scr_w,
+                          19 * display.scr_h))
+        pygame.draw.rect(surface, (204, 51, 0),
+                         (1450 * display.scr_w, 1020 * display.scr_h, 440 * display.scr_w, 15 * display.scr_h))
+        pygame.draw.rect(surface, (0, 0, 0),
+                         (
+                             1450 * display.scr_w, 1020 * display.scr_h, self.attack_cooldown * 8 * display.scr_w,
+                             15 * display.scr_h))
+
+        # draw huge attack cooldown
+        pygame.draw.rect(surface, (255, 255, 255),
+                         ((1100 - 2) * display.scr_w, (60 - 2) * display.scr_h, (300 + 4) * display.scr_w,
+                          19 * display.scr_h))
+        pygame.draw.rect(surface, (70, 70, 195), (
+            1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
+            15 * display.scr_h))
+        pygame.draw.rect(surface, (0, 0, 90), (
+            1100 * display.scr_w, (60 + 10) * display.scr_h, 300 * display.scr_w,
+            5 * display.scr_h))
+        pygame.draw.rect(surface, (120, 120, 255), (
+            1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
+            5 * display.scr_h))
+        if self.huge_attack_cooldown > 0:
+            pygame.draw.rect(surface, (0, 0, 0),
+                             (1100 * display.scr_w, 60 * display.scr_h, self.huge_attack_cooldown * display.scr_w,
+                              15 * display.scr_h))
+        else:
+            pygame.draw.rect(surface, (204, 255, 255), (
+                1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
+                15 * display.scr_h))
+            pygame.draw.rect(surface, (0, 255, 255), (
+                1100 * display.scr_w, (60 + 7) * display.scr_h, 300 * display.scr_w,
+                8 * display.scr_h))
+
 
 class Attack(pygame.sprite.Sprite):
     def __init__(self, player, attack_type, rect, rect2, target, damage, block_break=False):
@@ -151,7 +211,6 @@ class Attack(pygame.sprite.Sprite):
         self.hit = False
 
     def update(self):
-
         if self.player.attacking and not self.hit and not self.player.hit:
             if self.attack_frame == self.player.frame_index:
                 attacking_rect = pygame.Rect(
@@ -162,6 +221,11 @@ class Attack(pygame.sprite.Sprite):
                 if attacking_rect.colliderect(self.target.rect) or self.rect2.colliderect(self.target.rect):
                     self.target.take_damage(self.damage, self.block_break)
                     self.hit = True
+                    create_damage_number((50 * display.scr_w, 150 * display.scr_h),
+                                         self.target.flip, self.target.last_damage_number)
+                    if not self.target.blocking:
+                        create_particles((self.target.rect.centerx, self.target.rect.top), self.target.flip, blood)
+                        choice(human_sound).play()
         else:
             self.kill()
 

@@ -1,17 +1,17 @@
-import pygame
-
-from lib.player_fighter import FighterPLAYER
 from random import choice
+
+import pygame
 
 from lib.display import display
 from lib.particle import create_particles, create_damage_number
-from constants.audio.effects import shield_sfx
-from constants.textures.sprites import shield_parts, bullet_sprites
+from constants.audio.effects import human_sound, woman_sound
+from constants.textures.sprites import shield_parts, bullet_sprites, blood
+from lib.players_data.Player import PLAYER
 
 
-class SuperPauPlayer(FighterPLAYER):
-    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, attack_frame):
-        super().__init__(player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, attack_frame)
+class SuperPauPlayer(PLAYER):
+    def __init__(self, player, x, y, flip, data, attack_frame):
+        super().__init__(player, x, y, flip, data, attack_frame)
         self.sprint = False
 
     def move(self, surface, target, round_over):
@@ -93,7 +93,7 @@ class SuperPauPlayer(FighterPLAYER):
         if self.shield_cooldown > 0:
             self.shield_cooldown -= 1
 
-    def update(self):
+    def check_action(self):
         # check what action the player is performing
         if self.health <= 0:
             self.health = 0
@@ -103,10 +103,10 @@ class SuperPauPlayer(FighterPLAYER):
             self.update_action(5)  # death
         elif self.hit:
             self.update_action(4)  # hit
-            self.rect.x -= 8 - 16 * self.flip
+            self.rect.x -= (8 - 16 * self.flip) * display.scr_w
         elif self.blocking:
             self.update_action(3)  # block
-            self.rect.x -= 4 - 8 * self.flip
+            self.rect.x -= (4 - 8 * self.flip) * display.scr_w
         elif self.attacking:
             match self.attack_type:
                 case 1:
@@ -121,21 +121,21 @@ class SuperPauPlayer(FighterPLAYER):
             self.update_action(1)  # run
         else:
             self.update_action(0)  # idle
-        animation_cooldown = 63
-        # update image
-        self.image = self.animation_list[self.action][self.frame_index]
+
+    def update(self, animation_list):
+        animation_cooldown = 70
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
 
         # check if the animation is finished
-        if self.frame_index >= len(self.animation_list[self.action]):
+        if self.frame_index >= len(animation_list[self.action]):
             # check if the player is dead then end animation
             if not self.alive:
                 self.hit = False
                 self.blocking = False
-                self.frame_index = len(self.animation_list[self.action]) - 1
+                self.frame_index = len(animation_list[self.action]) - 1
             else:
                 self.frame_index = 0
                 # check if attack is executed
@@ -213,20 +213,17 @@ class SuperPauPlayer(FighterPLAYER):
             if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
                 self.health -= hit
                 self.hit = True
-                if not self.stunned:
-                    create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                         self.flip, hit)
-                    create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle)
-                    choice(self.hurt_sfx).play()
+                create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
+                choice(human_sound).play()
             else:
                 hit = round(hit * 0.2)
                 self.health -= hit
                 self.blocking = True
-                create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                     self.flip, hit)
+            create_damage_number((50 * display.scr_w, 150 * display.scr_h),
+                                 self.flip, hit)
+            self.last_damage_number = hit
         else:
             self.shield_on = False
-            shield_sfx.play()
             create_particles((self.rect.centerx, self.rect.top), self.flip, shield_parts)
 
 
@@ -253,6 +250,11 @@ class Attack(pygame.sprite.Sprite):
             if self.attack_frame == self.player.frame_index:
                 if self.rect.colliderect(self.target.rect) or self.rect2.colliderect(self.target.rect):
                     self.target.take_damage(self.damage, self.block_break)
+                    create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
+                                         self.target.flip, self.target.last_damage_number)
                     self.hit = True
+                    if not self.target.blocking:
+                        create_particles((self.target.rect.centerx, self.target.rect.top), self.target.flip, blood)
+                        choice(woman_sound).play()
         else:
             self.kill()

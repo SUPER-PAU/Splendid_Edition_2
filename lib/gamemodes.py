@@ -6,7 +6,7 @@ from lib.display import display
 from lib.drawer import draw_health_bar, draw_text, check_bg_instance
 from lib.mixer import play_music_bg
 from lib.dialogs import dialogs_texts
-from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu
+from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu
 from lib.Database import update_gp, get_gp
 from constants.textures.sprites import all_sprites, bullet_sprites
 from lib.Settings import settings
@@ -17,6 +17,7 @@ import constants.audio.music as music
 import constants.colors as color
 import constants.fonts.turok as fonts
 from constants.progress import pg
+from lib.online.network import Network
 
 clocks = Clock()
 
@@ -28,6 +29,7 @@ texts = dialogs_texts()
 game_menu = MainMenu(display.scr_w, display.scr_h, bg.main_menu, music.main_menu)
 options_menu = OptionsMenu(display.scr_w, display.scr_h, bg.options_menu)
 choose_mode_menu = ChooseModeMenu(display.scr_w, display.scr_h, bg.game_menu_animated, music.main_menu)
+choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.corporation_lab, music.main_menu)
 bg.briff_war.play()
 display.set_fps(24)
 
@@ -42,13 +44,16 @@ class Game:
         self.post_fight_dial = False
         self.is_dialogue = False
         self.main_campain_on = False
+        self.online_on = False
         self.aplication_run = True
         self.playing_cutscene = True
         self.ROUND_OVER_COOLDOWN = 2000
         self.idx = 0
         self.round_over_time = 1
         self.fighter_id = 0
-        self.GAME_PROGRESS = 25
+        self.GAME_PROGRESS = get_gp()
+        self.network = None
+        self.online_player = None
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -151,7 +156,7 @@ class Game:
                                      "Trio", "Flying El. Dumpling (Kingartema)", "Flying El. Dumpling (Kingartema)",
                                      "NightButterfly (Tagir)", "NightButterfly (Tagir)"])
             case 25:
-                self.fight(fighter.super_pau, fighter.lisa_boss, 4, 'Super PAU', "Bulat")
+                self.fight(fighter.super_pau, fighter.bulat_enemy, 4, 'Super PAU', "Bulat")
             case 26:
                 self.fight(fighter.aksenov, fighter.soldier, 2, "Aksenov", "soldier"),
             case 27:
@@ -308,6 +313,84 @@ class Game:
         if not self.is_dialogue:
             check_bg_instance(background)
 
+    def online_fight(self):
+        rounds = 3
+
+        self.check_game_progress(*pg[56])
+
+        fighter1 = self.online_player
+        fighter2 = self.network.send(fighter1)
+
+        # print(fighter1.health, fighter1.hit)
+
+        draw_health_bar(fighter1.health, 20 * display.scr_w, 20 * display.scr_h)
+        draw_health_bar(fighter2.health, 1100 * display.scr_w, 20 * display.scr_h)
+        # update fighters
+
+        fighter1.check_action()
+        fighter2.check_action()
+
+        firgter1_action, fighter1_frame_index = fighter1.get_animation_params()
+        firgter2_action, fighter2_frame_index = fighter2.get_animation_params()
+
+        # get_image
+        if isinstance(fighter1, fighter.LisaPlayer):
+            figter1_sprite = fighter.LISA_ANIMATION_LIST[firgter1_action][fighter1_frame_index]
+            figter2_sprite = fighter.PAU_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
+            fighter1.update(fighter.LISA_ANIMATION_LIST)
+            fighter2.update(fighter.PAU_ANIMATION_LIST)
+        else:
+            figter1_sprite = fighter.PAU_ANIMATION_LIST[firgter1_action][fighter1_frame_index]
+            figter2_sprite = fighter.LISA_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
+            fighter1.update(fighter.PAU_ANIMATION_LIST)
+            fighter2.update(fighter.LISA_ANIMATION_LIST)
+
+        # update countdown
+        if self.intro_count <= 0:
+            # move fighter
+            fighter1.move(display.screen, fighter2, self.round_over)
+        else:
+            # display count timer
+            draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
+                      10 * display.scr_h)
+            # update count timer
+            if (pygame.time.get_ticks() - self.last_count_update) >= 1000:
+                self.intro_count -= 1
+                self.last_count_update = pygame.time.get_ticks()
+        self.final_round_over = False
+        # draw fighters
+        fighter2.draw(display.screen, figter2_sprite)
+        fighter1.draw(display.screen, figter1_sprite)
+        # check for player defeat
+        if not self.round_over:
+            if not fighter1.alive:
+                self.score[1] += 1
+                self.round_over = True
+                self.round_over_time = pygame.time.get_ticks()
+            if not fighter2.alive:
+                self.score[0] += 1
+                self.round_over = True
+                self.round_over_time = pygame.time.get_ticks()
+        else:
+            all_sprites.empty()
+            if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
+                self.round_over = False
+                all_sprites.empty()
+                bullet_sprites.empty()
+                if self.score[0] >= rounds or self.score[1] >= rounds:
+                    self.score = [0, 0]
+                    self.final_round_over = True
+                    game_menu.enable()
+                    self.online_on = False
+
+                self.intro_count = 4
+                fighter1.reset_params()
+                fighter2.reset_params()
+
+        all_sprites.update()
+        all_sprites.draw(display.screen)
+        bullet_sprites.update()
+
     def fight(self, fighter1, fighter2, rounds, f1_name, f2_name):
         if not self.is_dialogue:
             # show players stats
@@ -453,8 +536,29 @@ class Game:
 
     def game_navigation(self, key_click, mouse_click):
         # navigate menu
+        if self.online_on:
+            self.online_fight()
         if self.main_campain_on:
             self.main_campain_game(key_click)
+
+        if choose_online_mode_menu.is_enabled():
+            choose_online_mode_menu.show(mouse_click)
+            if choose_online_mode_menu.exit_button.is_clicked():
+                choose_online_mode_menu.disable()
+                game_menu.enable()
+            if choose_online_mode_menu.start_server.is_clicked():
+                choose_online_mode_menu.disable()
+                self.final_round_over = True
+                self.online_on = True
+                self.network = Network()
+                self.online_player = self.network.getP()
+            if choose_online_mode_menu.connect_button.is_clicked():
+                choose_online_mode_menu.disable()
+                self.final_round_over = True
+                self.online_on = True
+                self.network = Network()
+                self.online_player = self.network.getP()
+
         if choose_mode_menu.is_enabled():
             choose_mode_menu.show(mouse_click)
             if choose_mode_menu.exit_button.is_clicked():
@@ -464,6 +568,10 @@ class Game:
                 self.main_campain_on = True
                 self.final_round_over = True
                 choose_mode_menu.disable()
+            if choose_mode_menu.online_button.is_clicked():
+                choose_online_mode_menu.enable()
+                choose_mode_menu.disable()
+
         if game_menu.is_enabled():
             game_menu.show(mouse_click)
             if game_menu.exit_button.is_clicked():
@@ -474,6 +582,7 @@ class Game:
             if game_menu.options_button.is_clicked():
                 game_menu.disable()
                 options_menu.enable()
+
         if options_menu.is_enabled():
             options_menu.show(mouse_click)
             if options_menu.exit_button.is_clicked():
@@ -488,6 +597,7 @@ class Game:
                 settings.change_difficulty(1)
             if options_menu.easy_mode.is_clicked():
                 settings.change_difficulty(0.5)
+
         if bg.briff_war.is_playing():
             bg.briff_war.draw()
             key = pygame.key.get_pressed()

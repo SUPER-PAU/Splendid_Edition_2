@@ -1,12 +1,11 @@
 import pygame
 from constants.textures.sprites import bullet_sprites
-from lib.player_fighter import FighterPLAYER
 
 
 class Attack(pygame.sprite.Sprite):
-    def __init__(self, player, rect, rect2, target, damage, block_break=False):
+    def __init__(self, player, rect, rect2, target, damage, block_break=False, is_enemy=False):
         super().__init__(bullet_sprites)
-        if isinstance(player, FighterPLAYER):
+        if not is_enemy:
             match player.attack_type:
                 case 1 | 4 | 5 | 9 | 10 | 15 | 17 | 22:  # attack1
                     self.attack_frame = player.attack_frame[0]

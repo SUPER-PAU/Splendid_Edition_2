@@ -779,7 +779,6 @@ class FighterEnemy:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)
             attacking_rect = None
-
             hit = int(hit * settings.get_difficulty())
 
             # att 1
@@ -1003,7 +1002,7 @@ class FighterEnemy:
             # pygame.draw.rect(surface, (255, 255, 0), attacking_rect_2)
             # take damage
             if attacking_rect:
-                Attack(self, attacking_rect, attacking_rect_2, target, hit)
+                Attack(self, attacking_rect, attacking_rect_2, target, hit, False, True)
 
     def update_action(self, new_action):
         # check if the new action is different to the previous one

@@ -3,10 +3,11 @@ from lib.player_fighter import FighterPLAYER
 from constants.audio.effects import bt_sound, human_sound, woman_sound, boss_sound
 import constants.textures.sprites as sheet
 from lib.display import display
+
+# define fighter variables
 from lib.players_data.LISA_PLAYER import LisaPlayer
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
 
-# define fighter variables
 AKSENOV_SIZE = 486
 AKSENOV_SCALE = 3 * display.scr_h
 AKSENOV_OFFSET = [216, 168]
@@ -32,7 +33,8 @@ NEGROMINATOR_ANIMATION_STEPS = [8, 8, 1, 7, 5, 3, 6]
 GENERAL_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
 WALKER_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
 SUPER_PAU_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 4]
-SUPER_PAU_PLAYER_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 6, 7, 8]
+SUPER_PAU_PLAYER_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 8]
+SUPER_PAU_PLAYER_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 6, 7, 8]
 SUPER_PAU_BOSS_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 7]
 BULAT_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6, 7]
 bt25_animation_steps = [10, 3, 1, 7, 4, 3, 7]
@@ -47,13 +49,19 @@ kingartema = kingartema_enemy = vasisa = vasisa_enemy = bulat = bulat_enemy = ro
 moiseev_security = walker_enemy = walker = trio = trio_enemy = supertank = albinos = moiseev_bot = bt25t_enemy = None
 bt_final_battle = None
 
+players_for_online = [
+    SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [2, 3, 6]),
+    LisaPlayer(1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, [2, 1, 3])]
+PAU_ANIMATION_LIST = players_for_online[0].load_images(sheet.super_pau_2, SUPER_PAU_PLAYER_2_ANIMATION_STEPS)
+LISA_ANIMATION_LIST = players_for_online[1].load_images(sheet.lisa_2, LISA_2_ANIMATION_STEPS)
+
 
 def reset_players():
     global lisa, fighter_2, aksenov, soldier, yacuji, japan_soldier, police, \
         negrominator, artestro, lisa_boss, general, super_pau_boss, super_pau, bt25t, moiseev, tagir, \
         tagir_enemy, egor, egor_enemy, kingartema, kingartema_enemy, vasisa, vasisa_enemy, bulat, bulat_enemy, \
         robot_woman, super_pau_final_boss, moiseev_security, walker, walker_enemy, trio_enemy, trio, supertank, \
-        albinos, moiseev_bot, bt25t_enemy, bt_final_battle
+        albinos, moiseev_bot, bt25t_enemy, bt_final_battle, players_for_online
     # restore fighter param
     # player
     bt_final_battle = FighterPLAYER(12, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.bt25t,
@@ -84,14 +92,6 @@ def reset_players():
                          LISA_ANIMATION_STEPS,
                          woman_sound,
                          sheet.blood, [2, 1])
-    super_pau_online = SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.super_pau_2,
-                               SUPER_PAU_PLAYER_ANIMATION_STEPS, human_sound,
-                               sheet.blood, [2, 3, 6])
-
-    lisa_online = LisaPlayer(1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA,
-                      LISA_2_ANIMATION_STEPS,
-                      woman_sound,
-                      sheet.blood, [2, 1, 3])
     aksenov = FighterPLAYER(3, 400 * display.scr_w, 540 * display.scr_h, False, AKSENOV_DATA, sheet.aksenov,
                             LISA_ANIMATION_STEPS,
                             woman_sound, sheet.blood, [2, 2])

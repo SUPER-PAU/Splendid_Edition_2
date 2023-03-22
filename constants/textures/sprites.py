@@ -1,5 +1,4 @@
 import pygame
-
 # группа со спрайтами
 all_sprites = pygame.sprite.Group()
 bullet_sprites = pygame.sprite.Group()
