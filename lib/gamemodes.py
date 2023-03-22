@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 import lib.players as fighter
@@ -8,7 +10,7 @@ from lib.mixer import play_music_bg
 from lib.dialogs import dialogs_texts
 from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu
 from lib.Database import update_gp, get_gp
-from constants.textures.sprites import all_sprites, bullet_sprites
+from constants.textures.sprites import all_sprites, bullet_sprites, attack_group
 from lib.Settings import settings
 
 # Константы/переменные
@@ -54,6 +56,7 @@ class Game:
         self.GAME_PROGRESS = get_gp()
         self.network = None
         self.online_player = None
+        self.online_location = None
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -316,16 +319,29 @@ class Game:
     def online_fight(self):
         rounds = 3
 
-        self.check_game_progress(*pg[56])
+        self.check_game_progress(*pg[self.online_location])
 
         fighter1 = self.online_player
         fighter2 = self.network.send(fighter1)
 
-        # print(fighter1.health, fighter1.hit)
+        fighter1.ready_for_fight()
 
-        draw_health_bar(fighter1.health, 20 * display.scr_w, 20 * display.scr_h)
-        draw_health_bar(fighter2.health, 1100 * display.scr_w, 20 * display.scr_h)
+        attack_group.update(fighter2)
+
+        fighter1.draw_hp()
+        fighter1.draw_round_statistic("You", self.score[0], font)
+        fighter2.draw_hp()
+        fighter2.draw_round_statistic("Enemy", self.score[1], font)
+
         # update fighters
+
+        if fighter2.hit or fighter2.blocking:
+            fighter1.clear_attack_stats()
+
+        atk_stats = fighter2.get_attack_stats()
+        if atk_stats:
+            if not fighter1.hit and not fighter1.blocking:
+                fighter1.take_damage(atk_stats[0], atk_stats[1])
 
         fighter1.check_action()
         fighter2.check_action()
@@ -349,6 +365,9 @@ class Game:
         if self.intro_count <= 0:
             # move fighter
             fighter1.move(display.screen, fighter2, self.round_over)
+        elif not fighter2.is_ready():
+            draw_text("Waiting for player...", count_font, color.red, display.screen_width / 2 - 280 * display.scr_w,
+                      150 * display.scr_h)
         else:
             # display count timer
             draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
@@ -357,10 +376,13 @@ class Game:
             if (pygame.time.get_ticks() - self.last_count_update) >= 1000:
                 self.intro_count -= 1
                 self.last_count_update = pygame.time.get_ticks()
+
         self.final_round_over = False
+
         # draw fighters
         fighter2.draw(display.screen, figter2_sprite)
         fighter1.draw(display.screen, figter1_sprite)
+
         # check for player defeat
         if not self.round_over:
             if not fighter1.alive:
@@ -372,6 +394,7 @@ class Game:
                 self.round_over = True
                 self.round_over_time = pygame.time.get_ticks()
         else:
+            fighter1.clear_attack_stats()
             all_sprites.empty()
             if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
                 self.round_over = False
@@ -548,12 +571,21 @@ class Game:
                 game_menu.enable()
             if choose_online_mode_menu.start_server.is_clicked():
                 choose_online_mode_menu.disable()
+
+                location = random.randrange(0, 56)
+                self.online_location = location
+
                 self.final_round_over = True
                 self.online_on = True
+
                 self.network = Network()
                 self.online_player = self.network.getP()
             if choose_online_mode_menu.connect_button.is_clicked():
                 choose_online_mode_menu.disable()
+
+                location = random.randrange(0, 56)
+                self.online_location = location
+
                 self.final_round_over = True
                 self.online_on = True
                 self.network = Network()

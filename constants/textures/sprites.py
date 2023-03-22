@@ -3,6 +3,8 @@ import pygame
 all_sprites = pygame.sprite.Group()
 bullet_sprites = pygame.sprite.Group()
 
+attack_group = pygame.sprite.Group()
+
 # Спрайты персов
 aksenov = pygame.image.load(r"assets\images\main hero\Sprites\aksenov.png").convert_alpha()
 lisa = pygame.image.load(r"assets\images\main hero\Sprites\lisa.png").convert_alpha()

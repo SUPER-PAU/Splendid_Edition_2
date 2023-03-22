@@ -1,16 +1,27 @@
 from random import choice
 
 from constants.audio.effects import woman_sound, human_sound
+from constants.colors import red, black
 from lib.display import display
+from lib.drawer import draw_health_bar, draw_text
 from lib.particle import create_damage_number, create_particles
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
-from constants.textures.sprites import bullet_sprites, blood
+from constants.textures.sprites import attack_group, blood
 import pygame
 
 
 class LisaPlayer(SuperPauPlayer):
     def __init__(self, x, y, flip, data, attack_frame):
         super().__init__(1, x, y, flip, data, attack_frame)
+
+    def draw_round_statistic(self, name, rounds, font):
+        draw_text(f"{name}: {rounds} / {3}", font, black, 1097 * display.scr_w,
+                  83 * display.scr_h)
+        draw_text(f"{name}: {rounds} / {3}", font, red, 1100 * display.scr_w,
+                  80 * display.scr_h)
+
+    def draw_hp(self):
+        draw_health_bar(self.health, 1100 * display.scr_w, 20 * display.scr_h)
 
     def check_action(self):
         # check what action the player is performing
@@ -108,6 +119,7 @@ class LisaPlayer(SuperPauPlayer):
                                                  2 * self.rect.width, self.rect.height)
                 # speshal
                 case 3:
+                    block_break = True
                     hit = 15
                     attacking_rect = pygame.Rect(self.rect.centerx - (2.5 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
@@ -117,7 +129,6 @@ class LisaPlayer(SuperPauPlayer):
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.6 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
                                                  1.6 * self.rect.width, self.rect.height * 1.6)
-                    block_break = True
 
             if self.attack_type == self.temp_attack:
                 self.same_attack_count += 1
@@ -127,11 +138,6 @@ class LisaPlayer(SuperPauPlayer):
             # take damage
             if attacking_rect:
                 Attack(self, self.attack_type, attacking_rect, attacking_rect_2, target, hit, block_break)
-            # punish player for spamming same attacks)))) heheheha!
-            if self.same_attack_count == 3 and target.player != 10:
-                target.hit = False
-                target.attack_cooldown = 8
-                self.same_attack_count = 0
 
     def take_damage(self, hit, block_break=False):
         if not self.shield_on:
@@ -192,7 +198,7 @@ class LisaPlayer(SuperPauPlayer):
 
 class Attack(pygame.sprite.Sprite):
     def __init__(self, player, attack_type, rect, rect2, target, damage, block_break=False):
-        super().__init__(bullet_sprites)
+        super().__init__(attack_group)
         match attack_type:
             case 1:  # attack1
                 self.attack_frame = player.attack_frame[0]
@@ -210,22 +216,27 @@ class Attack(pygame.sprite.Sprite):
         self.damage = damage
         self.hit = False
 
-    def update(self):
+    def update(self, target):
         if self.player.attacking and not self.hit and not self.player.hit:
             if self.attack_frame == self.player.frame_index:
                 attacking_rect = pygame.Rect(
-                    self.player.rect.centerx - (1.3 * self.player.rect.width * self.player.flip),
+                    self.player.rect.centerx - (self.rect.width * self.player.flip),
                     self.rect.y,
                     self.rect.width, self.rect.height)
+
                 # pygame.draw.rect(display.screen, (255, 255, 0), attacking_rect)
-                if attacking_rect.colliderect(self.target.rect) or self.rect2.colliderect(self.target.rect):
-                    self.target.take_damage(self.damage, self.block_break)
+
+                if attacking_rect.colliderect(target.rect) or self.rect2.colliderect(target.rect):
+                    self.player.was_attacking = (self.damage, self.block_break)
+                    # target.take_damage(self.damage, self.block_break)
                     self.hit = True
+                    ratio = 0.2
+                    if self.block_break or target.jump or target.sprint or target.attacking:
+                        ratio = 1
                     create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                         self.target.flip, self.target.last_damage_number)
-                    if not self.target.blocking:
-                        create_particles((self.target.rect.centerx, self.target.rect.top), self.target.flip, blood)
+                                         target.flip, round(self.damage * ratio))
+                    if not target.blocking:
+                        create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
                         choice(human_sound).play()
         else:
             self.kill()
-

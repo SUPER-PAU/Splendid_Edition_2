@@ -13,7 +13,7 @@ class Particle(pygame.sprite.Sprite):
     def __init__(self, pos, dx, dy, flip, particle):
         super().__init__(all_sprites)
         fire = [particle]
-        for scale in (20, 25, 30):
+        for scale in (20 * display.scr_w, 24 * display.scr_w, 28 * display.scr_w):
             fire.append(pygame.transform.scale(fire[0], (scale, scale)))
         self.image = random.choice(fire)
         self.rect = self.image.get_rect()

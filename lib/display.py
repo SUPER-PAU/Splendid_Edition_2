@@ -5,10 +5,10 @@ from ctypes import windll
 class Display:
     def __init__(self):
         # Нативное разрешение пользователя
-        # self.screen_width = windll.user32.GetSystemMetrics(0)
-        # self.screen_height = windll.user32.GetSystemMetrics(1)
-        self.screen_width = 640
-        self.screen_height = 360
+        self.screen_width = windll.user32.GetSystemMetrics(0)
+        self.screen_height = windll.user32.GetSystemMetrics(1)
+        # self.screen_width = 640
+        # self.screen_height = 360
         # settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
         # self.refresh_rate = int(getattr(settings, 'DisplayFrequency'))
         self.refresh_rate = 60
@@ -37,6 +37,7 @@ class Display:
 
     def set_fps(self, fps):
         self.refresh_rate = fps
+
 
 display = Display()
 

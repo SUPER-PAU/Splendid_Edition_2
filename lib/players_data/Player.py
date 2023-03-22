@@ -26,6 +26,7 @@ class PLAYER:
         self.jump = False
         self.attacking = False
         self.blocking = False
+        self.was_attacking = None
         self.last_damage_number = 0
         self.attack_type = 0
         self.attack_cooldown = 0
@@ -36,10 +37,10 @@ class PLAYER:
         self.health = 100
         self.dash_x = 0
         self.stunned = 0
-        # self.particle = particle
         self.hit = False
         self.shield_on = False
         self.alive = True
+        self.ready = False
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
@@ -64,6 +65,7 @@ class PLAYER:
         self.running = False
         self.jump = False
         self.attacking = False
+        self.was_attacking = None
         self.same_attack_count = 0
         self.vel_y = 0
         self.dash_x = 0
@@ -74,6 +76,7 @@ class PLAYER:
         self.health = 100
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
+        self.ready = False
 
     def update_action(self, new_action):
         # check if the new action is different to the previous one
@@ -82,6 +85,20 @@ class PLAYER:
             # update anim settings
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
+
+    def ready_for_fight(self):
+        self.ready = True
+
+    def is_ready(self):
+        return self.ready
+
+    def get_attack_stats(self):
+        temp = self.was_attacking
+        self.was_attacking = False
+        return temp
+
+    def clear_attack_stats(self):
+        self.was_attacking = None
 
     def get_animation_params(self):
         return self.action, self.frame_index
