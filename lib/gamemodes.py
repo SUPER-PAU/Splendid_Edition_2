@@ -368,6 +368,8 @@ class Game:
         elif not fighter2.is_ready():
             draw_text("Waiting for player...", count_font, color.red, display.screen_width / 2 - 280 * display.scr_w,
                       150 * display.scr_h)
+            draw_text(self.network.getIP(), count_font, color.red, display.screen_width / 2 - 280 * display.scr_w,
+                      250 * display.scr_h)
         else:
             # display count timer
             draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
@@ -577,19 +579,19 @@ class Game:
 
                 self.final_round_over = True
                 self.online_on = True
-
                 self.network = Network()
                 self.online_player = self.network.getP()
             if choose_online_mode_menu.connect_button.is_clicked():
-                choose_online_mode_menu.disable()
-
-                location = random.randrange(0, 56)
-                self.online_location = location
-
-                self.final_round_over = True
-                self.online_on = True
                 self.network = Network()
                 self.online_player = self.network.getP()
+                if self.online_player:
+                    choose_online_mode_menu.disable()
+
+                    location = random.randrange(0, 56)
+                    self.online_location = location
+
+                    self.final_round_over = True
+                    self.online_on = True
 
         if choose_mode_menu.is_enabled():
             choose_mode_menu.show(mouse_click)
