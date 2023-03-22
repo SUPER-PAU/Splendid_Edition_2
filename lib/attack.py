@@ -1,7 +1,6 @@
 import pygame
 from constants.textures.sprites import bullet_sprites
 
-
 class Attack(pygame.sprite.Sprite):
     def __init__(self, player, rect, rect2, target, damage, block_break=False, is_enemy=False):
         super().__init__(bullet_sprites)
