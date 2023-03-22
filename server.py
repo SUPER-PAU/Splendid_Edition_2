@@ -6,12 +6,12 @@ from lib.display import ServerDisplay
 from lib.players import players_for_online
 
 
-
 server_display = ServerDisplay()
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 server = str(IPAddr)
+print(server)
 port = 5555
 
 BYTES = 4096 ** 2

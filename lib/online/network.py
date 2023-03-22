@@ -15,6 +15,9 @@ class Network:
         self.addr = (self.server, self.port)
         self.p = self.connect()
 
+    def getIP(self):
+        return self.server
+
     def getP(self):
         return self.p
 
