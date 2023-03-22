@@ -113,6 +113,7 @@ class LisaPlayer(SuperPauPlayer):
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.3 * self.rect.width * self.flip),
                                                  self.rect.y,
                                                  1.3 * self.rect.width, self.rect.height)
+                    hit = 18
                     # att 2
                 case 2:
                     attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y,

@@ -25,7 +25,7 @@ class SuperPauPlayer(PLAYER):
     def draw_hp(self):
         draw_health_bar(self.health, 20 * display.scr_w, 20 * display.scr_h)
 
-    def move(self, surface, target, round_over):
+    def move(self, surface, target, round_over, new_frame):
         SPEED = 8 * display.scr_w
         GRAVITY = 2 * display.scr_h
         dx = 0
@@ -97,12 +97,10 @@ class SuperPauPlayer(PLAYER):
             self.rect.x += dx
             self.rect.y += dy
         # apply attack cooldown
-        if self.attack_cooldown > 0:
+        if self.attack_cooldown > 0 and new_frame:
             self.attack_cooldown -= 1
-        if self.huge_attack_cooldown > 0:
+        if self.huge_attack_cooldown > 0 and new_frame:
             self.huge_attack_cooldown -= 1
-        if self.shield_cooldown > 0:
-            self.shield_cooldown -= 1
 
     def check_action(self):
         # check what action the player is performing

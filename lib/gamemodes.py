@@ -58,6 +58,8 @@ class Game:
         self.online_player = None
         self.online_location = None
 
+
+
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
         self.dialog(texts[self.GAME_PROGRESS], key_click)
@@ -316,7 +318,7 @@ class Game:
         if not self.is_dialogue:
             check_bg_instance(background)
 
-    def online_fight(self):
+    def online_fight(self, new_frame):
         rounds = 3
 
         self.check_game_progress(*pg[self.online_location])
@@ -559,10 +561,10 @@ class Game:
                         self.GAME_PROGRESS += 1
                         update_gp(self.GAME_PROGRESS)
 
-    def game_navigation(self, key_click, mouse_click):
+    def game_navigation(self, key_click, mouse_click, new_frame):
         # navigate menu
         if self.online_on:
-            self.online_fight()
+            self.online_fight(new_frame)
         if self.main_campain_on:
             self.main_campain_game(key_click)
 

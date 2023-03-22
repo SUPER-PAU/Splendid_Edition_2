@@ -10,7 +10,7 @@ server_display = ServerDisplay()
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
-server = str(IPAddr)
+server = "192.168.1.36"
 print(server)
 port = 5555
 
