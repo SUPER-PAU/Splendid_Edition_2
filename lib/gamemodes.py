@@ -31,7 +31,7 @@ texts = dialogs_texts()
 game_menu = MainMenu(display.scr_w, display.scr_h, bg.main_menu, music.main_menu)
 options_menu = OptionsMenu(display.scr_w, display.scr_h, bg.options_menu)
 choose_mode_menu = ChooseModeMenu(display.scr_w, display.scr_h, bg.game_menu_animated, music.main_menu)
-choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.corporation_lab, music.main_menu)
+choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.online_menu, music.main_menu)
 bg.briff_war.play()
 display.set_fps(24)
 
@@ -57,8 +57,6 @@ class Game:
         self.network = None
         self.online_player = None
         self.online_location = None
-
-
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -569,27 +567,27 @@ class Game:
             self.main_campain_game(key_click)
 
         if choose_online_mode_menu.is_enabled():
-            choose_online_mode_menu.show(mouse_click)
+            choose_online_mode_menu.show(mouse_click, key_click)
             if choose_online_mode_menu.exit_button.is_clicked():
                 choose_online_mode_menu.disable()
                 game_menu.enable()
             if choose_online_mode_menu.start_server.is_clicked():
                 choose_online_mode_menu.disable()
 
-                location = random.randrange(0, 56)
+                location = random.randrange(1, 56)
                 self.online_location = location
 
                 self.final_round_over = True
                 self.online_on = True
-                self.network = Network()
+                self.network = Network(choose_online_mode_menu.line_edit.get_text())
                 self.online_player = self.network.getP()
             if choose_online_mode_menu.connect_button.is_clicked():
-                self.network = Network()
+                self.network = Network(choose_online_mode_menu.line_edit.get_text())
                 self.online_player = self.network.getP()
                 if self.online_player:
                     choose_online_mode_menu.disable()
 
-                    location = random.randrange(0, 56)
+                    location = random.randrange(1, 56)
                     self.online_location = location
 
                     self.final_round_over = True

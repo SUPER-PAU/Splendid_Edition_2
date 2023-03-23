@@ -212,12 +212,12 @@ class SuperPauPlayer(PLAYER):
             self.hit = True
             create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
             choice(human_sound).play()
-            self.player.huge_attack_cooldown -= 100
+            self.player.update_huge_attack_cd(100)
         else:
             hit = round(hit * 0.2)
             self.health -= hit
             self.blocking = True
-            self.player.huge_attack_cooldown -= 50
+            self.player.update_huge_attack_cd(60)
         create_damage_number((50 * display.scr_w, 150 * display.scr_h),
                              self.flip, hit)
         self.last_damage_number = hit
@@ -253,11 +253,11 @@ class Attack(pygame.sprite.Sprite):
                     ratio = 0.2
                     if self.block_break or target.jump or target.sprint or target.attacking:
                         ratio = 1
-                        self.player.huge_attack_cooldown -= 50
+                        self.player.update_huge_attack_cd(50)
                         create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
                         choice(woman_sound).play()
                     else:
-                        self.player.huge_attack_cooldown -= 30
+                        self.player.update_huge_attack_cd(30)
                     create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
                                          target.flip, round(self.damage * ratio))
                     self.hit = True

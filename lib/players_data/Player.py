@@ -178,6 +178,13 @@ class PLAYER:
             else:
                 self.health += amount
 
+    def update_huge_attack_cd(self, amount):
+        if self.alive:
+            if self.huge_attack_cooldown - amount <= 0:
+                self.huge_attack_cooldown = 0
+            else:
+                self.huge_attack_cooldown -= amount
+
     def dash(self):
         if self.dashing:
             self.rect.x += self.dash_x * display.scr_w

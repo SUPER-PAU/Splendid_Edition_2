@@ -6,11 +6,11 @@ BYTES = 4096 ** 2
 
 
 class Network:
-    def __init__(self):
+    def __init__(self, serv):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         hostname = socket.gethostname()
         IPAddr = socket.gethostbyname(hostname)
-        self.server = "192.168.1.36"
+        self.server = serv
         self.port = 5555
         self.addr = (self.server, self.port)
         self.p = self.connect()

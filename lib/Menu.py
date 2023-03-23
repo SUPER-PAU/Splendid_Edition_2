@@ -1,5 +1,6 @@
 import pygame
 import cv2
+import pyperclip
 
 from lib.display import display
 from constants.fonts.turok import sys as font
@@ -7,12 +8,15 @@ from lib.mixer import play_music_bg
 from lib.Settings import settings
 from lib.drawer import draw_text
 
+
 # from constants.fonts.turok import bigger_sys as big_font
 
 MAIN_MENU_GUI = pygame.image.load(
     r"assets\images\UI\menu_GUI.png").convert_alpha()
 GAME_MODE_GUI = pygame.image.load(
     r"assets\images\UI\game_menu_GUI.png").convert_alpha()
+ONLINE_MODE_GUI = pygame.image.load(
+    r"assets\images\UI\game_online_menu_GUI.png").convert_alpha()
 STORY_MODE_BUTTON = pygame.image.load(
     r"assets\images\UI\story_button_GUI.png").convert_alpha()
 SURVIVAL_MODE_BUTTON = pygame.image.load(
@@ -75,6 +79,63 @@ class Button:
         return self.clicked
 
 
+class LineEdit:
+    def __init__(self, size, pos):
+        self.x, self.y = pos
+        self.size = self.width, self.height = size
+        self.clicked = False
+        self.text = []
+        self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
+        self.surface = pygame.Surface(self.size)
+        self.render = None
+
+    def click(self, mouse_click):
+        x, y = pygame.mouse.get_pos()
+        if pygame.mouse.get_pressed()[0] and mouse_click:
+            if self.rect.collidepoint(x, y):
+                self.clicked = True
+            else:
+                self.clicked = False
+
+    def show(self, key_press):
+        key = pygame.key.get_pressed()
+        if self.clicked and key_press:
+            if key[pygame.K_BACKSPACE] and len(self.text) > 0:
+                self.text.pop()
+            if key[pygame.K_1]:
+                self.text.append('1')
+            if key[pygame.K_2]:
+                self.text.append('2')
+            if key[pygame.K_3]:
+                self.text.append('3')
+            if key[pygame.K_4]:
+                self.text.append('4')
+            if key[pygame.K_5]:
+                self.text.append('5')
+            if key[pygame.K_6]:
+                self.text.append('6')
+            if key[pygame.K_7]:
+                self.text.append('7')
+            if key[pygame.K_8]:
+                self.text.append('8')
+            if key[pygame.K_9]:
+                self.text.append('9')
+            if key[pygame.K_0]:
+                self.text.append('0')
+            if key[pygame.K_PERIOD]:
+                self.text.append('.')
+
+            if key[pygame.K_v]:
+                self.text.append(str(pyperclip.paste()))
+            if key[pygame.K_c]:
+                pyperclip.copy(self.get_text())
+            draw_text(self.get_text() + ' |', font, (0, 0, 0), 935, 734)
+        draw_text(self.get_text(), font, (0, 0, 0), 935, 734)
+
+    def get_text(self):
+        return str("".join(self.text))
+
+
 class MainMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.start_button = Button(
@@ -126,22 +187,23 @@ class MainMenu:
 class ChooseOnlineModeMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.connect_button = Button(
-            (450 * scr_w, 699 * scr_h),
-            (928 * scr_w, 95 * scr_h), "connect", STORY_MODE_BUTTON)
+            (420 * scr_w, 330 * scr_h),
+            (1406 * scr_w, 94 * scr_h), "connect")
         self.start_server = Button(
-            (450 * scr_w, 699 * scr_h),
-            (1406 * scr_w, 95 * scr_h), "start", SURVIVAL_MODE_BUTTON)
+            (418 * scr_w, 333 * scr_h),
+            (1406 * scr_w, 460 * scr_h), "start")
         self.exit_button = Button(
             (997 * scr_w, 173 * scr_h),
             (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON)
+        self.line_edit = LineEdit((468 * scr_w, 59 * scr_h), (928 * scr_w, 733 * scr_h))
 
         self.bg = bg
-        self.GUI = GAME_MODE_GUI
+        self.GUI = ONLINE_MODE_GUI
         self.enabled = False
         self.is_hide = False
         self.music = music
 
-    def show(self, mouse_click):
+    def show(self, mouse_click, key_press):
         if not self.is_hide:
             scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
             display.screen.blit(scaled_bg, (0, 0))
@@ -153,6 +215,8 @@ class ChooseOnlineModeMenu:
             self.exit_button.click(mouse_click)
             self.connect_button.click(mouse_click)
             self.start_server.click(mouse_click)
+            self.line_edit.show(key_press)
+            self.line_edit.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled
