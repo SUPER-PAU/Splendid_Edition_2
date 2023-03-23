@@ -10,8 +10,9 @@ class Network:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         hostname = socket.gethostname()
         IPAddr = socket.gethostbyname(hostname)
-        self.server = serv
-        self.port = 5555
+        serv = serv.split(':')
+        self.server = serv[0]
+        self.port = int(serv[1])
         self.addr = (self.server, self.port)
         self.p = self.connect()
 
@@ -23,7 +24,9 @@ class Network:
 
     def connect(self):
         try:
+            print(f"Connecting to: {self.addr[0]}:{self.addr[1]}")
             self.client.connect(self.addr)
+            print(f"Connected to: {self.addr[0]}:{self.addr[1]}")
             return pickle.loads(self.client.recv(BYTES))
         except:
             pass

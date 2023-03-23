@@ -1,3 +1,4 @@
+import os
 import socket
 from _thread import *
 import pickle
@@ -12,9 +13,9 @@ display = ServerDisplay()
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
-server = IPAddr
-print(server)
-port = 5555
+server = "192.168.1.35"
+port = int(os.environ.get("PORT", 5555))
+print(f"{server}:{port}")
 
 BYTES = 4096 ** 2
 
@@ -67,3 +68,5 @@ while True:
 
     start_new_thread(threaded_client, (conn, currentPlayer))
     currentPlayer += 1
+    print("new player!")
+    print(currentPlayer)

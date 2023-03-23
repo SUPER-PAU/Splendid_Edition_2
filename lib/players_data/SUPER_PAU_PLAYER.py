@@ -99,8 +99,6 @@ class SuperPauPlayer(PLAYER):
         # apply attack cooldown
         if self.attack_cooldown > 0 and new_frame:
             self.attack_cooldown -= 1
-        if self.huge_attack_cooldown > 0 and new_frame:
-            self.huge_attack_cooldown -= 1
 
     def check_action(self):
         # check what action the player is performing
@@ -212,12 +210,12 @@ class SuperPauPlayer(PLAYER):
             self.hit = True
             create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
             choice(human_sound).play()
-            self.player.update_huge_attack_cd(100)
+            self.update_huge_attack_cd(100)
         else:
             hit = round(hit * 0.2)
             self.health -= hit
             self.blocking = True
-            self.player.update_huge_attack_cd(60)
+            self.update_huge_attack_cd(60)
         create_damage_number((50 * display.scr_w, 150 * display.scr_h),
                              self.flip, hit)
         self.last_damage_number = hit

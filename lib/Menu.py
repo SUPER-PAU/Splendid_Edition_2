@@ -124,13 +124,14 @@ class LineEdit:
                 self.text.append('0')
             if key[pygame.K_PERIOD]:
                 self.text.append('.')
-
+            if key[pygame.K_COLON] or key[pygame.K_SEMICOLON]:
+                self.text.append(':')
             if key[pygame.K_v]:
                 self.text.append(str(pyperclip.paste()))
             if key[pygame.K_c]:
                 pyperclip.copy(self.get_text())
-            draw_text(self.get_text() + ' |', font, (0, 0, 0), 935, 734)
-        draw_text(self.get_text(), font, (0, 0, 0), 935, 734)
+            draw_text(self.get_text() + ' |', font, (0, 0, 0), 935 * display.scr_w, 734 * display.scr_w)
+        draw_text(self.get_text(), font, (0, 0, 0), 935 * display.scr_w, 734 * display.scr_h)
 
     def get_text(self):
         return str("".join(self.text))
@@ -251,6 +252,7 @@ class ChooseModeMenu:
         self.ret, img = self.cap.read()
         img = cv2.transpose(img)
         self.surface = pygame.surface.Surface((img.shape[0], img.shape[1]))
+        self.scaled_bg = None
 
         self.GUI = GAME_MODE_GUI
         self.enabled = False
@@ -263,11 +265,13 @@ class ChooseModeMenu:
             if ret:
                 img = cv2.transpose(img)
                 pygame.surfarray.blit_array(self.surface, img)
-                display.screen.blit(self.surface, (0, 0))
+                self.scaled_bg = pygame.transform.scale(self.surface, (display.screen_width, display.screen_height))
+                display.screen.blit(self.scaled_bg, (0, 0))
             else:
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            scaled_GUI = pygame.transform.scale(self.GUI, (display.screen_width, display.screen_height))
-            display.screen.blit(scaled_GUI, (0, 0))
+                display.screen.blit(self.scaled_bg, (0, 0))
+            scaled_gui = pygame.transform.scale(self.GUI, (display.screen_width, display.screen_height))
+            display.screen.blit(scaled_gui, (0, 0))
             self.campain_button.show()
             self.exit_button.show()
             self.online_button.show()

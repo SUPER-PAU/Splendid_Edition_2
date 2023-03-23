@@ -147,14 +147,14 @@ class LisaPlayer(SuperPauPlayer):
                 self.hit = True
                 choice(woman_sound).play()
                 create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
-                self.player.update_huge_attack_cd(100)
+                self.update_huge_attack_cd(100)
                 # create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle)
                 # choice(self.hurt_sfx).play()
             else:
                 hit = round(hit * 0.2)
                 self.health -= hit
                 self.blocking = True
-                self.player.update_huge_attack_cd(60)
+                self.update_huge_attack_cd(60)
             self.last_damage_number = hit
             create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
                                  self.flip, hit)

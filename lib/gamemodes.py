@@ -335,12 +335,12 @@ class Game:
 
         # update fighters
 
-        if fighter2.hit or fighter2.blocking:
+        if fighter2.hit or fighter2.blocking or not fighter2.alive:
             fighter1.clear_attack_stats()
 
         atk_stats = fighter2.get_attack_stats()
         if atk_stats:
-            if not fighter1.hit and not fighter1.blocking:
+            if not fighter1.hit and not fighter1.blocking and fighter1.alive:
                 fighter1.take_damage(atk_stats[0], atk_stats[1])
 
         fighter1.check_action()
@@ -407,6 +407,9 @@ class Game:
                     self.final_round_over = True
                     game_menu.enable()
                     self.online_on = False
+                    fighter1.reset_params()
+                    self.network.send(fighter1)
+                    self.network = None
 
                 self.intro_count = 4
                 fighter1.reset_params()
@@ -415,6 +418,7 @@ class Game:
         all_sprites.update()
         all_sprites.draw(display.screen)
         bullet_sprites.update()
+
 
     def fight(self, fighter1, fighter2, rounds, f1_name, f2_name):
         if not self.is_dialogue:
@@ -592,6 +596,8 @@ class Game:
 
                     self.final_round_over = True
                     self.online_on = True
+                else:
+                    print("cannot find a server")
 
         if choose_mode_menu.is_enabled():
             choose_mode_menu.show(mouse_click)
