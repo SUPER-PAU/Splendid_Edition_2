@@ -57,6 +57,7 @@ class Game:
         self.network = None
         self.online_player = None
         self.online_location = None
+        self.playing_emoji = False
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -333,6 +334,11 @@ class Game:
         fighter2.draw_hp()
         fighter2.draw_round_statistic("Enemy", self.score[1], font)
 
+        if fighter2.playing_emoji is True and not self.playing_emoji:
+            fighter2.play_emoji()
+            self.playing_emoji = True
+        elif not fighter2.playing_emoji and self.playing_emoji:
+            self.playing_emoji = False
         # update fighters
 
         if fighter2.hit or fighter2.blocking or not fighter2.alive:
@@ -630,9 +636,9 @@ class Game:
                 settings.save()
                 game_menu.enable()
             if options_menu.volume_button_plus.is_clicked():
-                settings.change_music_volume(0.1)
+                settings.change_music_volume(0.01)
             if options_menu.volume_button_minus.is_clicked():
-                settings.change_music_volume(-0.1)
+                settings.change_music_volume(-0.01)
             if options_menu.normal_mode.is_clicked():
                 settings.change_difficulty(1)
             if options_menu.easy_mode.is_clicked():

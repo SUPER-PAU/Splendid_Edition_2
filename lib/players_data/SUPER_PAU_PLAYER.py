@@ -5,7 +5,7 @@ import pygame
 from constants.colors import black, red
 from lib.display import display
 from lib.drawer import draw_health_bar, draw_text
-from lib.particle import create_particles, create_damage_number
+from lib.particle import create_particles, create_damage_number, create_emoji
 from constants.audio.effects import human_sound, woman_sound
 from constants.textures.sprites import shield_parts, attack_group, blood
 from lib.players_data.Player import PLAYER
@@ -15,6 +15,7 @@ class SuperPauPlayer(PLAYER):
     def __init__(self, player, x, y, flip, data, attack_frame):
         super().__init__(player, x, y, flip, data, attack_frame)
         self.sprint = False
+        self.emoji_name = "pau"
 
     def draw_round_statistic(self, name, rounds, font):
         draw_text(f"{name}: {rounds} / {3}", font, black, 17 * display.scr_w,
@@ -24,6 +25,18 @@ class SuperPauPlayer(PLAYER):
 
     def draw_hp(self):
         draw_health_bar(self.health, 20 * display.scr_w, 20 * display.scr_h)
+
+    def play_emoji(self):
+        if self.emoji_name == "lisa":
+            emoji_rect = pygame.Rect(
+                1470 * display.scr_w, 150 * display.scr_h, 250 * display.scr_w, 250 * display.scr_h)
+            emoji_data = [500, 0.5 * display.scr_w, (0, 0), [3], True]
+            create_emoji(emoji_rect, emoji_data, self.emoji_name, self)
+        else:
+            emoji_rect = pygame.Rect(
+                250 * display.scr_w, 150 * display.scr_h, 250 * display.scr_w, 250 * display.scr_h)
+            emoji_data = [500, 0.5 * display.scr_w, (0, 0), [3], False]
+            create_emoji(emoji_rect, emoji_data, self.emoji_name, self)
 
     def move(self, surface, target, round_over, new_frame):
         SPEED = 8 * display.scr_w
@@ -36,9 +49,16 @@ class SuperPauPlayer(PLAYER):
         # key presses
         key = pygame.key.get_pressed()
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
+
         if key[pygame.K_LSHIFT] and not self.jump:
             SPEED += 8.3 * display.scr_w
             self.sprint = True
+
+        # play emoji
+        if key[pygame.K_1] and self.emoji_cooldown <= 0:
+            self.play_emoji()
+            self.emoji_cooldown = 160
+
         # heal player aboba os ability sprint
         self.heal(0.017)
         # can only perform other actions if not attacking
@@ -99,6 +119,8 @@ class SuperPauPlayer(PLAYER):
         # apply attack cooldown
         if self.attack_cooldown > 0 and new_frame:
             self.attack_cooldown -= 1
+        if self.emoji_cooldown > 0:
+            self.emoji_cooldown -= 1
 
     def check_action(self):
         # check what action the player is performing

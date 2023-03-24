@@ -35,12 +35,14 @@ class PLAYER:
         self.huge_attack_cooldown = 300
         self.shield_cooldown = 200
         self.health = 100
+        self.emoji_cooldown = 0
         self.dash_x = 0
         self.stunned = 0
         self.hit = False
         self.shield_on = False
         self.alive = True
         self.ready = False
+        self.playing_emoji = False
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
@@ -66,6 +68,7 @@ class PLAYER:
         self.jump = False
         self.attacking = False
         self.was_attacking = None
+        self.playing_emoji = False
         self.same_attack_count = 0
         self.vel_y = 0
         self.dash_x = 0

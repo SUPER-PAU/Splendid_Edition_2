@@ -322,7 +322,7 @@ class OptionsMenu:
         self.easy_mode.show()
         self.normal_mode.show()
         self.volume_button_plus.click(mouse_click)
-        if settings.get_music_volume() > 0:
+        if settings.get_music_volume() > 0.01:
             self.volume_button_minus.click(mouse_click)
         if settings.get_difficulty() == 0.5:
             self.normal_mode.click(mouse_click)

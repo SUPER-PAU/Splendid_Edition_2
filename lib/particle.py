@@ -1,3 +1,4 @@
+from constants.textures.emoji import pau, lisa
 from lib.display import display
 import pygame
 import random
@@ -453,6 +454,39 @@ class DamageNumber(pygame.sprite.Sprite):
         dy += self.vel_y
         # update position
         self.rect.y += dy
+
+
+class Emoji(Explosion):
+    def __init__(self, rect, data, sprite, player):
+        super().__init__(rect, sprite, data, None, None)
+        self.cooldown = 150
+        self.player = player
+        self.player.playing_emoji = True
+
+    def update(self):
+        self.update_action(0)
+        animation_cooldown = 140
+        # update image
+        self.image = self.animation_list[self.action][self.frame_index]
+        # check if enough time has passed sinse the last update
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.frame_index += 1
+            self.update_time = pygame.time.get_ticks()
+        self.draw()
+        if self.frame_index >= len(self.animation_list[self.action]):
+            self.frame_index = 0
+        if self.cooldown <= 0:
+            self.kill()
+            self.player.playing_emoji = False
+        else:
+            self.cooldown -= 1
+
+
+def create_emoji(rect, data, sprite_name, player):
+    if sprite_name == "lisa":
+        Emoji(rect, data, lisa, player)
+    else:
+        Emoji(rect, data, pau, player)
 
 
 def create_damage_number(coords, flip, damage):

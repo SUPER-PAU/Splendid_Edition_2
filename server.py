@@ -14,7 +14,7 @@ display = ServerDisplay()
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
-server = "192.168.1.43"
+server = "192.168.1.36"
 
 port = int(os.environ.get("PORT", 5555))
 print(f"{server}:{port}")
