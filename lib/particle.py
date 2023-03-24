@@ -33,8 +33,8 @@ class Particle(pygame.sprite.Sprite):
         # движение с ускорением под действием гравитации
         self.velocity[1] += self.gravity
         # перемещаем частицу
-        self.rect.x += self.velocity[0]
-        self.rect.y += self.velocity[1]
+        self.rect.x += self.velocity[0] * display.scr_w
+        self.rect.y += self.velocity[1] * display.scr_h
         # убиваем, если частица ушла за экран
         if not self.rect.colliderect(screen_rect):
             self.kill()
@@ -153,7 +153,7 @@ class Dash(pygame.sprite.Sprite):
             self.kill()
 
     def move(self):
-        self.rect.x += self.player.dash_x
+        self.rect.x += self.player.dash_x * display.scr_w
         self.rect.y = self.rect.y
         if self.rect.colliderect(self.target.rect) and not self.hit:
             self.hit = True
@@ -274,9 +274,9 @@ class Rocket(Explosion):
         dy = 0
         if not self.hit:
             if self.flip:
-                dx = -self.speed * display.scr_w
+                dx = -self.speed
             else:
-                dx = self.speed * display.scr_w
+                dx = self.speed
         if self.speed > 2 * display.scr_w:
             self.speed -= 0.5 * display.scr_w
         # apply gravity
@@ -398,7 +398,7 @@ class Energy(Stone):
     def __init__(self, rect, sprite_sheet, data, target, damage):
         super().__init__(rect, sprite_sheet, data, target, damage)
         self.speed = 25
-        self.vel_y = -30
+        self.vel_y = -30 * display.scr_h
 
     def create_expl(self):
         # play prilet sound
