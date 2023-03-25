@@ -32,6 +32,11 @@ class LisaPlayer(SuperPauPlayer):
             self.hit = False
             self.attacking = False
             self.update_action(5)  # death
+        elif self.grabing:
+            self.update_action(10)
+        elif self.in_grab:
+            self.update_action(11)
+            self.hit = True
         elif self.hit:
             self.update_action(4)  # hit
             self.rect.x -= (8 - 16 * self.flip) * display.scr_w
@@ -46,6 +51,8 @@ class LisaPlayer(SuperPauPlayer):
                     self.update_action(7)  # attack 2
                 case 3:
                     self.update_action(8)  # 3rd attack
+                case 4:
+                    self.update_action(9)
         elif self.jump:
             self.update_action(2)  # jump
         elif self.running:
@@ -70,7 +77,15 @@ class LisaPlayer(SuperPauPlayer):
             else:
                 self.frame_index = 0
                 # check if attack is executed
-                if self.action in [6, 7, 8]:
+                if self.action in [6, 7, 8, 9, 10]:
+                    self.attacking = False
+                    self.grabing = False
+                    self.attack_cooldown = 20
+                    self.dashing = False
+                if self.action == 11:
+                    self.hit = False
+                    self.in_grab = False
+                    # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
                     self.attack_cooldown = 20
                     self.dashing = False
@@ -88,7 +103,10 @@ class LisaPlayer(SuperPauPlayer):
                     self.hit = False
 
         if self.alive:
-            if self.action in [6, 7, 8]:
+            if self.action == 11:
+                if self.frame_index in [2, 3]:
+                    self.rect.x -= (23 - 46 * self.flip) * display.scr_w
+            if self.action in [6, 7, 8, 10, 9]:
                 self.attack_cooldown = 30
                 if self.action == 8:
                     self.huge_attack_cooldown = 300
@@ -126,17 +144,17 @@ class LisaPlayer(SuperPauPlayer):
                     attacking_rect = pygame.Rect(self.rect.centerx - (2.5 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
                                                  2.5 * self.rect.width, self.rect.height * 1.6)
-                    Attack(self, 4, attacking_rect, attacking_rect_2, target, hit, block_break)
+                    Attack(self, 5, attacking_rect, attacking_rect_2, target, hit, block_break)
                     hit = 20
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.6 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
                                                  1.6 * self.rect.width, self.rect.height * 1.6)
-
-            if self.attack_type == self.temp_attack:
-                self.same_attack_count += 1
-            else:
-                self.same_attack_count = 0
-            self.temp_attack = self.attack_type
+                    # grab
+                case 4:
+                    block_break = True
+                    attacking_rect = pygame.Rect(self.rect.centerx - (0.7 * self.rect.width * self.flip),
+                                                 self.rect.y,
+                                                 0.7 * self.rect.width, self.rect.height)
             # take damage
             if attacking_rect:
                 Attack(self, self.attack_type, attacking_rect, attacking_rect_2, target, hit, block_break)
@@ -212,7 +230,10 @@ class Attack(pygame.sprite.Sprite):
             case 3:
                 self.attack_frame = player.attack_frame[2]
             case 4:
+                self.attack_frame = player.attack_frame[3]
+            case 5:
                 self.attack_frame = 8
+        self.attack_type = attack_type
         self.block_break = block_break
         self.rect, self.rect2 = rect, rect2
         self.player = player
@@ -232,6 +253,15 @@ class Attack(pygame.sprite.Sprite):
 
                 if attacking_rect.colliderect(target.rect) or self.rect2.colliderect(target.rect):
                     self.player.was_attacking = (self.damage, self.block_break)
+                    if self.attack_type == 4:
+                        if not target.jump or not target.attacking:
+                            self.player.update_huge_attack_cd(50)
+                            create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
+                            choice(human_sound).play()
+                            self.player.grabing = True
+                            create_damage_number((50 * display.scr_w, 150 * display.scr_h),
+                                                 target.flip, round(self.damage))
+                            self.hit = True
                     # target.take_damage(self.damage, self.block_break)
                     self.hit = True
                     ratio = 0.2

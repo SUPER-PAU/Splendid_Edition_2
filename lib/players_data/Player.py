@@ -43,6 +43,8 @@ class PLAYER:
         self.alive = True
         self.ready = False
         self.playing_emoji = False
+        self.grabing = False
+        self.in_grab = False
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
@@ -63,6 +65,8 @@ class PLAYER:
         self.shield_on = False
         self.dashing = False
         self.alive = True
+        self.grabing = False
+        self.in_grab = False
         self.blocking = False
         self.running = False
         self.jump = False

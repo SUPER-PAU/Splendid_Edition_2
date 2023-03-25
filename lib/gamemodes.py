@@ -346,7 +346,10 @@ class Game:
 
         atk_stats = fighter2.get_attack_stats()
         if atk_stats:
-            if not fighter1.hit and not fighter1.blocking and fighter1.alive:
+            if fighter2.grabing and not fighter1.hit:
+                fighter1.in_grab = True
+                fighter1.take_damage(atk_stats[0], atk_stats[1])
+            elif not fighter1.hit and not fighter1.blocking and fighter1.alive:
                 fighter1.take_damage(atk_stats[0], atk_stats[1])
 
         fighter1.check_action()
