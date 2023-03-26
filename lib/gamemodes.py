@@ -20,6 +20,7 @@ import constants.colors as color
 import constants.fonts.turok as fonts
 from constants.progress import pg
 from lib.online.network import Network
+from lib.online.flask_network import FlaskNetwork
 
 clocks = Clock()
 
@@ -418,6 +419,7 @@ class Game:
                     self.online_on = False
                     fighter1.reset_params()
                     self.network.send(fighter1)
+                    self.network.leave()
                     self.network = None
 
                 self.intro_count = 4
@@ -585,15 +587,18 @@ class Game:
                 choose_online_mode_menu.disable()
                 game_menu.enable()
             if choose_online_mode_menu.start_server.is_clicked():
-                choose_online_mode_menu.disable()
-
-                location = random.randrange(1, 56)
-                self.online_location = location
-
-                self.final_round_over = True
-                self.online_on = True
-                self.network = Network(choose_online_mode_menu.line_edit.get_text())
+                self.network = FlaskNetwork(choose_online_mode_menu.line_edit.get_text())
                 self.online_player = self.network.getP()
+                if self.online_player:
+                    choose_online_mode_menu.disable()
+
+                    location = random.randrange(1, 56)
+                    self.online_location = location
+
+                    self.final_round_over = True
+                    self.online_on = True
+                else:
+                    print("cannot find a server")
             if choose_online_mode_menu.connect_button.is_clicked():
                 self.network = Network(choose_online_mode_menu.line_edit.get_text())
                 self.online_player = self.network.getP()

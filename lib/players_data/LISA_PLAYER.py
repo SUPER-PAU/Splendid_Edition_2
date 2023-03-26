@@ -277,3 +277,96 @@ class Attack(pygame.sprite.Sprite):
 
         else:
             self.kill()
+
+
+class LisaPlayer2(LisaPlayer):
+    def __init__(self, x, y, flip, data, attack_frame):
+        super().__init__(x, y, flip, data, attack_frame)
+
+    def move(self, surface, target, round_over, new_frame):
+        SPEED = 8 * display.scr_w
+        GRAVITY = 2 * display.scr_h
+        dx = 0
+        dy = 0
+        self.running = False
+        self.sprint = False
+        self.attack_type = 0
+        # key presses
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_LSHIFT] and not self.jump:
+            SPEED += 8.3 * display.scr_w
+            self.sprint = True
+
+        # play emoji
+        if key[pygame.K_0] and self.emoji_cooldown <= 0:
+            self.play_emoji()
+            self.emoji_cooldown = 160
+
+        # heal player aboba os ability sprint
+        self.heal(0.017)
+        # can only perform other actions if not attacking
+        if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
+            # jump
+            if key[pygame.K_UP] and self.jump is False:
+                self.vel_y = -46 * display.scr_h
+                self.jump = True
+            # attack
+            if key[pygame.K_h] or key[pygame.K_j] or key[pygame.K_k] \
+                    or key[pygame.K_l]:
+                # determine attack
+                if key[pygame.K_h]:
+                    self.attack_type = 1
+                    hit = 12
+                    self.attack(surface, target, 1.3, hit)
+                elif key[pygame.K_k]:
+                    if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
+                        self.attack_type = 3
+                        hit = 35
+                        self.huge_attack_cooldown = 300
+                        self.attack(surface, target, 1.3, hit)
+                elif key[pygame.K_j]:
+                    self.attack_type = 2
+                    hit = 14
+                    self.attack(surface, target, 2.5, hit)
+                elif key[pygame.K_l]:
+                    print(1)
+                    self.attack_type = 4
+                    hit = 15
+                    self.attack(surface, target, 2.5, hit)
+            # movement
+            if key[pygame.K_LEFT]:
+                dx = -SPEED
+                self.running = True
+            if key[pygame.K_RIGHT]:
+                dx = SPEED
+                self.running = True
+
+            # ensure players face each other
+            if target.rect.centerx >= self.rect.centerx and not self.attacking:
+                self.flip = False
+            elif target.rect.centerx < self.rect.centerx and not self.attacking:
+                self.flip = True
+
+        if not self.hit and not self.attacking and not self.blocking:
+            # apply gravity
+            self.vel_y += GRAVITY
+            dy += self.vel_y
+
+            # ensure player stays on screen
+            if self.rect.left + dx < 0:
+                dx = -self.rect.left
+            if self.rect.right + dx > display.screen_width:
+                dx = display.screen_width - self.rect.right
+            if self.rect.bottom + dy * display.scr_h > display.screen_height - 110 * display.scr_h:
+                self.vel_y = 0
+                self.jump = False
+                dy = display.screen_height - 110 * display.scr_h - self.rect.bottom
+            # update player position
+            self.rect.x += dx
+            self.rect.y += dy
+        # apply attack cooldown
+        if self.attack_cooldown > 0 and new_frame:
+            self.attack_cooldown -= 1
+        if self.emoji_cooldown > 0:
+            self.emoji_cooldown -= 1

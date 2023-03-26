@@ -189,10 +189,10 @@ class ChooseOnlineModeMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.connect_button = Button(
             (420 * scr_w, 330 * scr_h),
-            (1406 * scr_w, 94 * scr_h), "connect")
+            (1406 * scr_w, 94 * scr_h), "local")
         self.start_server = Button(
             (418 * scr_w, 333 * scr_h),
-            (1406 * scr_w, 460 * scr_h), "start")
+            (1406 * scr_w, 460 * scr_h), "ranked")
         self.exit_button = Button(
             (997 * scr_w, 173 * scr_h),
             (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON)

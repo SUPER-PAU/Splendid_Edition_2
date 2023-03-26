@@ -43,3 +43,6 @@ class Network:
             return pickle.loads(self.client.recv(BYTES))
         except socket.error as e:
             print(e)
+
+    def leave(self):
+        pass
