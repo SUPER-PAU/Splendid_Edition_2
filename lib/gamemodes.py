@@ -10,7 +10,7 @@ from lib.mixer import play_music_bg
 from lib.dialogs import dialogs_texts
 from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu
 from lib.Database import update_gp, get_gp
-from constants.textures.sprites import all_sprites, bullet_sprites, attack_group
+from constants.textures.sprites import all_sprites, bullet_sprites, attack_group, enemy_attack_group
 from lib.Settings import settings
 
 # Константы/переменные
@@ -55,10 +55,15 @@ class Game:
         self.round_over_time = 1
         self.fighter_id = 0
         self.GAME_PROGRESS = get_gp()
+
         self.network = None
-        self.online_player = None
+        self.online_player = fighter.super_pau_online
+        self.online_player_ANIMATION_LIST = fighter.PAU_ANIMATION_LIST
+
         self.online_location = None
         self.playing_emoji = False
+        self.enemy_was_attacking = False
+        self.current_player = 1
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -328,7 +333,8 @@ class Game:
 
         fighter1.ready_for_fight()
 
-        attack_group.update(fighter2)
+        attack_group.update(fighter2, fighter1)
+        enemy_attack_group.update(fighter1, fighter2)
 
         fighter1.draw_hp()
         fighter1.draw_round_statistic("You", self.score[0], font)
@@ -342,16 +348,12 @@ class Game:
             self.playing_emoji = False
         # update fighters
 
-        if fighter2.hit or fighter2.blocking or not fighter2.alive:
-            fighter1.clear_attack_stats()
-
-        atk_stats = fighter2.get_attack_stats()
-        if atk_stats:
-            if fighter2.grabing and not fighter1.hit:
-                fighter1.in_grab = True
-                fighter1.take_damage(atk_stats[0], atk_stats[1])
-            elif not fighter1.hit and not fighter1.blocking and fighter1.alive:
-                fighter1.take_damage(atk_stats[0], atk_stats[1])
+        if fighter2.attacking:
+            if not self.enemy_was_attacking:
+                fighter2.attack(fighter1, enemy_attack_group)
+                self.enemy_was_attacking = True
+        else:
+            self.enemy_was_attacking = False
 
         fighter1.check_action()
         fighter2.check_action()
@@ -359,17 +361,15 @@ class Game:
         firgter1_action, fighter1_frame_index = fighter1.get_animation_params()
         firgter2_action, fighter2_frame_index = fighter2.get_animation_params()
 
+        figter1_sprite = self.online_player_ANIMATION_LIST[firgter1_action][fighter1_frame_index]
+        fighter1.update(self.online_player_ANIMATION_LIST)
         # get_image
-        if isinstance(fighter1, fighter.LisaPlayer):
-            figter1_sprite = fighter.LISA_ANIMATION_LIST[firgter1_action][fighter1_frame_index]
+        if fighter2.name == "pau":
             figter2_sprite = fighter.PAU_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
-            fighter1.update(fighter.LISA_ANIMATION_LIST)
-            fighter2.update(fighter.PAU_ANIMATION_LIST)
-        else:
-            figter1_sprite = fighter.PAU_ANIMATION_LIST[firgter1_action][fighter1_frame_index]
+        elif fighter2.name == "lisa":
             figter2_sprite = fighter.LISA_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
-            fighter1.update(fighter.PAU_ANIMATION_LIST)
-            fighter2.update(fighter.LISA_ANIMATION_LIST)
+        else:
+            figter2_sprite = fighter.LISA_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
 
         # update countdown
         if self.intro_count <= 0:
@@ -387,6 +387,7 @@ class Game:
             # update count timer
             if (pygame.time.get_ticks() - self.last_count_update) >= 1000:
                 self.intro_count -= 1
+                fighter1.set_side(self.current_player)
                 self.last_count_update = pygame.time.get_ticks()
 
         self.final_round_over = False
@@ -408,9 +409,10 @@ class Game:
         else:
             fighter1.clear_attack_stats()
             all_sprites.empty()
+            enemy_attack_group.empty()
+            attack_group.empty()
             if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
                 self.round_over = False
-                all_sprites.empty()
                 bullet_sprites.empty()
                 if self.score[0] >= rounds or self.score[1] >= rounds:
                     self.score = [0, 0]
@@ -429,7 +431,6 @@ class Game:
         all_sprites.update()
         all_sprites.draw(display.screen)
         bullet_sprites.update()
-
 
     def fight(self, fighter1, fighter2, rounds, f1_name, f2_name):
         if not self.is_dialogue:
@@ -601,7 +602,7 @@ class Game:
                     print("cannot find a server")
             if choose_online_mode_menu.connect_button.is_clicked():
                 self.network = Network(choose_online_mode_menu.line_edit.get_text())
-                self.online_player = self.network.getP()
+                self.current_player = self.network.getP()
                 if self.online_player:
                     choose_online_mode_menu.disable()
 

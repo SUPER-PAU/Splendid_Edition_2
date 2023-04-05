@@ -8,16 +8,12 @@ BYTES = 4096 ** 2
 class Network:
     def __init__(self, serv):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         hostname = socket.gethostname()
         IPAddr = socket.gethostbyname(hostname)
-        self.server = False
-        if ":" in serv and not "http" in serv:
-            serv = serv.split(':')
-            self.server = serv[0]
-            self.port = int(serv[1])
-            self.addr = (self.server, self.port)
-        else:
-            self.addr = serv
+        self.server = serv
+        self.port = 5555
+        self.addr = (self.server, self.port)
         self.p = self.connect()
 
     def getIP(self):

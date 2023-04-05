@@ -55,6 +55,9 @@ players_for_online = [
 PAU_ANIMATION_LIST = players_for_online[0].load_images(sheet.super_pau_2, SUPER_PAU_PLAYER_2_ANIMATION_STEPS)
 LISA_ANIMATION_LIST = players_for_online[1].load_images(sheet.lisa_2, LISA_2_ANIMATION_STEPS)
 
+super_pau_online = SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [2, 3, 6, 2, 8])
+lisa_online = LisaPlayer(1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, [2, 1, 3, 2, 8])
+
 
 def reset_players():
     global lisa, fighter_2, aksenov, soldier, yacuji, japan_soldier, police, \

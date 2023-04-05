@@ -4,6 +4,7 @@ all_sprites = pygame.sprite.Group()
 bullet_sprites = pygame.sprite.Group()
 
 attack_group = pygame.sprite.Group()
+enemy_attack_group = pygame.sprite.Group()
 
 # Спрайты персов
 aksenov = pygame.image.load(r"assets\images\main hero\Sprites\aksenov.png").convert_alpha()

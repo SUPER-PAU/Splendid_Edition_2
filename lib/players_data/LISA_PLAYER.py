@@ -1,28 +1,13 @@
-from random import choice
-
-from constants.audio.effects import woman_sound, human_sound
-from constants.colors import red, black
 from lib.display import display
-from lib.drawer import draw_health_bar, draw_text
-from lib.particle import create_damage_number, create_particles
-from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
-from constants.textures.sprites import attack_group, blood
+from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
 
 
 class LisaPlayer(SuperPauPlayer):
     def __init__(self, x, y, flip, data, attack_frame):
         super().__init__(2, x, y, flip, data, attack_frame)
-        self.emoji_name = "lisa"
-
-    def draw_round_statistic(self, name, rounds, font):
-        draw_text(f"{name}: {rounds} / {3}", font, black, 1097 * display.scr_w,
-                  83 * display.scr_h)
-        draw_text(f"{name}: {rounds} / {3}", font, red, 1100 * display.scr_w,
-                  80 * display.scr_h)
-
-    def draw_hp(self):
-        draw_health_bar(self.health, 1100 * display.scr_w, 20 * display.scr_h)
+        self.sex = 2
+        self.name = "lisa"
 
     def check_action(self):
         # check what action the player is performing
@@ -104,7 +89,7 @@ class LisaPlayer(SuperPauPlayer):
 
         if self.alive:
             if self.action == 11:
-                if self.frame_index in [2, 3]:
+                if self.frame_index in [3, 4]:
                     self.rect.x -= (23 - 46 * self.flip) * display.scr_w
             if self.action in [6, 7, 8, 10, 9]:
                 self.attack_cooldown = 30
@@ -120,12 +105,13 @@ class LisaPlayer(SuperPauPlayer):
             self.take_damage(0.2)
             self.vel_y = 0
 
-    def attack(self, surface, target, hg_att, hit):
-        if self.attack_cooldown == 0 and not self.hit:
+    def attack(self, target, group):
+        if not self.hit:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)
             attacking_rect = None
             block_break = False
+            hit = 0
             # att 1
             match self.attack_type:
                 case 1:
@@ -137,6 +123,7 @@ class LisaPlayer(SuperPauPlayer):
                 case 2:
                     attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y,
                                                  2 * self.rect.width, self.rect.height)
+                    hit = 12
                 # speshal
                 case 3:
                     block_break = True
@@ -144,7 +131,7 @@ class LisaPlayer(SuperPauPlayer):
                     attacking_rect = pygame.Rect(self.rect.centerx - (2.5 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
                                                  2.5 * self.rect.width, self.rect.height * 1.6)
-                    Attack(self, 5, attacking_rect, attacking_rect_2, target, hit, block_break)
+                    Attack(self, 5, attacking_rect, attacking_rect_2, target, hit, group, block_break)
                     hit = 20
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.6 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
@@ -152,221 +139,11 @@ class LisaPlayer(SuperPauPlayer):
                     # grab
                 case 4:
                     block_break = True
+                    hit = 15
                     attacking_rect = pygame.Rect(self.rect.centerx - (0.7 * self.rect.width * self.flip),
                                                  self.rect.y,
                                                  0.7 * self.rect.width, self.rect.height)
             # take damage
             if attacking_rect:
-                Attack(self, self.attack_type, attacking_rect, attacking_rect_2, target, hit, block_break)
+                Attack(self, self.attack_type, attacking_rect, attacking_rect_2, target, hit, group, block_break)
 
-    def take_damage(self, hit, block_break=False):
-        if not self.shield_on:
-            if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
-                self.health -= hit
-                self.hit = True
-                choice(woman_sound).play()
-                create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
-                self.update_huge_attack_cd(100)
-                # create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle)
-                # choice(self.hurt_sfx).play()
-            else:
-                hit = round(hit * 0.2)
-                self.health -= hit
-                self.blocking = True
-                self.update_huge_attack_cd(60)
-            self.last_damage_number = hit
-            create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
-                                 self.flip, hit)
-        else:
-            self.shield_on = False
-
-    def draw_cooldown_stats(self, surface):
-        # draw atk cooldown
-        pygame.draw.rect(surface, (255, 255, 255),
-                         ((1450 - 2) * display.scr_w, (1020 - 2) * display.scr_h, (440 + 4) * display.scr_w,
-                          19 * display.scr_h))
-        pygame.draw.rect(surface, (204, 51, 0),
-                         (1450 * display.scr_w, 1020 * display.scr_h, 440 * display.scr_w, 15 * display.scr_h))
-        pygame.draw.rect(surface, (0, 0, 0),
-                         (
-                             1450 * display.scr_w, 1020 * display.scr_h, self.attack_cooldown * 8 * display.scr_w,
-                             15 * display.scr_h))
-
-        # draw huge attack cooldown
-        pygame.draw.rect(surface, (255, 255, 255),
-                         ((1100 - 2) * display.scr_w, (60 - 2) * display.scr_h, (300 + 4) * display.scr_w,
-                          19 * display.scr_h))
-        pygame.draw.rect(surface, (70, 70, 195), (
-            1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
-            15 * display.scr_h))
-        pygame.draw.rect(surface, (0, 0, 90), (
-            1100 * display.scr_w, (60 + 10) * display.scr_h, 300 * display.scr_w,
-            5 * display.scr_h))
-        pygame.draw.rect(surface, (120, 120, 255), (
-            1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
-            5 * display.scr_h))
-        if self.huge_attack_cooldown > 0:
-            pygame.draw.rect(surface, (0, 0, 0),
-                             (1100 * display.scr_w, 60 * display.scr_h, self.huge_attack_cooldown * display.scr_w,
-                              15 * display.scr_h))
-        else:
-            pygame.draw.rect(surface, (204, 255, 255), (
-                1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
-                15 * display.scr_h))
-            pygame.draw.rect(surface, (0, 255, 255), (
-                1100 * display.scr_w, (60 + 7) * display.scr_h, 300 * display.scr_w,
-                8 * display.scr_h))
-
-
-class Attack(pygame.sprite.Sprite):
-    def __init__(self, player, attack_type, rect, rect2, target, damage, block_break=False):
-        super().__init__(attack_group)
-        match attack_type:
-            case 1:  # attack1
-                self.attack_frame = player.attack_frame[0]
-            case 2:  # attack 2
-                self.attack_frame = player.attack_frame[1]
-            # 3rd attack
-            case 3:
-                self.attack_frame = player.attack_frame[2]
-            case 4:
-                self.attack_frame = player.attack_frame[3]
-            case 5:
-                self.attack_frame = 8
-        self.attack_type = attack_type
-        self.block_break = block_break
-        self.rect, self.rect2 = rect, rect2
-        self.player = player
-        self.target = target
-        self.damage = damage
-        self.hit = False
-
-    def update(self, target):
-        if self.player.attacking and not self.hit and not self.player.hit:
-            if self.attack_frame == self.player.frame_index:
-                attacking_rect = pygame.Rect(
-                    self.player.rect.centerx - (self.rect.width * self.player.flip),
-                    self.rect.y,
-                    self.rect.width, self.rect.height)
-
-                # pygame.draw.rect(display.screen, (255, 255, 0), attacking_rect)
-
-                if attacking_rect.colliderect(target.rect) or self.rect2.colliderect(target.rect):
-                    self.player.was_attacking = (self.damage, self.block_break)
-                    if self.attack_type == 4:
-                        if not target.jump or not target.attacking:
-                            self.player.update_huge_attack_cd(50)
-                            create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
-                            choice(human_sound).play()
-                            self.player.grabing = True
-                            create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                                 target.flip, round(self.damage))
-                            self.hit = True
-                    # target.take_damage(self.damage, self.block_break)
-                    self.hit = True
-                    ratio = 0.2
-                    if self.block_break or target.jump or target.sprint or target.attacking:
-                        ratio = 1
-                        self.player.update_huge_attack_cd(50)
-                        create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
-                        choice(human_sound).play()
-                    else:
-                        self.player.update_huge_attack_cd(30)
-                    create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                         target.flip, round(self.damage * ratio))
-
-        else:
-            self.kill()
-
-
-class LisaPlayer2(LisaPlayer):
-    def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(x, y, flip, data, attack_frame)
-
-    def move(self, surface, target, round_over, new_frame):
-        SPEED = 8 * display.scr_w
-        GRAVITY = 2 * display.scr_h
-        dx = 0
-        dy = 0
-        self.running = False
-        self.sprint = False
-        self.attack_type = 0
-        # key presses
-        key = pygame.key.get_pressed()
-
-        if key[pygame.K_LSHIFT] and not self.jump:
-            SPEED += 8.3 * display.scr_w
-            self.sprint = True
-
-        # play emoji
-        if key[pygame.K_0] and self.emoji_cooldown <= 0:
-            self.play_emoji()
-            self.emoji_cooldown = 160
-
-        # heal player aboba os ability sprint
-        self.heal(0.017)
-        # can only perform other actions if not attacking
-        if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
-            # jump
-            if key[pygame.K_UP] and self.jump is False:
-                self.vel_y = -46 * display.scr_h
-                self.jump = True
-            # attack
-            if key[pygame.K_h] or key[pygame.K_j] or key[pygame.K_k] \
-                    or key[pygame.K_l]:
-                # determine attack
-                if key[pygame.K_h]:
-                    self.attack_type = 1
-                    hit = 12
-                    self.attack(surface, target, 1.3, hit)
-                elif key[pygame.K_k]:
-                    if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
-                        self.attack_type = 3
-                        hit = 35
-                        self.huge_attack_cooldown = 300
-                        self.attack(surface, target, 1.3, hit)
-                elif key[pygame.K_j]:
-                    self.attack_type = 2
-                    hit = 14
-                    self.attack(surface, target, 2.5, hit)
-                elif key[pygame.K_l]:
-                    print(1)
-                    self.attack_type = 4
-                    hit = 15
-                    self.attack(surface, target, 2.5, hit)
-            # movement
-            if key[pygame.K_LEFT]:
-                dx = -SPEED
-                self.running = True
-            if key[pygame.K_RIGHT]:
-                dx = SPEED
-                self.running = True
-
-            # ensure players face each other
-            if target.rect.centerx >= self.rect.centerx and not self.attacking:
-                self.flip = False
-            elif target.rect.centerx < self.rect.centerx and not self.attacking:
-                self.flip = True
-
-        if not self.hit and not self.attacking and not self.blocking:
-            # apply gravity
-            self.vel_y += GRAVITY
-            dy += self.vel_y
-
-            # ensure player stays on screen
-            if self.rect.left + dx < 0:
-                dx = -self.rect.left
-            if self.rect.right + dx > display.screen_width:
-                dx = display.screen_width - self.rect.right
-            if self.rect.bottom + dy * display.scr_h > display.screen_height - 110 * display.scr_h:
-                self.vel_y = 0
-                self.jump = False
-                dy = display.screen_height - 110 * display.scr_h - self.rect.bottom
-            # update player position
-            self.rect.x += dx
-            self.rect.y += dy
-        # apply attack cooldown
-        if self.attack_cooldown > 0 and new_frame:
-            self.attack_cooldown -= 1
-        if self.emoji_cooldown > 0:
-            self.emoji_cooldown -= 1

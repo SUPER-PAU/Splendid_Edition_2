@@ -49,3 +49,4 @@ def leave():
     global currentPlayer, players
     currentPlayer -= 1
     players = players_for_online.copy()
+    return "success"

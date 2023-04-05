@@ -14,7 +14,7 @@ display = ServerDisplay()
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
-server = "26.213.116.244"
+server = "localhost"
 
 port = int(os.environ.get("PORT", 5555))
 print(f"{server}:{port}")
@@ -22,6 +22,7 @@ print(f"{server}:{port}")
 BYTES = 4096 ** 2
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
 try:
     s.bind((server, port))
@@ -36,7 +37,7 @@ players = players_for_online
 
 def threaded_client(conn, player):
     global currentPlayer
-    conn.send(pickle.dumps(players[player]))
+    conn.send(pickle.dumps(currentPlayer))
     reply = ""
     while True:
         try:
@@ -65,6 +66,7 @@ def threaded_client(conn, player):
 
 currentPlayer = 0
 while True:
+
     conn, addr = s.accept()
     print("Connected to:", addr)
 
