@@ -233,8 +233,8 @@ class Game:
 
             if choose_online_mode_menu.start_server.is_clicked():
                 self.network = FlaskNetwork(choose_online_mode_menu.line_edit.get_text())
-                self.online_player = self.network.getP()
-                if self.online_player:
+                self.current_player = self.network.getP()
+                if self.current_player != "game is full" and self.current_player:
                     choose_online_mode_menu.disable()
 
                     location = random.randrange(1, 56)
@@ -243,6 +243,7 @@ class Game:
                     self.final_round_over = True
                     self.online_on = True
                 else:
+                    print(self.current_player)
                     print("cannot find a server")
             if choose_online_mode_menu.connect_button.is_clicked():
                 self.network = Network(choose_online_mode_menu.line_edit.get_text())

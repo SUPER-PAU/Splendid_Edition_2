@@ -1,15 +1,13 @@
 import datetime
 import os
 
-from lib.display import ServerDisplay
+
 from lib.online.data import players_api
-
-display = ServerDisplay()
-
 
 import flask
 
 from flask_restful import Api
+
 
 app = flask.Flask(__name__)
 api = Api(app)

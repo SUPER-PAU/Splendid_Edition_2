@@ -11,7 +11,7 @@ class Network:
         self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         hostname = socket.gethostname()
         IPAddr = socket.gethostbyname(hostname)
-        self.server = "localhost"
+        self.server = "192.168.1.36"
         self.port = 5555
         self.addr = (self.server, self.port)
         self.p = self.connect()

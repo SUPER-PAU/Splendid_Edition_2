@@ -3,18 +3,12 @@ import socket
 from _thread import *
 import pickle
 
-from lib.display import ServerDisplay
-
-from lib.players import players_for_online
-
-
-display = ServerDisplay()
 
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
-server = "localhost"
+server = "192.168.1.36"
 
 port = int(os.environ.get("PORT", 5555))
 print(f"{server}:{port}")
@@ -32,7 +26,9 @@ except socket.error as e:
 
 s.listen(2)
 print("Waiting for a connection, Server Started")
-players = players_for_online.copy()
+players = players_for_online = [
+    [None, False, False, None],
+    [None, False, False, None]]
 
 
 def threaded_client(conn, player):
@@ -59,7 +55,9 @@ def threaded_client(conn, player):
         except:
             break
     currentPlayer -= 1
-    players = players_for_online.copy()
+    players = [
+        [None, False, False, None],
+        [None, False, False, None]]
     print("players:", currentPlayer)
     print("Lost connection")
     conn.close()
