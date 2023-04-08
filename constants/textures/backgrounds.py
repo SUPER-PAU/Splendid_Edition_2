@@ -52,7 +52,8 @@ black = pygame.image.load(r"assets\images\background\black.png").convert_alpha()
 blue = pygame.image.load(r"assets\images\background\blue.png").convert_alpha()
 
 loading_screen = pygame.image.load(r"assets\images\background\loading_screen.png").convert_alpha()
-online_menu = pygame.image.load(r"assets\images\background\online_menu.png").convert_alpha()
+online_menu = pygame.image.load(r"assets\images\background\world_collapse.png").convert_alpha()
+choose_hero = pygame.image.load(r"assets\images\background\hero_pick.png").convert_alpha()
 
 # видео фоны
 game_menu_animated = r"assets\images\animated_background\city_kazan.mp4"

@@ -5,7 +5,7 @@ import pygame
 
 class LisaPlayer(SuperPauPlayer):
     def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(2, x, y, flip, data, attack_frame)
+        super().__init__(1, x, y, flip, data, attack_frame)
         self.sex = 2
         self.name = "lisa"
 
@@ -65,26 +65,28 @@ class LisaPlayer(SuperPauPlayer):
                 if self.action in [6, 7, 8, 9, 10]:
                     self.attacking = False
                     self.grabing = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.dashing = False
+                    if self.action == 7:
+                        self.rect.x -= (200 - 400 * self.flip) * display.scr_w
                 if self.action == 11:
                     self.hit = False
                     self.in_grab = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.dashing = False
                 # check if damage was taken
                 if self.action == 4:
                     self.hit = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.dashing = False
                 # check block
                 if self.action == 3:
                     self.blocking = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.hit = False
 
         if self.alive:
@@ -92,7 +94,7 @@ class LisaPlayer(SuperPauPlayer):
                 if self.frame_index in [3, 4]:
                     self.rect.x -= (23 - 46 * self.flip) * display.scr_w
             if self.action in [6, 7, 8, 10, 9]:
-                self.attack_cooldown = 30
+                self.attack_cooldown = 15
                 if self.action == 8:
                     self.huge_attack_cooldown = 300
                     if self.frame_index in [2, 3, 7, 8]:
@@ -131,7 +133,7 @@ class LisaPlayer(SuperPauPlayer):
                     attacking_rect = pygame.Rect(self.rect.centerx - (2.5 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
                                                  2.5 * self.rect.width, self.rect.height * 1.6)
-                    Attack(self, 5, attacking_rect, attacking_rect_2, target, hit, group, block_break)
+                    Attack(self, attacking_rect, attacking_rect_2, 5, target, hit, group, block_break)
                     hit = 20
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.6 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
@@ -145,5 +147,5 @@ class LisaPlayer(SuperPauPlayer):
                                                  0.7 * self.rect.width, self.rect.height)
             # take damage
             if attacking_rect:
-                Attack(self, self.attack_type, attacking_rect, attacking_rect_2, target, hit, group, block_break)
+                Attack(self, attacking_rect, attacking_rect_2, self.attack_type, target, hit, group, block_break)
 

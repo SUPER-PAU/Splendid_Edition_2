@@ -11,7 +11,7 @@ class Network:
         self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         hostname = socket.gethostname()
         IPAddr = socket.gethostbyname(hostname)
-        self.server = serv
+        self.server = "localhost"
         self.port = 5555
         self.addr = (self.server, self.port)
         self.p = self.connect()
@@ -31,7 +31,7 @@ class Network:
             print(f"Connected to: {self.addr}")
             return pickle.loads(self.client.recv(BYTES))
         except:
-            pass
+            return None
 
     def send(self, data):
         try:

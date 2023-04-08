@@ -25,7 +25,6 @@ WARRIOR_ANIMATION_STEPS = [10, 8, 1, 8, 8, 3, 7]
 MAGE_ANIMATION_STEPS = [8, 8, 1, 5, 5, 3, 7]
 AKSENOV_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6]
 LISA_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6]
-LISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 10, 3, 5, 6]
 KINGARTEMA_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 7]
 SOLDIER_ANIMATION_STEPS = [8, 8, 1, 7, 4, 3, 6]
 YACUGI_ANIMATION_STEPS = [8, 8, 1, 5, 7, 3, 6]
@@ -34,13 +33,16 @@ GENERAL_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
 WALKER_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
 SUPER_PAU_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 4]
 SUPER_PAU_PLAYER_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 8]
-SUPER_PAU_PLAYER_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 6, 7, 8, 3, 5, 6]
 SUPER_PAU_BOSS_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 7]
 BULAT_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6, 7]
 bt25_animation_steps = [10, 3, 1, 7, 4, 3, 7]
 MAISEEV_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6, 5]
 TAGIR_ANIMATION_STEPS = [8, 4, 1, 6, 4, 3, 6]
 SUPERTANK_ANIMATION_STEPS = [4, 4, 1, 8, 8, 3, 4, 8]
+
+LISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 10, 3, 5, 6]
+SUPER_PAU_PLAYER_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 6, 7, 8, 3, 5, 6]
+VESISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 0, 3, 5, 6]
 
 # create instances of fighters
 lisa = aksenov = super_pau = bt25t = fighter_2 = soldier = japan_soldier = yacuji = police = negrominator = None
@@ -50,13 +52,13 @@ moiseev_security = walker_enemy = walker = trio = trio_enemy = supertank = albin
 bt_final_battle = None
 
 players_for_online = [
-    SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [2, 3, 6, 2]),
-    LisaPlayer(1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, [2, 1, 3, 2])]
-PAU_ANIMATION_LIST = players_for_online[0].load_images(sheet.super_pau_2, SUPER_PAU_PLAYER_2_ANIMATION_STEPS)
-LISA_ANIMATION_LIST = players_for_online[1].load_images(sheet.lisa_2, LISA_2_ANIMATION_STEPS)
+    [SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [2, 3, 6, 2]), False, False, None],
+    [LisaPlayer(1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, [2, 1, 3, 2]), False, False, None]]
 
 super_pau_online = SuperPauPlayer(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [2, 3, 6, 2, 8])
 lisa_online = LisaPlayer(1400 * display.scr_w, 540 * display.scr_h, True, LISA_DATA, [2, 1, 3, 2, 8])
+PAU_ANIMATION_LIST = super_pau_online.load_images(sheet.super_pau_2, SUPER_PAU_PLAYER_2_ANIMATION_STEPS)
+LISA_ANIMATION_LIST = lisa_online.load_images(sheet.lisa_2, LISA_2_ANIMATION_STEPS)
 
 
 def reset_players():

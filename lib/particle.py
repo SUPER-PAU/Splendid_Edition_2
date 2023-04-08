@@ -133,10 +133,9 @@ class Bullet(pygame.sprite.Sprite):
                              self.rect.y - self.offset[1] * self.image_scale))
 
 
-
 class Dash(pygame.sprite.Sprite):
-    def __init__(self, rect, flip, target, player, damage):
-        super().__init__(bullet_sprites)
+    def __init__(self, rect, flip, target, player, damage, sprite_group):
+        super().__init__(sprite_group)
         self.rect = rect.copy()
         self.action = 0  # 0 - idle
         self.frame_index = 0
@@ -148,13 +147,12 @@ class Dash(pygame.sprite.Sprite):
         self.update_time = pygame.time.get_ticks()
 
     def update(self):
-        self.move()
-        # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
+        self.move(self.player)
         if not self.player.attacking:
             self.kill()
 
-    def move(self):
-        self.rect.x += self.player.dash_x * display.scr_w
+    def move(self, player):
+        self.rect.x += player.dash_x * display.scr_w
         self.rect.y = self.rect.y
         if self.rect.colliderect(self.target.rect) and not self.hit:
             self.hit = True
@@ -217,7 +215,7 @@ class Explosion(pygame.sprite.Sprite):
     def attack(self):
         if self.rect.colliderect(self.target.rect) and not self.hit:
             self.hit = True
-            self.target.take_damage(self.damage)
+            self.target.take_damage(self.damage, True)
 
     def draw(self):
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
@@ -344,9 +342,9 @@ class Stone(Explosion):
         dx = 0
         dy = 0
         if self.flip:
-            dx = -self.speed * display.scr_w
+            dx = -self.speed
         else:
-            dx = self.speed * display.scr_w
+            dx = self.speed
         if self.speed > 2 * display.scr_w:
             self.speed -= 0.5 * display.scr_w
         # apply gravity
@@ -512,8 +510,7 @@ def create_bullet(rect, data, target, damage):
 
 
 def create_dash(rect, flip, target, player, damage):
-    Dash(rect, flip, target, player, damage)
-
+    Dash(rect, flip, target, player, damage, bullet_sprites)
 
 def create_beam(rect, data, target, damage):
     Beam(rect, beam, data, target, damage)

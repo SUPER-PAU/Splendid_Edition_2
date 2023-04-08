@@ -8,7 +8,7 @@ from lib.display import display
 from lib.drawer import draw_health_bar, draw_text, check_bg_instance
 from lib.mixer import play_music_bg
 from lib.dialogs import dialogs_texts
-from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu
+from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu, ChooseHeroMenu, OnlineBattle
 from lib.Database import update_gp, get_gp
 from constants.textures.sprites import all_sprites, bullet_sprites, attack_group, enemy_attack_group
 from lib.Settings import settings
@@ -22,6 +22,8 @@ from constants.progress import pg
 from lib.online.network import Network
 from lib.online.flask_network import FlaskNetwork
 
+import lib.players_data.online_players as online_fighter
+
 clocks = Clock()
 
 # fonts
@@ -33,6 +35,7 @@ game_menu = MainMenu(display.scr_w, display.scr_h, bg.main_menu, music.main_menu
 options_menu = OptionsMenu(display.scr_w, display.scr_h, bg.options_menu)
 choose_mode_menu = ChooseModeMenu(display.scr_w, display.scr_h, bg.game_menu_animated, music.main_menu)
 choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.online_menu, music.main_menu)
+hero_choose_menu = ChooseHeroMenu(bg.choose_hero)
 bg.briff_war.play()
 display.set_fps(24)
 
@@ -57,13 +60,274 @@ class Game:
         self.GAME_PROGRESS = get_gp()
 
         self.network = None
-        self.online_player = fighter.super_pau_online
-        self.online_player_ANIMATION_LIST = fighter.PAU_ANIMATION_LIST
+        self.online_player = online_fighter.super_pau
+        self.team = [online_fighter.lisa, online_fighter.super_pau, online_fighter.tagir]
+        self.enemy = None
+        self.chosen = False
+        self.team_player = 6
+        self.choose_hero_window_on = False
 
         self.online_location = None
         self.playing_emoji = False
         self.enemy_was_attacking = False
+        self.lost = False
         self.current_player = 1
+        self.battle_menu = OnlineBattle(bg.choose_hero, self.team)
+
+    def online_fight(self, new_frame):
+        self.check_game_progress(*pg[self.online_location])
+
+        fighter1 = self.online_player.player
+        fighter2 = self.enemy[0]
+
+        fighter1.ready_for_fight()
+
+        attack_group.update(fighter2, fighter1)
+        enemy_attack_group.update(self.online_player.player, fighter2)
+
+        fighter1.draw_hp()
+        fighter1.draw_round_statistic("You", font)
+        fighter2.draw_hp()
+        fighter2.draw_round_statistic("Enemy", font)
+
+        if fighter2.playing_emoji is True and not self.playing_emoji:
+            fighter2.play_emoji()
+            self.playing_emoji = True
+        elif not fighter2.playing_emoji and self.playing_emoji:
+            self.playing_emoji = False
+        # update fighters
+
+        if fighter2.attacking:
+            if not self.enemy_was_attacking:
+                fighter2.attack(self.online_player.player, enemy_attack_group)
+                self.enemy_was_attacking = True
+        else:
+            self.enemy_was_attacking = False
+
+        fighter1.check_action()
+        fighter2.check_action()
+
+        firgter2_action, fighter2_frame_index = fighter2.get_animation_params()
+
+        # get_image
+        figter2_sprite = online_fighter.animation_list_by_name[fighter2.name][firgter2_action][fighter2_frame_index]
+
+        # update countdown
+        if self.intro_count <= 0:
+            # move fighter
+            fighter1.move(display.screen, fighter2, self.round_over, new_frame)
+        else:
+            # display count timer
+            draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
+                      10 * display.scr_h)
+            # update count timer
+            if (pygame.time.get_ticks() - self.last_count_update) >= 1000:
+                self.intro_count -= 1
+                self.last_count_update = pygame.time.get_ticks()
+
+        self.final_round_over = False
+
+        # draw fighters
+        fighter2.draw(display.screen, figter2_sprite)
+        self.online_player.draw_p()
+
+        # check for player defeat
+        if not self.round_over:
+            if not fighter1.alive:
+                self.score[1] += 1
+                self.round_over = True
+                self.chosen = False
+                self.team_player = 6
+                self.round_over_time = pygame.time.get_ticks()
+            if not fighter2.alive:
+                self.score[0] += 1
+                self.round_over = True
+                self.round_over_time = pygame.time.get_ticks()
+        else:
+            all_sprites.empty()
+            enemy_attack_group.empty()
+            attack_group.empty()
+            if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
+                bullet_sprites.empty()
+                self.intro_count = 4
+                self.battle_menu.enable()
+        all_sprites.update()
+        all_sprites.draw(display.screen)
+        bullet_sprites.update()
+
+    def game_navigation(self, key_click, mouse_click, new_frame):
+        # navigate menu
+        if self.main_campain_on:
+            self.main_campain_game(key_click)
+
+        if self.online_on:
+            if self.final_round_over:
+                self.final_round_over = False
+                self.round_over = True
+                self.battle_menu = OnlineBattle(bg.choose_hero, self.team)
+                self.battle_menu.enable()
+            if self.battle_menu.is_enabled():
+                self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost,
+                                                [self.team[0].player, self.team[1].player, self.team[2].player]])
+                self.intro_count = 4
+                self.battle_menu.show(mouse_click, self.chosen, self.enemy[3])
+                if self.battle_menu.player_hero_1.is_clicked():
+                    self.battle_menu.player_hero_1.set_picked()
+                    self.online_player = self.team[0]
+                    self.chosen = True
+                    self.online_player.player.set_side(self.current_player)
+                elif self.battle_menu.player_hero_2.is_clicked():
+                    self.battle_menu.player_hero_2.set_picked()
+                    self.online_player = self.team[1]
+                    self.chosen = True
+                    self.online_player.player.set_side(self.current_player)
+                elif self.battle_menu.player_hero_3.is_clicked():
+                    self.battle_menu.player_hero_3.set_picked()
+                    self.online_player = self.team[2]
+                    self.chosen = True
+                    self.online_player.player.set_side(self.current_player)
+                if self.lost or self.enemy[2]:
+                    self.battle_menu.disable()
+                    self.score = [0, 0]
+                    self.team_player = 6
+                    game_menu.enable()
+                    self.online_on = False
+                    self.final_round_over = True
+
+                    for player in self.team:
+                        player.reset_params()
+                    self.network.leave()
+                    self.chosen = False
+                    self.lost = False
+                    self.network = None
+                    self.intro_count = 4
+                elif not self.team[0].player.alive and not \
+                        self.team[1].player.alive and not self.team[2].player.alive:
+                    self.lost = True
+                    self.network.send([self.online_player.player, self.chosen, self.lost,
+                                      [self.team[0].player, self.team[1].player, self.team[2].player]])
+                if self.enemy[1] and self.chosen:
+                    self.battle_menu.disable()
+                    self.round_over = False
+            else:
+                self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost, None])
+                self.online_fight(new_frame)
+
+        if choose_online_mode_menu.is_enabled():
+            choose_online_mode_menu.show(mouse_click, key_click, self.team)
+            if choose_online_mode_menu.exit_button.is_clicked():
+                choose_online_mode_menu.disable()
+                game_menu.enable()
+            if choose_online_mode_menu.hero_button_1.is_clicked():
+                choose_online_mode_menu.disable()
+                hero_choose_menu.enable(0)
+                mouse_click = False
+            elif choose_online_mode_menu.hero_button_2.is_clicked():
+                choose_online_mode_menu.disable()
+                hero_choose_menu.enable(1)
+                mouse_click = False
+            elif choose_online_mode_menu.hero_button_3.is_clicked():
+                choose_online_mode_menu.disable()
+                hero_choose_menu.enable(2)
+                mouse_click = False
+
+            if choose_online_mode_menu.start_server.is_clicked():
+                self.network = FlaskNetwork(choose_online_mode_menu.line_edit.get_text())
+                self.online_player = self.network.getP()
+                if self.online_player:
+                    choose_online_mode_menu.disable()
+
+                    location = random.randrange(1, 56)
+                    self.online_location = location
+
+                    self.final_round_over = True
+                    self.online_on = True
+                else:
+                    print("cannot find a server")
+            if choose_online_mode_menu.connect_button.is_clicked():
+                self.network = Network(choose_online_mode_menu.line_edit.get_text())
+                self.current_player = self.network.getP()
+                if self.current_player:
+                    choose_online_mode_menu.disable()
+
+                    location = random.randrange(1, 56)
+                    self.online_location = location
+
+                    self.final_round_over = True
+                    self.online_on = True
+                else:
+                    print("cannot find a server")
+
+        if hero_choose_menu.is_enabled():
+            hero_choose_menu.show(mouse_click)
+            flag = False
+            if hero_choose_menu.super_pau.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.super_pau.get_p()
+                flag = True
+            elif hero_choose_menu.lisa.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.lisa.get_p()
+                flag = True
+            elif hero_choose_menu.vesisa.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.vesisa.get_p()
+                flag = True
+            elif hero_choose_menu.tagir.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.tagir.get_p()
+                flag = True
+
+            if flag:
+                hero_choose_menu.disable()
+                choose_online_mode_menu.enable()
+
+        if choose_mode_menu.is_enabled():
+            choose_mode_menu.show(mouse_click)
+            if choose_mode_menu.exit_button.is_clicked():
+                choose_mode_menu.disable()
+                game_menu.enable()
+            if choose_mode_menu.campain_button.is_clicked() and not self.GAME_PROGRESS > 54:
+                self.main_campain_on = True
+                self.final_round_over = True
+                choose_mode_menu.disable()
+            if choose_mode_menu.online_button.is_clicked():
+                choose_online_mode_menu.enable()
+                choose_mode_menu.disable()
+
+        if game_menu.is_enabled():
+            game_menu.show(mouse_click)
+            if game_menu.exit_button.is_clicked():
+                self.aplication_run = False
+            if game_menu.start_button.is_clicked():
+                game_menu.disable()
+                choose_mode_menu.enable()
+            if game_menu.options_button.is_clicked():
+                game_menu.disable()
+                options_menu.enable()
+
+        if options_menu.is_enabled():
+            options_menu.show(mouse_click)
+            if options_menu.exit_button.is_clicked():
+                options_menu.disable()
+                settings.save()
+                game_menu.enable()
+            if options_menu.volume_button_plus.is_clicked():
+                settings.change_music_volume(0.01)
+            if options_menu.volume_button_minus.is_clicked():
+                settings.change_music_volume(-0.01)
+            if options_menu.normal_mode.is_clicked():
+                settings.change_difficulty(1)
+            if options_menu.easy_mode.is_clicked():
+                settings.change_difficulty(0.5)
+
+        if bg.briff_war.is_playing():
+            bg.briff_war.draw()
+            key = pygame.key.get_pressed()
+            if key[pygame.K_c]:
+                bg.briff_war.stop()
+        elif bg.end_cutscene_1.is_playing():
+            bg.end_cutscene_1.draw()
+        elif self.playing_cutscene is True:
+            self.playing_cutscene = False
+            game_menu.enable()
+            display.set_fps(60)
 
     def main_campain_game(self, key_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
@@ -323,115 +587,6 @@ class Game:
         if not self.is_dialogue:
             check_bg_instance(background)
 
-    def online_fight(self, new_frame):
-        rounds = 3
-
-        self.check_game_progress(*pg[self.online_location])
-
-        fighter1 = self.online_player
-        fighter2 = self.network.send(fighter1)
-
-        fighter1.ready_for_fight()
-
-        attack_group.update(fighter2, fighter1)
-        enemy_attack_group.update(fighter1, fighter2)
-
-        fighter1.draw_hp()
-        fighter1.draw_round_statistic("You", self.score[0], font)
-        fighter2.draw_hp()
-        fighter2.draw_round_statistic("Enemy", self.score[1], font)
-
-        if fighter2.playing_emoji is True and not self.playing_emoji:
-            fighter2.play_emoji()
-            self.playing_emoji = True
-        elif not fighter2.playing_emoji and self.playing_emoji:
-            self.playing_emoji = False
-        # update fighters
-
-        if fighter2.attacking:
-            if not self.enemy_was_attacking:
-                fighter2.attack(fighter1, enemy_attack_group)
-                self.enemy_was_attacking = True
-        else:
-            self.enemy_was_attacking = False
-
-        fighter1.check_action()
-        fighter2.check_action()
-
-        firgter1_action, fighter1_frame_index = fighter1.get_animation_params()
-        firgter2_action, fighter2_frame_index = fighter2.get_animation_params()
-
-        figter1_sprite = self.online_player_ANIMATION_LIST[firgter1_action][fighter1_frame_index]
-        fighter1.update(self.online_player_ANIMATION_LIST)
-        # get_image
-        if fighter2.name == "pau":
-            figter2_sprite = fighter.PAU_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
-        elif fighter2.name == "lisa":
-            figter2_sprite = fighter.LISA_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
-        else:
-            figter2_sprite = fighter.LISA_ANIMATION_LIST[firgter2_action][fighter2_frame_index]
-
-        # update countdown
-        if self.intro_count <= 0:
-            # move fighter
-            fighter1.move(display.screen, fighter2, self.round_over, new_frame)
-        elif not fighter2.is_ready():
-            draw_text("Waiting for player...", count_font, color.red, display.screen_width / 2 - 280 * display.scr_w,
-                      150 * display.scr_h)
-            draw_text(self.network.getIP(), count_font, color.red, display.screen_width / 2 - 280 * display.scr_w,
-                      250 * display.scr_h)
-        else:
-            # display count timer
-            draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
-                      10 * display.scr_h)
-            # update count timer
-            if (pygame.time.get_ticks() - self.last_count_update) >= 1000:
-                self.intro_count -= 1
-                fighter1.set_side(self.current_player)
-                self.last_count_update = pygame.time.get_ticks()
-
-        self.final_round_over = False
-
-        # draw fighters
-        fighter2.draw(display.screen, figter2_sprite)
-        fighter1.draw(display.screen, figter1_sprite)
-
-        # check for player defeat
-        if not self.round_over:
-            if not fighter1.alive:
-                self.score[1] += 1
-                self.round_over = True
-                self.round_over_time = pygame.time.get_ticks()
-            if not fighter2.alive:
-                self.score[0] += 1
-                self.round_over = True
-                self.round_over_time = pygame.time.get_ticks()
-        else:
-            fighter1.clear_attack_stats()
-            all_sprites.empty()
-            enemy_attack_group.empty()
-            attack_group.empty()
-            if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
-                self.round_over = False
-                bullet_sprites.empty()
-                if self.score[0] >= rounds or self.score[1] >= rounds:
-                    self.score = [0, 0]
-                    self.final_round_over = True
-                    game_menu.enable()
-                    self.online_on = False
-                    fighter1.reset_params()
-                    self.network.send(fighter1)
-                    self.network.leave()
-                    self.network = None
-
-                self.intro_count = 4
-                fighter1.reset_params()
-                fighter2.reset_params()
-
-        all_sprites.update()
-        all_sprites.draw(display.screen)
-        bullet_sprites.update()
-
     def fight(self, fighter1, fighter2, rounds, f1_name, f2_name):
         if not self.is_dialogue:
             # show players stats
@@ -574,93 +729,3 @@ class Game:
                         self.fighter_id = 0
                         self.GAME_PROGRESS += 1
                         update_gp(self.GAME_PROGRESS)
-
-    def game_navigation(self, key_click, mouse_click, new_frame):
-        # navigate menu
-        if self.online_on:
-            self.online_fight(new_frame)
-        if self.main_campain_on:
-            self.main_campain_game(key_click)
-
-        if choose_online_mode_menu.is_enabled():
-            choose_online_mode_menu.show(mouse_click, key_click)
-            if choose_online_mode_menu.exit_button.is_clicked():
-                choose_online_mode_menu.disable()
-                game_menu.enable()
-            if choose_online_mode_menu.start_server.is_clicked():
-                self.network = FlaskNetwork(choose_online_mode_menu.line_edit.get_text())
-                self.online_player = self.network.getP()
-                if self.online_player:
-                    choose_online_mode_menu.disable()
-
-                    location = random.randrange(1, 56)
-                    self.online_location = location
-
-                    self.final_round_over = True
-                    self.online_on = True
-                else:
-                    print("cannot find a server")
-            if choose_online_mode_menu.connect_button.is_clicked():
-                self.network = Network(choose_online_mode_menu.line_edit.get_text())
-                self.current_player = self.network.getP()
-                if self.online_player:
-                    choose_online_mode_menu.disable()
-
-                    location = random.randrange(1, 56)
-                    self.online_location = location
-
-                    self.final_round_over = True
-                    self.online_on = True
-                else:
-                    print("cannot find a server")
-
-        if choose_mode_menu.is_enabled():
-            choose_mode_menu.show(mouse_click)
-            if choose_mode_menu.exit_button.is_clicked():
-                choose_mode_menu.disable()
-                game_menu.enable()
-            if choose_mode_menu.campain_button.is_clicked() and not self.GAME_PROGRESS > 54:
-                self.main_campain_on = True
-                self.final_round_over = True
-                choose_mode_menu.disable()
-            if choose_mode_menu.online_button.is_clicked():
-                choose_online_mode_menu.enable()
-                choose_mode_menu.disable()
-
-        if game_menu.is_enabled():
-            game_menu.show(mouse_click)
-            if game_menu.exit_button.is_clicked():
-                self.aplication_run = False
-            if game_menu.start_button.is_clicked():
-                game_menu.disable()
-                choose_mode_menu.enable()
-            if game_menu.options_button.is_clicked():
-                game_menu.disable()
-                options_menu.enable()
-
-        if options_menu.is_enabled():
-            options_menu.show(mouse_click)
-            if options_menu.exit_button.is_clicked():
-                options_menu.disable()
-                settings.save()
-                game_menu.enable()
-            if options_menu.volume_button_plus.is_clicked():
-                settings.change_music_volume(0.01)
-            if options_menu.volume_button_minus.is_clicked():
-                settings.change_music_volume(-0.01)
-            if options_menu.normal_mode.is_clicked():
-                settings.change_difficulty(1)
-            if options_menu.easy_mode.is_clicked():
-                settings.change_difficulty(0.5)
-
-        if bg.briff_war.is_playing():
-            bg.briff_war.draw()
-            key = pygame.key.get_pressed()
-            if key[pygame.K_c]:
-                bg.briff_war.stop()
-        elif bg.end_cutscene_1.is_playing():
-            bg.end_cutscene_1.draw()
-        elif self.playing_cutscene is True:
-            self.playing_cutscene = False
-            game_menu.enable()
-            display.set_fps(60)

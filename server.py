@@ -32,11 +32,11 @@ except socket.error as e:
 
 s.listen(2)
 print("Waiting for a connection, Server Started")
-players = players_for_online
+players = players_for_online.copy()
 
 
 def threaded_client(conn, player):
-    global currentPlayer
+    global currentPlayer, players
     conn.send(pickle.dumps(currentPlayer))
     reply = ""
     while True:
@@ -59,6 +59,7 @@ def threaded_client(conn, player):
         except:
             break
     currentPlayer -= 1
+    players = players_for_online.copy()
     print("players:", currentPlayer)
     print("Lost connection")
     conn.close()

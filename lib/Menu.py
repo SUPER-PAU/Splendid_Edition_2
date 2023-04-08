@@ -2,12 +2,14 @@ import pygame
 import cv2
 import pyperclip
 
+import lib.players_data.online_players as player
+
 from lib.display import display
 from constants.fonts.turok import sys as font
 from lib.mixer import play_music_bg
 from lib.Settings import settings
 from lib.drawer import draw_text
-
+import constants.textures.player_card_sprites as card
 
 # from constants.fonts.turok import bigger_sys as big_font
 
@@ -74,6 +76,98 @@ class Button:
                 self.clicked = True
         else:
             self.change_text(self.text)
+
+    def is_clicked(self):
+        return self.clicked
+
+
+class CardButtonEnemy:
+    def __init__(self, player, pos):
+        self.x, self.y = pos
+        self.size = self.width, self.height = 150 * display.scr_w, 200 * display.scr_h
+        self.clicked = False
+        self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
+        self.surface = pygame.Surface(self.size)
+        self.render = None
+        self.player = player
+        self.clicked_image = card.clicked
+        self.picked = False
+
+    def get_p(self):
+        return self.player
+
+    def set_picked(self):
+        self.picked = True
+
+    def show(self):
+        img = pygame.transform.scale(card.card_by_name[f"{self.player.name}"], self.size)
+        display.screen.blit(img, (self.x, self.y))
+        if not self.player.alive:
+            img = pygame.transform.scale(card.dead, self.size)
+            display.screen.blit(img, (self.x, self.y))
+            self.picked = False
+        if self.picked:
+            img = pygame.transform.scale(card.picked, self.size)
+            display.screen.blit(img, (self.x, self.y))
+        # display.screen.blit(self.surface, (self.x, self.y))
+        # pygame.draw.rect(self.surface, (255, 255, 255), self.rect)
+
+    def is_clicked(self):
+        return self.clicked
+
+
+class CardButton:
+    def __init__(self, player, pos):
+        self.pos = pos
+        self.x, self.y = pos
+
+        self.picked_pos = (self.x - 38 * display.scr_w, self.y - 50 * display.scr_h)
+
+        self.normal_size = self.width, self.height = 150 * display.scr_w, 200 * display.scr_h
+        self.picked_size = 225 * display.scr_w, 300 * display.scr_h
+        self.size = self.normal_size
+
+        self.clicked = False
+        self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
+        self.surface = pygame.Surface(self.size)
+        self.render = None
+        self.player = player
+        self.clicked_image = card.clicked
+        self.picked = False
+
+    def get_p(self):
+        return self.player
+
+    def set_picked(self):
+        self.picked = True
+
+    def show(self):
+        img = pygame.transform.scale(self.player.card_img(), self.size)
+        display.screen.blit(img, (self.x, self.y))
+        if not self.player.player.alive:
+            img = pygame.transform.scale(card.dead, self.size)
+            display.screen.blit(img, (self.x, self.y))
+            self.picked = False
+        if self.picked:
+            self.size = self.picked_size
+            self.x, self.y = self.picked_pos
+            img = pygame.transform.scale(card.picked, self.size)
+            display.screen.blit(img, (self.x, self.y))
+        else:
+            self.x, self.y = self.pos
+            self.size = self.normal_size
+        # display.screen.blit(self.surface, (self.x, self.y))
+        # pygame.draw.rect(self.surface, (255, 255, 255), self.rect)
+
+    def click(self, mouse_click):
+        self.clicked = False
+        if self.player.player.alive:
+            x, y = pygame.mouse.get_pos()
+            if self.rect.collidepoint(x, y):
+                img = pygame.transform.scale(self.clicked_image, self.size)
+                display.screen.blit(img, (self.x, self.y))
+                if pygame.mouse.get_pressed()[0] and mouse_click:
+                    self.clicked = True
 
     def is_clicked(self):
         return self.clicked
@@ -185,6 +279,100 @@ class MainMenu:
         self.is_hide = False
 
 
+class OnlineBattle:
+    def __init__(self, bg, player_heroes):
+        self.bg = bg
+        self.enabled = False
+        self.is_hide = False
+        self.player_heroes = player_heroes
+        # self.enemy_heroes = enemy_heroes
+        self.player_hero_1 = CardButton(player_heroes[0], (100 * display.scr_w, 500 * display.scr_h))
+        self.player_hero_2 = CardButton(player_heroes[1], (350 * display.scr_w, 500 * display.scr_h))
+        self.player_hero_3 = CardButton(player_heroes[2], (600 * display.scr_w, 500 * display.scr_h))
+
+    def show(self, mouse_click, chosen, enemy_pick):
+        if not self.is_hide:
+            scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
+            display.screen.blit(scaled_bg, (0, 0))
+            self.player_hero_1.show()
+            self.player_hero_2.show()
+            self.player_hero_3.show()
+            if not chosen:
+                self.player_hero_1.click(mouse_click)
+                self.player_hero_2.click(mouse_click)
+                self.player_hero_3.click(mouse_click)
+        if enemy_pick:
+            enemy_hero_1 = CardButtonEnemy(enemy_pick[0],
+                                     (display.screen_width - 250 * display.scr_w, 500 * display.scr_h))
+            enemy_hero_2 = CardButtonEnemy(enemy_pick[1],
+                                     (display.screen_width - 500 * display.scr_w, 500 * display.scr_h))
+            enemy_hero_3 = CardButtonEnemy(enemy_pick[2],
+                                     (display.screen_width - 750 * display.scr_w, 500 * display.scr_h))
+            enemy_hero_1.show()
+            enemy_hero_2.show()
+            enemy_hero_3.show()
+
+    def is_enabled(self):
+        return self.enabled
+
+    def disable(self):
+        self.enabled = False
+
+    def enable(self):
+        self.enabled = True
+
+    def hide(self):
+        self.is_hide = True
+
+    def show_(self):
+        self.is_hide = False
+
+
+class ChooseHeroMenu:
+    def __init__(self, bg):
+        self.super_pau = CardButton(player.super_pau, (100 * display.scr_w, 100 * display.scr_h))
+        self.vesisa = CardButton(player.vesisa, (100 * display.scr_w, 400 * display.scr_h))
+        self.tagir = CardButton(player.tagir, (100 * display.scr_w, 700 * display.scr_h))
+        self.lisa = CardButton(player.lisa, (350 * display.scr_w, 700 * display.scr_h))
+
+        self.bg = bg
+        self.enabled = False
+        self.is_hide = False
+        self.player_picking = 0
+
+    def show(self, mouse_click):
+        if not self.is_hide:
+            scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
+            display.screen.blit(scaled_bg, (0, 0))
+            self.lisa.show()
+            self.lisa.click(mouse_click)
+            self.super_pau.show()
+            self.super_pau.click(mouse_click)
+            self.vesisa.show()
+            self.vesisa.click(mouse_click)
+            self.tagir.show()
+            self.tagir.click(mouse_click)
+
+    def is_enabled(self):
+        return self.enabled
+
+    def disable(self):
+        self.enabled = False
+
+    def enable(self, p):
+        self.enabled = True
+        self.player_picking = p
+
+    def get_pick(self):
+        return self.player_picking
+
+    def hide(self):
+        self.is_hide = True
+
+    def show_(self):
+        self.is_hide = False
+
+
 class ChooseOnlineModeMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.connect_button = Button(
@@ -196,6 +384,17 @@ class ChooseOnlineModeMenu:
         self.exit_button = Button(
             (997 * scr_w, 173 * scr_h),
             (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON)
+
+        self.hero_button_1 = Button(
+            (200 * scr_w, 400 * scr_h),
+            (100 * scr_w, 410 * scr_h), "")
+        self.hero_button_2 = Button(
+            (200 * scr_w, 400 * scr_h),
+            (400 * scr_w, 420 * scr_h), "")
+        self.hero_button_3 = Button(
+            (200 * scr_w, 400 * scr_h),
+            (700 * scr_w, 410 * scr_h), "")
+
         self.line_edit = LineEdit((468 * scr_w, 59 * scr_h), (928 * scr_w, 733 * scr_h))
 
         self.bg = bg
@@ -204,7 +403,7 @@ class ChooseOnlineModeMenu:
         self.is_hide = False
         self.music = music
 
-    def show(self, mouse_click, key_press):
+    def show(self, mouse_click, key_press, team):
         if not self.is_hide:
             scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
             display.screen.blit(scaled_bg, (0, 0))
@@ -218,6 +417,17 @@ class ChooseOnlineModeMenu:
             self.start_server.click(mouse_click)
             self.line_edit.show(key_press)
             self.line_edit.click(mouse_click)
+
+            team[0].draw_menu((100 * display.scr_w, 410 * display.scr_h))
+            team[1].draw_menu((400 * display.scr_w, 420 * display.scr_h))
+            team[2].draw_menu((700 * display.scr_w, 410 * display.scr_h))
+
+            self.hero_button_1.show()
+            self.hero_button_1.click(mouse_click)
+            self.hero_button_2.show()
+            self.hero_button_2.click(mouse_click)
+            self.hero_button_3.show()
+            self.hero_button_3.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled
@@ -306,9 +516,9 @@ class OptionsMenu:
         self.volume_button_minus = Button((100 * scr_w, 100 * scr_h),
                                           (900 * scr_w, 220 * scr_h), "     -", VOL_MIN)
         self.easy_mode = Button((500 * scr_w, 100 * scr_h),
-                                         (600 * scr_w, 800 * scr_h), "БОТИК", EASY_BUTTON)
+                                (600 * scr_w, 800 * scr_h), "БОТИК", EASY_BUTTON)
         self.normal_mode = Button((500 * scr_w, 100 * scr_h),
-                                          (1200 * scr_w, 800 * scr_h), "NORMAL", NORMAL_BUTTON)
+                                  (1200 * scr_w, 800 * scr_h), "NORMAL", NORMAL_BUTTON)
 
         self.bg = bg
         self.enabled = False

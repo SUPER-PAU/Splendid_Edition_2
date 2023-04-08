@@ -57,25 +57,26 @@ class SuperPauPlayer(PLAYER):
             # attack
             if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] \
                     or mouse_middle or key[pygame.K_e]:
-                # determine attack
-                if key[pygame.K_r] or mouse_left:
-                    self.attack_type = 1
-                    hit = 12
-                    self.attack(target, attack_group)
-                elif key[pygame.K_f] or mouse_middle:
-                    if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
-                        self.attack_type = 3
-                        hit = 35
-                        self.huge_attack_cooldown = 300
+                if self.attack_cooldown <= 0:
+                    # determine attack
+                    if key[pygame.K_r] or mouse_left:
+                        self.attack_type = 1
+                        hit = 12
                         self.attack(target, attack_group)
-                elif key[pygame.K_t] or mouse_right:
-                    self.attack_type = 2
-                    hit = 14
-                    self.attack(target, attack_group)
-                elif key[pygame.K_e]:
-                    self.attack_type = 4
-                    hit = 15
-                    self.attack(target, attack_group)
+                    elif key[pygame.K_f] or mouse_middle:
+                        if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
+                            self.attack_type = 3
+                            hit = 35
+                            self.huge_attack_cooldown = 300
+                            self.attack(target, attack_group)
+                    elif key[pygame.K_t] or mouse_right:
+                        self.attack_type = 2
+                        hit = 14
+                        self.attack(target, attack_group)
+                    elif key[pygame.K_e]:
+                        self.attack_type = 4
+                        hit = 15
+                        self.attack(target, attack_group)
             # movement
             if key[pygame.K_a]:
                 dx = -SPEED
@@ -126,13 +127,16 @@ class SuperPauPlayer(PLAYER):
             self.attacking = True
         elif self.in_grab:
             self.update_action(11)
+            self.dashing = False
             self.hit = True
         elif self.hit:
             self.update_action(4)  # hit
             self.rect.x -= (8 - 16 * self.flip) * display.scr_w
+            self.dashing = False
         elif self.blocking:
             self.update_action(3)  # block
             self.rect.x -= (4 - 8 * self.flip) * display.scr_w
+            self.dashing = False
         elif self.attacking:
             match self.attack_type:
                 case 1:
@@ -172,12 +176,12 @@ class SuperPauPlayer(PLAYER):
                 # check if attack is executed
                 if self.action in [6, 7, 8, 9]:
                     self.attacking = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.dashing = False
                 if self.action == 10:
                     self.attacking = False
                     self.grabing = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.dashing = False
                 # check if damage was taken
                 if self.action == 11:
@@ -185,19 +189,19 @@ class SuperPauPlayer(PLAYER):
                     self.in_grab = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.dashing = False
                     # check if damage was taken
                 if self.action == 4:
                     self.hit = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 10
                     self.dashing = False
                 # check block
                 if self.action == 3:
                     self.blocking = False
-                    self.attack_cooldown = 20
+                    self.attack_cooldown = 15
                     self.hit = False
 
         if self.alive:
@@ -205,9 +209,11 @@ class SuperPauPlayer(PLAYER):
                 if self.frame_index in [3, 4]:
                     self.rect.x -= (23 - 46 * self.flip) * display.scr_w
             if self.action in [6, 7, 8, 9, 10]:
-                self.attack_cooldown = 30
+                self.attack_cooldown = 15
                 if self.action == 8:
                     self.huge_attack_cooldown = 300
+                if self.action == 7 and self.name == "tagir":
+                    self.shield_cooldown = 200
                 self.dash()
 
     def attack(self, target, group):
@@ -253,7 +259,7 @@ class SuperPauPlayer(PLAYER):
 class Attack(pygame.sprite.Sprite):
     def __init__(self, player, rect, rect2, attack_type, target, damage, sprite_group, block_break=False):
         super().__init__(sprite_group)
-        match player.attack_type:
+        match attack_type:
             case 1:  # attack1
                 self.attack_frame = player.attack_frame[0]
             case 2:  # attack 2
@@ -280,48 +286,23 @@ class Attack(pygame.sprite.Sprite):
                     player.rect.centerx - (self.rect.width * player.flip),
                     self.rect.y,
                     self.rect.width, self.rect.height)
-                # pygame.draw.rect(display.screen, (255, 255, 0), self.rect)
+                pygame.draw.rect(display.screen, (255, 255, 0), self.rect)
 
                 if attacking_rect.colliderect(target.rect) or self.rect2.colliderect(target.rect):
                     player.was_attacking = (self.damage, self.block_break)
                     if self.attack_type == 4:
                         if not target.jump or not target.attacking:
                             player.update_huge_attack_cd(50)
-                            create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
-                            if target.sex == 1:
-                                choice(human_sound).play()
-                            elif target.sex == 2:
-                                choice(woman_sound).play()
                             player.grabing = True
-                            if target.side == 1:
-                                create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                                     target.flip, round(self.damage))
-                            else:
-                                create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
-                                                     target.flip, round(self.damage))
-                            target.take_damage(self.damage, self.block_break)
                             target.in_grab = True
-                            self.hit = True
                     else:
-                        ratio = 1
                         if self.block_break or target.jump or target.sprint or target.attacking:
                             player.update_huge_attack_cd(50)
-                            create_particles((target.rect.centerx, target.rect.top), target.flip, blood)
-                            if target.sex == 1:
-                                choice(human_sound).play()
-                            elif target.sex == 2:
-                                choice(woman_sound).play()
                         else:
-                            ratio = 0.2
                             player.update_huge_attack_cd(30)
-                        if target.side == 1:
-                            create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                                 target.flip, round(self.damage * ratio))
-                        else:
-                            create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
-                                                 target.flip, round(self.damage * ratio))
-                        target.take_damage(self.damage, self.block_break)
-                        self.hit = True
+
+                    target.take_damage(self.damage, self.block_break)
+                    self.hit = True
 
         else:
             self.kill()
