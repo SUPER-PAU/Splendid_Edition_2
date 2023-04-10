@@ -6,6 +6,8 @@ bullet_sprites = pygame.sprite.Group()
 attack_group = pygame.sprite.Group()
 enemy_attack_group = pygame.sprite.Group()
 
+damage_num_group = pygame.sprite.Group()
+
 # Спрайты персов
 aksenov = pygame.image.load(r"assets\images\main hero\Sprites\aksenov.png").convert_alpha()
 lisa = pygame.image.load(r"assets\images\main hero\Sprites\lisa.png").convert_alpha()
@@ -38,6 +40,9 @@ super_pau_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\SUPER_PAU.pn
 lisa_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\lisa.png").convert_alpha()
 vesisa_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\vesisa.png").convert_alpha()
 tagir_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\tagir.png").convert_alpha()
+artestro_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\artestro.png").convert_alpha()
+aksenov_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\aksenov.png").convert_alpha()
+
 # партиклы
 blood = pygame.image.load(r"assets\images\main hero\particles\blood.png").convert_alpha()
 electricity = pygame.image.load(r"assets\images\main hero\particles\electrisity.png").convert_alpha()
@@ -52,3 +57,5 @@ bullet = pygame.image.load(r"assets\images\main hero\particles\bullet.png").conv
 beam = pygame.image.load(r"assets\images\main hero\particles\beam.png").convert_alpha()
 rocket = pygame.image.load(r"assets\images\main hero\particles\rocket.png").convert_alpha()
 stone = pygame.image.load(r"assets\images\main hero\particles\stone.png").convert_alpha()
+knifes = pygame.image.load(r"assets\images\main hero\particles\knifes.png").convert_alpha()
+knife = pygame.image.load(r"assets\images\main hero\particles\knife.png").convert_alpha()

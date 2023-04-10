@@ -46,7 +46,7 @@ class LisaPlayer(SuperPauPlayer):
             self.update_action(0)  # idle
 
     def update(self, animation_list):
-        animation_cooldown = 70
+        animation_cooldown = 90
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
@@ -65,7 +65,7 @@ class LisaPlayer(SuperPauPlayer):
                 if self.action in [6, 7, 8, 9, 10]:
                     self.attacking = False
                     self.grabing = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.dashing = False
                     if self.action == 7:
                         self.rect.x -= (200 - 400 * self.flip) * display.scr_w
@@ -74,19 +74,19 @@ class LisaPlayer(SuperPauPlayer):
                     self.in_grab = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.dashing = False
                 # check if damage was taken
                 if self.action == 4:
                     self.hit = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.dashing = False
                 # check block
                 if self.action == 3:
                     self.blocking = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.hit = False
 
         if self.alive:
@@ -94,7 +94,7 @@ class LisaPlayer(SuperPauPlayer):
                 if self.frame_index in [3, 4]:
                     self.rect.x -= (23 - 46 * self.flip) * display.scr_w
             if self.action in [6, 7, 8, 10, 9]:
-                self.attack_cooldown = 15
+                self.attack_cooldown = 20
                 if self.action == 8:
                     self.huge_attack_cooldown = 300
                     if self.frame_index in [2, 3, 7, 8]:

@@ -18,16 +18,13 @@ reset_players()
 # определить клики
 mouse_click = False
 keyboard_click = False
-new_frame = False
+new_frame = True
 
-frame_timer = pygame.USEREVENT + 0
-pygame.time.set_timer(frame_timer, 25)
 # Луп игры
 while game.aplication_run:
     # Хэндлер
     mouse_click = False
     keyboard_click = False
-    new_frame = False
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
@@ -38,10 +35,8 @@ while game.aplication_run:
             mouse_click = True
         if event.type == pygame.KEYDOWN:
             keyboard_click = True
-        if event.type == frame_timer:
-            new_frame = True
 
-    game.game_navigation(keyboard_click, mouse_click, new_frame)
+    game.game_navigation(keyboard_click, mouse_click)
     pygame.display.flip()
     # Обновление кадра дисплея
     pygame.display.update()

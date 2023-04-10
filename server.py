@@ -26,9 +26,7 @@ except socket.error as e:
 
 s.listen(2)
 print("Waiting for a connection, Server Started")
-players = players_for_online = [
-    [None, False, False, None],
-    [None, False, False, None]]
+players = [pickle.dumps([None, False, False, None]), pickle.dumps([None, False, False, None])]
 
 
 def threaded_client(conn, player):
@@ -37,7 +35,7 @@ def threaded_client(conn, player):
     reply = ""
     while True:
         try:
-            data = pickle.loads(conn.recv(BYTES))
+            data = conn.recv(BYTES)
             # print(data)
             players[player] = data
             if not data:
@@ -51,13 +49,11 @@ def threaded_client(conn, player):
                 # print("Received: ", data)
                 # print("Sending : ", reply)
 
-            conn.sendall(pickle.dumps(reply))
+            conn.sendall(reply)
         except:
             break
     currentPlayer -= 1
-    players = [
-        [None, False, False, None],
-        [None, False, False, None]]
+    players = [pickle.dumps([None, False, False, None]), pickle.dumps([None, False, False, None])]
     print("players:", currentPlayer)
     print("Lost connection")
     conn.close()

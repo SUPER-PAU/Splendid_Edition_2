@@ -10,7 +10,7 @@ from lib.mixer import play_music_bg
 from lib.dialogs import dialogs_texts
 from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu, ChooseHeroMenu, OnlineBattle
 from lib.Database import update_gp, get_gp
-from constants.textures.sprites import all_sprites, bullet_sprites, attack_group, enemy_attack_group
+from constants.textures.sprites import all_sprites, bullet_sprites, attack_group, enemy_attack_group, damage_num_group
 from lib.Settings import settings
 
 # Константы/переменные
@@ -74,7 +74,7 @@ class Game:
         self.current_player = 1
         self.battle_menu = OnlineBattle(bg.choose_hero, self.team)
 
-    def online_fight(self, new_frame):
+    def online_fight(self, mouse_click, key_press):
         self.check_game_progress(*pg[self.online_location])
 
         fighter1 = self.online_player.player
@@ -82,8 +82,7 @@ class Game:
 
         fighter1.ready_for_fight()
 
-        attack_group.update(fighter2, fighter1)
-        enemy_attack_group.update(self.online_player.player, fighter2)
+        attack_group.update(fighter2, fighter1, 1)
 
         fighter1.draw_hp()
         fighter1.draw_round_statistic("You", font)
@@ -97,13 +96,6 @@ class Game:
             self.playing_emoji = False
         # update fighters
 
-        if fighter2.attacking:
-            if not self.enemy_was_attacking:
-                fighter2.attack(self.online_player.player, enemy_attack_group)
-                self.enemy_was_attacking = True
-        else:
-            self.enemy_was_attacking = False
-
         fighter1.check_action()
         fighter2.check_action()
 
@@ -115,7 +107,7 @@ class Game:
         # update countdown
         if self.intro_count <= 0:
             # move fighter
-            fighter1.move(display.screen, fighter2, self.round_over, new_frame)
+            fighter1.move(display.screen, fighter2, self.round_over, mouse_click, key_press)
         else:
             # display count timer
             draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
@@ -144,6 +136,7 @@ class Game:
                 self.round_over = True
                 self.round_over_time = pygame.time.get_ticks()
         else:
+            damage_num_group.empty()
             all_sprites.empty()
             enemy_attack_group.empty()
             attack_group.empty()
@@ -151,24 +144,30 @@ class Game:
                 bullet_sprites.empty()
                 self.intro_count = 4
                 self.battle_menu.enable()
+
+        self.enemy[4].update(fighter1, fighter2, 2)
+        self.enemy[5].update(fighter1, 2)
+        damage_num_group.update()
         all_sprites.update()
         all_sprites.draw(display.screen)
-        bullet_sprites.update()
+        bullet_sprites.update(fighter2, 1)
 
-    def game_navigation(self, key_click, mouse_click, new_frame):
+    def game_navigation(self, key_click, mouse_click):
         # navigate menu
         if self.main_campain_on:
             self.main_campain_game(key_click)
 
         if self.online_on:
             if self.final_round_over:
+                self.check_game_progress(*pg[self.online_location])
                 self.final_round_over = False
                 self.round_over = True
                 self.battle_menu = OnlineBattle(bg.choose_hero, self.team)
                 self.battle_menu.enable()
             if self.battle_menu.is_enabled():
                 self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost,
-                                                [self.team[0].player, self.team[1].player, self.team[2].player]])
+                                                [self.team[0].player, self.team[1].player, self.team[2].player],
+                                                attack_group, bullet_sprites])
                 self.intro_count = 4
                 self.battle_menu.show(mouse_click, self.chosen, self.enemy[3])
                 if self.battle_menu.player_hero_1.is_clicked():
@@ -205,13 +204,15 @@ class Game:
                         self.team[1].player.alive and not self.team[2].player.alive:
                     self.lost = True
                     self.network.send([self.online_player.player, self.chosen, self.lost,
-                                      [self.team[0].player, self.team[1].player, self.team[2].player]])
+                                      [self.team[0].player, self.team[1].player, self.team[2].player],
+                                       attack_group, bullet_sprites])
                 if self.enemy[1] and self.chosen:
                     self.battle_menu.disable()
                     self.round_over = False
             else:
-                self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost, None])
-                self.online_fight(new_frame)
+                self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost, None,
+                                       attack_group, bullet_sprites])
+                self.online_fight(mouse_click, key_click)
 
         if choose_online_mode_menu.is_enabled():
             choose_online_mode_menu.show(mouse_click, key_click, self.team)
@@ -273,6 +274,12 @@ class Game:
                 flag = True
             elif hero_choose_menu.tagir.is_clicked():
                 self.team[hero_choose_menu.get_pick()] = hero_choose_menu.tagir.get_p()
+                flag = True
+            elif hero_choose_menu.artestro.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.artestro.get_p()
+                flag = True
+            elif hero_choose_menu.aksenov.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.aksenov.get_p()
                 flag = True
 
             if flag:

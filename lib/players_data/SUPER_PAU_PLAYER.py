@@ -1,11 +1,8 @@
-from random import choice
-
 import pygame
 
 from lib.display import display
-from lib.particle import create_particles, create_damage_number, create_emoji
-from constants.audio.effects import woman_sound, human_sound
-from constants.textures.sprites import attack_group, blood
+from lib.particle import create_emoji
+from constants.textures.sprites import attack_group
 from lib.players_data.Player import PLAYER
 
 
@@ -27,7 +24,7 @@ class SuperPauPlayer(PLAYER):
             emoji_data = [500, 0.5 * display.scr_w, (0, 0), [3], False]
             create_emoji(emoji_rect, emoji_data, self.name, self)
 
-    def move(self, surface, target, round_over, new_frame):
+    def move(self, surface, target, round_over, mouse_click, key_press):
         SPEED = 8 * display.scr_w
         GRAVITY = 2 * display.scr_h
         dx = 0
@@ -55,8 +52,8 @@ class SuperPauPlayer(PLAYER):
                 self.vel_y = -46 * display.scr_h
                 self.jump = True
             # attack
-            if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] \
-                    or mouse_middle or key[pygame.K_e]:
+            if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] or mouse_middle or
+               key[pygame.K_e]) and (mouse_click or key_press):
                 if self.attack_cooldown <= 0:
                     # determine attack
                     if key[pygame.K_r] or mouse_left:
@@ -109,7 +106,7 @@ class SuperPauPlayer(PLAYER):
             self.rect.x += dx
             self.rect.y += dy
         # apply attack cooldown
-        if self.attack_cooldown > 0 and new_frame:
+        if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
         if self.emoji_cooldown > 0:
             self.emoji_cooldown -= 1
@@ -155,7 +152,7 @@ class SuperPauPlayer(PLAYER):
             self.update_action(0)  # idle
 
     def update(self, animation_list):
-        animation_cooldown = 70
+        animation_cooldown = 90
         if self.action in [10, 11]:
             animation_cooldown = 100
 
@@ -176,12 +173,12 @@ class SuperPauPlayer(PLAYER):
                 # check if attack is executed
                 if self.action in [6, 7, 8, 9]:
                     self.attacking = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.dashing = False
                 if self.action == 10:
                     self.attacking = False
                     self.grabing = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.dashing = False
                 # check if damage was taken
                 if self.action == 11:
@@ -189,19 +186,19 @@ class SuperPauPlayer(PLAYER):
                     self.in_grab = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.dashing = False
                     # check if damage was taken
                 if self.action == 4:
                     self.hit = False
                     # if player was in the middle of an attack, then attack is stopped
                     self.attacking = False
-                    self.attack_cooldown = 10
+                    self.attack_cooldown = 20
                     self.dashing = False
                 # check block
                 if self.action == 3:
                     self.blocking = False
-                    self.attack_cooldown = 15
+                    self.attack_cooldown = 20
                     self.hit = False
 
         if self.alive:
@@ -279,30 +276,35 @@ class Attack(pygame.sprite.Sprite):
         self.damage = damage
         self.hit = False
 
-    def update(self, target, player):
-        if player.attacking and not self.hit and not player.hit:
-            if self.attack_frame == player.frame_index:
-                attacking_rect = pygame.Rect(
-                    player.rect.centerx - (self.rect.width * player.flip),
-                    self.rect.y,
-                    self.rect.width, self.rect.height)
-                pygame.draw.rect(display.screen, (255, 255, 0), self.rect)
+    def update(self, target, player, sender=1):
+        if player.attacking and not player.hit:
+            if self.hit and (target.hit or target.blocking):
+                self.kill()
+            else:
+                if sender == 1 and self.hit:
+                    pass
+                else:
+                    if self.attack_frame == player.frame_index or self.attack_frame + 1 == player.frame_index:
+                        attacking_rect = pygame.Rect(
+                            player.rect.centerx - (self.rect.width * player.flip),
+                            self.rect.y,
+                            self.rect.width, self.rect.height)
+                        # pygame.draw.rect(display.screen, (255, 255, 0), self.rect)
 
-                if attacking_rect.colliderect(target.rect) or self.rect2.colliderect(target.rect):
-                    player.was_attacking = (self.damage, self.block_break)
-                    if self.attack_type == 4:
-                        if not target.jump or not target.attacking:
-                            player.update_huge_attack_cd(50)
-                            player.grabing = True
-                            target.in_grab = True
-                    else:
-                        if self.block_break or target.jump or target.sprint or target.attacking:
-                            player.update_huge_attack_cd(50)
-                        else:
-                            player.update_huge_attack_cd(30)
+                        if attacking_rect.colliderect(target.rect) or self.rect2.colliderect(target.rect):
+                            player.was_attacking = (self.damage, self.block_break)
+                            if self.attack_type == 4:
+                                if not target.jump or not target.attacking:
+                                    player.update_huge_attack_cd(50)
+                                    player.grabing = True
+                                    target.in_grab = True
+                            else:
+                                if self.block_break or target.jump or target.sprint or target.attacking:
+                                    player.update_huge_attack_cd(50)
+                                else:
+                                    player.update_huge_attack_cd(30)
 
-                    target.take_damage(self.damage, self.block_break)
-                    self.hit = True
-
+                            target.take_damage(self.damage, self.block_break, sender)
+                            self.hit = True
         else:
             self.kill()

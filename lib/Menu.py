@@ -334,6 +334,8 @@ class ChooseHeroMenu:
         self.vesisa = CardButton(player.vesisa, (100 * display.scr_w, 400 * display.scr_h))
         self.tagir = CardButton(player.tagir, (100 * display.scr_w, 700 * display.scr_h))
         self.lisa = CardButton(player.lisa, (350 * display.scr_w, 700 * display.scr_h))
+        self.artestro = CardButton(player.artestro, (350 * display.scr_w, 400 * display.scr_h))
+        self.aksenov = CardButton(player.aksenov, (600 * display.scr_w, 700 * display.scr_h))
 
         self.bg = bg
         self.enabled = False
@@ -352,6 +354,10 @@ class ChooseHeroMenu:
             self.vesisa.click(mouse_click)
             self.tagir.show()
             self.tagir.click(mouse_click)
+            self.artestro.show()
+            self.artestro.click(mouse_click)
+            self.aksenov.show()
+            self.aksenov.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled

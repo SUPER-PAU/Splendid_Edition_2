@@ -7,7 +7,7 @@ from constants.colors import black, red
 from constants.textures.sprites import blood
 from lib.display import display
 from lib.drawer import draw_health_bar, draw_text
-from lib.particle import create_damage_number, create_particles
+from lib.players_data.particles_online import create_damage_number, create_particles
 
 player_spec = [1, 2, 4]
 player_attack3 = [1, 2]
@@ -56,6 +56,7 @@ class PLAYER:
         self.invisible = False
         self.side = 1
         self.sex = 1
+        self.prev_hit = 0
 
     def set_side(self, player):
         self.side = player
@@ -329,25 +330,28 @@ class PLAYER:
     def stun(self):
         self.stunned = 45
 
-    def take_damage(self, hit, block_break=False):
-        if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
-            self.health -= hit
-            self.hit = True
-            create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
-            if self.sex == 1:
-                choice(human_sound).play()
-            elif self.sex == 2:
-                choice(woman_sound).play()
-            self.update_huge_attack_cd(100)
-        else:
-            hit = round(hit * 0.2)
-            self.health -= hit
-            self.blocking = True
-            self.update_huge_attack_cd(60)
-        if self.side == 1:
-            create_damage_number((50 * display.scr_w, 150 * display.scr_h),
-                                 self.flip, hit)
-        else:
-            create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
-                                 self.flip, hit)
-        self.last_damage_number = hit
+    def take_damage(self, hit, block_break=False, sender=2):
+        if not (hit == self.prev_hit and self.hit):
+            if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
+                if sender == 2:
+                    self.health -= hit
+                    self.hit = True
+                    self.update_huge_attack_cd(100)
+                create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
+                if self.sex == 1:
+                    choice(human_sound).play()
+                elif self.sex == 2:
+                    choice(woman_sound).play()
+            else:
+                hit = round(hit * 0.2)
+                if sender == 2:
+                    self.health -= hit
+                    self.blocking = True
+                    self.update_huge_attack_cd(60)
+            if self.side == 1:
+                create_damage_number((50 * display.scr_w, 150 * display.scr_h),
+                                     self.flip, hit)
+            else:
+                create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
+                                     self.flip, hit)
+

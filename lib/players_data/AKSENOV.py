@@ -1,16 +1,18 @@
-from constants.textures.sprites import attack_group
-from lib.players_data.particles_online import create_stone
+from constants.textures.sprites import attack_group, knife
+from lib.players_data.particles_online import create_bullet
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
 
 from lib.display import display
 
+knife_img = pygame.transform.scale(knife, (60 * display.scr_w, 60 * display.scr_h))
 
-class TagirPlayer(SuperPauPlayer):
+
+class AksenovPlayer(SuperPauPlayer):
     def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(3, x, y, flip, data, attack_frame)
-        self.sex = 1
-        self.name = "tagir"
+        super().__init__(5, x, y, flip, data, attack_frame)
+        self.sex = 2
+        self.name = "aksenov"
 
     def move(self, surface, target, round_over, mouse_click, key_press):
         SPEED = 8 * display.scr_w
@@ -40,14 +42,14 @@ class TagirPlayer(SuperPauPlayer):
                 self.vel_y = -46 * display.scr_h
                 self.jump = True
             # attack
-            if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_e]) and \
-                    (mouse_click or key_press):
+            if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or
+               key[pygame.K_e]) and (mouse_click or key_press):
                 if self.attack_cooldown <= 0:
                     # determine attack
                     if key[pygame.K_r] or mouse_left:
                         self.attack_type = 1
                         self.attack(target, attack_group)
-                    elif key[pygame.K_t] or mouse_right and self.shield_cooldown <= 0:
+                    elif key[pygame.K_t] or mouse_right:
                         self.attack_type = 2
                         self.attack(target, attack_group)
                     elif key[pygame.K_e]:
@@ -85,8 +87,6 @@ class TagirPlayer(SuperPauPlayer):
             self.rect.x += dx
             self.rect.y += dy
         # apply attack cooldown
-        if self.shield_cooldown > 0:
-            self.shield_cooldown -= 1
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
         if self.emoji_cooldown > 0:
@@ -103,24 +103,18 @@ class TagirPlayer(SuperPauPlayer):
             match self.attack_type:
                 # superpau web
                 case 1:
-                    dash_rect = pygame.Rect(self.rect.centerx - (1 * self.rect.width * self.flip),
-                                            self.rect.y + self.rect.height * 0.3,
-                                            1 * self.rect.width, self.rect.height * 0.5)
-                    self.dashing = True
-                    if not self.flip:
-                        self.dash_x = 14
-                    else:
-                        self.dash_x = -14
-                    hit = 12
-                    create_dash_online(dash_rect, self.flip, target, self, hit, group)
-                # att 1
+                    attacking_rect = pygame.Rect(self.rect.centerx - (1.09 * self.rect.width * self.flip),
+                                                 self.rect.y,
+                                                 1.09 * self.rect.width, self.rect.height)
+                    hit = 30
                 case 2:
-                    bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
-                                              self.rect.y + self.rect.height * 0.35,
-                                              100 * display.scr_w, 100 * display.scr_h)
-                    bullet_data = [200, 0.6 * display.scr_w, (10, 10), [2, 2], self.flip]
-                    hit = 20
-                    create_stone(bullet_rect, bullet_data, target, hit)
+                    size = 25
+                    bullet_data = [20, 4.55 * display.scr_w, (10, 6), [2, 2], self.flip]
+                    bullet_rect = pygame.Rect(self.rect.right * 0.9 - (self.rect.width * 0.2 * self.flip),
+                                              self.rect.y + self.rect.height * 0.4,
+                                              size * display.scr_w, size * display.scr_h)
+                    hit = 8
+                    create_bullet(bullet_rect, bullet_data, target, hit)
                 # grab
                 case 4:
                     block_break = True
@@ -132,47 +126,3 @@ class TagirPlayer(SuperPauPlayer):
             # take damage
             if attacking_rect:
                 Attack(self, attacking_rect, attacking_rect_2, self.attack_type, target, hit, group, block_break)
-
-
-def create_dash_online(rect, flip, target, player, damage, group):
-    Dash(rect, flip, target, player, damage, group)
-
-
-class Dash(pygame.sprite.Sprite):
-    def __init__(self, rect, flip, target, player, damage, sprite_group):
-        super().__init__(sprite_group)
-        self.rect = rect.copy()
-        self.action = 0  # 0 - idle
-        self.frame_index = 0
-        self.flip = flip
-        self.hit = False
-        self.target = target
-        self.damage = damage
-        self.player = player
-        self.update_time = pygame.time.get_ticks()
-
-    def update(self, enemy, player, n=1):
-        self.player = player
-        self.target = enemy
-        self.move(enemy, n)
-        if not self.player.attacking:
-            self.kill()
-
-    def move(self, target, n):
-        self.rect = pygame.Rect(self.player.rect.centerx - (1 * self.player.rect.width * self.flip),
-                                self.player.rect.y + self.player.rect.height * 0.3,
-                                1 * self.player.rect.width, self.player.rect.height * 0.5)
-        self.rect.x += self.player.dash_x * display.scr_w
-        self.rect.y = self.rect.y
-        self.attack(target, n)
-
-    def attack(self, target, n):
-        if self.hit and (target.hit or target.blocking):
-            self.kill()
-        else:
-            if n == 1 and self.hit:
-                pass
-            else:
-                if self.rect.colliderect(target.rect):
-                    self.hit = True
-                    target.take_damage(self.damage, True, n)

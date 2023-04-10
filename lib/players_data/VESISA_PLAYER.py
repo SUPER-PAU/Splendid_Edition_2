@@ -19,6 +19,7 @@ class VesisaPlayer(SuperPauPlayer):
             self.health = 0
             self.alive = False
             self.hit = False
+            self.invisible = False
             self.attacking = False
             self.update_action(5)  # death
         elif self.grabing:

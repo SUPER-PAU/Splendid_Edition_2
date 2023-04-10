@@ -1,11 +1,38 @@
-from constants.textures.emoji import pau, lisa
 from lib.display import display
 import pygame
 import random
-from constants.textures.sprites import all_sprites, bullet_sprites, explosion, bullet, beam, rocket, energy, stone
-from constants.audio.effects import explosion_sounds, gaubica_sounds, shield_sfx
+from constants.textures.sprites import all_sprites, bullet_sprites, damage_num_group, \
+    explosion, bullet, beam, rocket, energy, stone, knifes
+from constants.audio.effects import explosion_sounds, gaubica_sounds
 
 screen_rect = (0, 0, display.screen_width, display.screen_height)
+
+
+def load_images(sprite_sheet, animation_steps, size, scale):
+    # extract images from sprite_sheets
+    animation_list = []
+    for y, animation in enumerate(animation_steps):
+        temp_img_list = []
+        for x in range(animation):
+            temp_img = sprite_sheet.subsurface(x * size, y * size, size, size)
+            temp_img_list.append(
+                pygame.transform.scale(temp_img, (size * scale, size * scale)))
+        animation_list.append(temp_img_list)
+    return animation_list
+
+
+rock_animation = load_images(stone, [2, 2], 200, 0.6 * display.scr_w)
+knife_animation = load_images(knifes, [2, 2], 200, 0.6 * display.scr_w)
+bullet_animation = load_images(bullet, [2, 2], 20, 4.55 * display.scr_w)
+sprite_by_name = {
+    "explosion": explosion,
+    "bullet": bullet_animation,
+    "rocket": rocket,
+    "stone": rock_animation,
+    "enegry": energy,
+    "beam": beam,
+    "knife": knife_animation
+}
 
 
 class Particle(pygame.sprite.Sprite):
@@ -51,18 +78,18 @@ def create_particles(position, flip, particle):
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, rect, sprite_sheet, data, target, damage):
+    def __init__(self, rect, data, target, damage):
         super().__init__(bullet_sprites)
         self.rect = rect.copy()
         self.size, self.image_scale, self.offset, self.animation_steps = data[0], data[1], data[2], data[3]
-        self.animation_list = self.load_images(sprite_sheet, self.animation_steps)
         self.action = 0  # 0 - idle
         self.frame_index = 0
         self.flip = data[4]
         self.hit = False
+        self.sec_hit = False
         self.target = target
         self.damage = damage
-        self.image = self.animation_list[self.action][self.frame_index]
+        self.name = "bullet"
         self.update_time = pygame.time.get_ticks()
         self.speed = 45
 
@@ -86,25 +113,28 @@ class Bullet(pygame.sprite.Sprite):
             animation_list.append(temp_img_list)
         return animation_list
 
-    def update(self):
+    def update(self, enemy, n=1):
+        self.target = enemy
         if not self.hit:
             self.update_action(0)
         else:
             self.update_action(1)
+        if not self.sec_hit:
+            self.move()
+        self.draw()
+        if not self.hit:
+            self.attack(n)
         animation_cooldown = 100
         # update image
-        self.image = self.animation_list[self.action][self.frame_index]
-
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
         if self.rect.left > display.screen_width or (
-                self.action == 1 and self.frame_index >= len(self.animation_list[self.action])) or self.rect.right < 0:
+                self.action == 1 and self.frame_index >= 2) or self.rect.right < 0:
             self.kill()
-        self.move()
-        self.draw()
-        if self.frame_index >= len(self.animation_list[self.action]):
+
+        if self.frame_index >= 2:
             self.frame_index = 0
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
 
@@ -118,60 +148,46 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x += dx * display.scr_w
         if not self.speed <= 20:
             self.speed -= 0.5
-        self.attack()
 
-    def attack(self):
-        if self.rect.colliderect(self.target.rect) and not self.hit:
+    def attack(self, n):
+        if self.sec_hit and (self.target.hit or self.target.blocking):
             self.hit = True
-            self.target.take_damage(self.damage)
+        else:
+            if n == 1 and self.sec_hit:
+                pass
+            else:
+                if self.rect.colliderect(self.target.rect) and (not self.sec_hit or n == 2):
+                    self.sec_hit = True
+                    self.target.take_damage(self.damage, True, n)
 
     def draw(self):
+        image = sprite_by_name[self.name][self.action][self.frame_index]
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
-        img = pygame.transform.flip(self.image, self.flip, False)
+        img = pygame.transform.flip(image, self.flip, False)
         display.screen.blit(img,
                             (self.rect.x - self.offset[0] * self.image_scale,
                              self.rect.y - self.offset[1] * self.image_scale))
 
 
-class Dash(pygame.sprite.Sprite):
-    def __init__(self, rect, flip, target, player, damage, sprite_group):
-        super().__init__(sprite_group)
-        self.rect = rect.copy()
-        self.action = 0  # 0 - idle
-        self.frame_index = 0
-        self.flip = flip
-        self.hit = False
-        self.target = target
-        self.damage = damage
-        self.player = player
-        self.update_time = pygame.time.get_ticks()
-
-    def update(self):
-        self.move(self.player)
-        if not self.player.attacking:
-            self.kill()
-
-    def move(self, player):
-        self.rect.x += player.dash_x * display.scr_w
-        self.rect.y = self.rect.y
-        if self.rect.colliderect(self.target.rect) and not self.hit:
-            self.hit = True
-            self.target.take_damage(self.damage)
+class Knife(Bullet):
+    def __init__(self, rect, data, target, damage):
+        super().__init__(rect, data, target, damage)
+        self.name = "knife"
 
 
 class Explosion(pygame.sprite.Sprite):
-    def __init__(self, rect, sprite_sheet, data, target, damage):
+    def __init__(self, rect, data, target, damage):
         super().__init__(bullet_sprites)
         self.rect = rect.copy()
         self.size, self.image_scale, self.offset, self.animation_steps = data[0], data[1], data[2], data[3]
-        self.animation_list = self.load_images(sprite_sheet, self.animation_steps)
+        self.name = "explosion"
         self.action = 0  # 0 - idle
         self.frame_index = 0
         self.flip = data[4]
         self.hit = False
+        self.sec_hit = False
         self.target = target
         self.damage = damage
-        self.image = self.animation_list[self.action][self.frame_index]
         self.update_time = pygame.time.get_ticks()
         self.speed = 45
         # play sound
@@ -196,74 +212,81 @@ class Explosion(pygame.sprite.Sprite):
             animation_list.append(temp_img_list)
         return animation_list
 
-    def update(self):
+    def update(self, enemy, n):
+        self.target = enemy
         self.update_action(0)
         animation_cooldown = 100
         # update image
-        self.image = self.animation_list[self.action][self.frame_index]
 
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
-        self.attack()
+        if not self.hit:
+            self.attack(n)
         self.draw()
-        if self.frame_index >= len(self.animation_list[self.action]):
+        if self.frame_index >= 5:
             self.kill()
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
 
-    def attack(self):
-        if self.rect.colliderect(self.target.rect) and not self.hit:
+    def attack(self, n):
+        if self.sec_hit and (self.target.hit or self.target.blocking):
             self.hit = True
-            self.target.take_damage(self.damage, True)
+        else:
+            if n == 1 and self.sec_hit:
+                pass
+            else:
+                if self.rect.colliderect(self.target.rect) and (not self.sec_hit or n == 2):
+                    self.sec_hit = True
+                    self.target.take_damage(self.damage, True, n)
 
     def draw(self):
+        image = sprite_by_name[self.name][self.action][self.frame_index]
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
-        img = pygame.transform.flip(self.image, self.flip, False)
+        img = pygame.transform.flip(image, self.flip, False)
         display.screen.blit(img,
                             (self.rect.x - self.offset[0] * self.image_scale,
                              self.rect.y - self.offset[1] * self.image_scale))
 
 
 def create_explosion(rect, data, target, damage):
-    Explosion(rect, explosion, data, target, damage)
+    Explosion(rect, data, target, damage)
 
 
 class Rocket(Explosion):
-    def __init__(self, rect, sprite_sheet, data, target, damage):
-        super().__init__(rect, sprite_sheet, data, target, damage)
+    def __init__(self, rect, data, target, damage):
+        super().__init__(rect, data, target, damage)
         self.rect = rect.copy()
         self.size, self.image_scale, self.offset, self.animation_steps = data[0], data[1], data[2], data[3]
-        self.animation_list = self.load_images(sprite_sheet, self.animation_steps)
         self.action = 0  # 0 - idle
         self.frame_index = 0
         self.flip = data[4]
         self.hit = False
         self.target = target
         self.damage = damage
-        self.image = self.animation_list[self.action][self.frame_index]
         self.update_time = pygame.time.get_ticks()
         self.speed = 30 * display.scr_w
         self.vel_y = -50 * display.scr_h
+        self.name = "rocket"
         # play shoot sound
         pygame.mixer.Sound.play(random.choice(gaubica_sounds))
 
-    def update(self):
+    def update(self, enemy, n):
+        self.target = enemy
         if self.vel_y < 0:
             self.update_action(0)
         else:
             self.update_action(1)
         animation_cooldown = 50
+        self.move()
+        self.draw()
         # update image
-        self.image = self.animation_list[self.action][self.frame_index]
-
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
-        self.move()
-        self.draw()
-        if self.frame_index >= len(self.animation_list[self.action]):
+
+        if self.frame_index >= 2:
             self.frame_index = 0
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
 
@@ -309,37 +332,39 @@ class Rocket(Explosion):
 
 
 class Stone(Explosion):
-    def __init__(self, rect, sprite_sheet, data, target, damage):
-        super().__init__(rect, sprite_sheet, data, target, damage)
+    def __init__(self, rect, data, target, damage):
+        super().__init__(rect, data, target, damage)
         self.rect = rect.copy()
+        self.name = "stone"
         self.speed = 25 * display.scr_w
         self.vel_y = -47 * display.scr_h
 
-    def update(self):
+    def update(self, enemy, n):
+        self.target = enemy
         if not self.hit:
             self.update_action(0)
         else:
             self.update_action(1)
         animation_cooldown = 100
         # update image
-        self.image = self.animation_list[self.action][self.frame_index]
-
+        if not self.sec_hit:
+            self.move()
+        self.draw()
+        if not self.hit:
+            self.attack(n)
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
         if self.rect.left > display.screen_width or (
-                self.action == 1 and self.frame_index >= len(self.animation_list[self.action])) or self.rect.right < 0:
+                self.action == 1 and self.frame_index >= 2) or self.rect.right < 0:
             self.kill()
-        self.move()
-        self.draw()
-        self.attack()
-        if self.frame_index >= len(self.animation_list[self.action]):
+
+        if self.frame_index >= 2:
             self.frame_index = 0
 
     def move(self):
         GRAVITY = 2 * display.scr_h
-        dx = 0
         dy = 0
         if self.flip:
             dx = -self.speed
@@ -365,17 +390,23 @@ class Stone(Explosion):
 
 
 class ScyRocket(Rocket):
-    def __init__(self, rect, sprite_sheet, data, target, damage):
-        super().__init__(rect, sprite_sheet, data, target, damage)
+    def __init__(self, rect, data, target, damage):
+        super().__init__(rect, data, target, damage)
         self.speed = 0
 
 
 class Beam(Bullet):
-    def attack(self):
-        if self.rect.colliderect(self.target.rect) and not self.hit:
+    def attack(self, n):
+        if self.sec_hit and (self.target.hit or self.target.blocking):
             self.hit = True
-            self.target.take_damage(self.damage)
-            self.target.stun()
+        else:
+            if n == 1 and self.sec_hit:
+                pass
+            else:
+                if self.rect.colliderect(self.target.rect) and (not self.sec_hit or n == 2):
+                    self.sec_hit = True
+                    self.target.take_damage(self.damage, True, n)
+                    self.target.stun()
 
 
 class CreateBombing:
@@ -387,16 +418,17 @@ class CreateBombing:
         if self.attack_cooldown <= 0:
             a = random.randint(int(50 * display.scr_w), int(1800 * display.scr_w))
             bullet_rect = pygame.Rect(a, -400, 100 * display.scr_w, 100 * display.scr_h)
-            ScyRocket(bullet_rect, rocket, self.data, target, 10)
+            ScyRocket(bullet_rect, self.data, target, 10)
             self.attack_cooldown = 300
         else:
             self.attack_cooldown -= 1
 
 
 class Energy(Stone):
-    def __init__(self, rect, sprite_sheet, data, target, damage):
-        super().__init__(rect, sprite_sheet, data, target, damage)
+    def __init__(self, rect, data, target, damage):
+        super().__init__(rect, data, target, damage)
         self.speed = 25
+        self.name = "energy"
         self.vel_y = -30 * display.scr_h
 
     def create_expl(self):
@@ -411,25 +443,32 @@ class Energy(Stone):
         explosion_data = [127, 7.7 * display.scr_w, (offset, 10), [5], self.flip]
         create_explosion(explosion_rect, explosion_data, self.target, self.damage)
 
-    def attack(self):
-        if self.rect.colliderect(self.target.rect) and not self.hit:
-            self.create_expl()
+    def attack(self, n):
+        if self.sec_hit and (self.target.hit or self.target.blocking):
             self.hit = True
+        else:
+            if n == 1 and self.sec_hit:
+                pass
+            else:
+                if self.rect.colliderect(self.target.rect) and not self.sec_hit:
+                    self.sec_hit = True
+                    self.target.take_damage(self.damage, True, n)
+                    self.create_expl()
 
 
 class DamageNumber(pygame.sprite.Sprite):
     def __init__(self, rect, flip, damage):
-        super().__init__(bullet_sprites)
+        super().__init__(damage_num_group)
         self.damage, self.flip = f"-{str(damage)}", flip
         self.rect = rect.copy()
         self.vel_y = -0.1 * display.scr_h
         self.color = (255, 255, 255)
-        self.font = pygame.font.SysFont('Times New Roman', int(60 * display.scr_w))
+        self.size = int(60 * display.scr_w)
         if damage >= 20:
-            self.font = pygame.font.SysFont('Times New Roman', int(75 * display.scr_w))
+            self.size = int(75 * display.scr_w)
             self.color = (255, 255, 0)
         if damage >= 30:
-            self.font = pygame.font.SysFont('Times New Roman', int(90 * display.scr_w))
+            self.size = int(90 * display.scr_w)
             self.color = (255, 0, 0)
 
     def update(self):
@@ -439,9 +478,10 @@ class DamageNumber(pygame.sprite.Sprite):
         self.draw()
 
     def draw(self):
-        black_img = self.font.render(self.damage, True, (0, 0, 0))
+        font = pygame.font.SysFont('Times New Roman', self.size)
+        black_img = font.render(self.damage, True, (0, 0, 0))
         display.screen.blit(black_img, (self.rect.x + 2 * display.scr_w, self.rect.y + 2 * display.scr_h))
-        img = self.font.render(self.damage, True, self.color)
+        img = font.render(self.damage, True, self.color)
         display.screen.blit(img, (self.rect.x, self.rect.y))
 
     def move(self):
@@ -454,39 +494,6 @@ class DamageNumber(pygame.sprite.Sprite):
         self.rect.y += dy
 
 
-class Emoji(Explosion):
-    def __init__(self, rect, data, sprite, player):
-        super().__init__(rect, sprite, data, None, None)
-        self.cooldown = 150
-        self.player = player
-        self.player.playing_emoji = True
-
-    def update(self):
-        self.update_action(0)
-        animation_cooldown = 140
-        # update image
-        self.image = self.animation_list[self.action][self.frame_index]
-        # check if enough time has passed sinse the last update
-        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
-            self.frame_index += 1
-            self.update_time = pygame.time.get_ticks()
-        self.draw()
-        if self.frame_index >= len(self.animation_list[self.action]):
-            self.frame_index = 0
-        if self.cooldown <= 0:
-            self.kill()
-            self.player.playing_emoji = False
-        else:
-            self.cooldown -= 1
-
-
-def create_emoji(rect, data, sprite_name, player):
-    if sprite_name == "lisa":
-        Emoji(rect, data, lisa, player)
-    else:
-        Emoji(rect, data, pau, player)
-
-
 def create_damage_number(coords, flip, damage):
     rect = pygame.Rect(coords[0], coords[1],
                        int(90 * display.scr_w * (damage // 10)), int(90 * display.scr_w * (damage // 10)))
@@ -494,27 +501,27 @@ def create_damage_number(coords, flip, damage):
 
 
 def create_stone(rect, data, target, damage):
-    Stone(rect, stone, data, target, damage)
+    Stone(rect, data, target, damage)
 
 
 def create_rocket(rect, data, target, damage):
-    Rocket(rect, rocket, data, target, damage)
+    Rocket(rect, rocket, target, damage)
 
 
 def create_energy(rect, data, target, damage):
-    Energy(rect, energy, data, target, damage)
+    Energy(rect, energy, target, damage)
 
 
 def create_bullet(rect, data, target, damage):
-    Bullet(rect, bullet, data, target, damage)
+    Bullet(rect, data, target, damage)
 
 
-def create_dash(rect, flip, target, player, damage):
-    Dash(rect, flip, target, player, damage, bullet_sprites)
+def create_knife(rect, data, target, damage):
+    Knife(rect, data, target, damage)
 
 
 def create_beam(rect, data, target, damage):
-    Beam(rect, beam, data, target, damage)
+    Beam(rect, data, target, damage)
 
 
 create_bombing = CreateBombing()
