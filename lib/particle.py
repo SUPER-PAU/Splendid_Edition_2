@@ -461,7 +461,7 @@ class Emoji(Explosion):
         self.player = player
         self.player.playing_emoji = True
 
-    def update(self):
+    def update(self, n=1, g=1):
         self.update_action(0)
         animation_cooldown = 140
         # update image

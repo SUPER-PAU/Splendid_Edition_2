@@ -2,11 +2,11 @@ import socket
 import pickle
 
 
-BYTES = 4096 ** 2
+BYTES = 6144 ** 2
 
 
 class Network:
-    def __init__(self, serv):
+    def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         hostname = socket.gethostname()

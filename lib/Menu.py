@@ -1,6 +1,5 @@
 import pygame
 import cv2
-import pyperclip
 
 import lib.players_data.online_players as player
 
@@ -10,6 +9,7 @@ from lib.mixer import play_music_bg
 from lib.Settings import settings
 from lib.drawer import draw_text
 import constants.textures.player_card_sprites as card
+from lib.Database import save_name
 
 # from constants.fonts.turok import bigger_sys as big_font
 
@@ -37,6 +37,8 @@ NORMAL_BUTTON = pygame.image.load(
     r'assets\images\UI\normal_button.png').convert_alpha()
 EXIT_OPTIONS = pygame.image.load(
     r'assets\images\UI\exit_options_button.png').convert_alpha()
+BATTLE_MENU_FOUND = pygame.image.load(
+    r'assets\images\UI\Battle_menu_found.png').convert_alpha()
 
 
 class Button:
@@ -76,6 +78,46 @@ class Button:
                 self.clicked = True
         else:
             self.change_text(self.text)
+
+    def is_clicked(self):
+        return self.clicked
+
+
+class ButtonVisual:
+    """Create a button, then blit the surface in the while loop"""
+
+    def __init__(self, text, font, size, pos):
+        self.x, self.y = pos
+        self.size = self.width, self.height = size
+        self.font = font
+        self.text = text
+        self.clicked = False
+        self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
+        self.surface = pygame.Surface(self.size)
+        self.change_text(text)
+        # self.bought = False
+        self.render = None
+        self.color = (122, 124, 255)
+
+    def change_text(self, text, bg=(122, 124, 255)):
+        self.render = self.font.render(text, 1, (255, 255, 255))
+        self.surface.fill(bg)
+        self.surface.blit(self.render, (self.width // 2 - 70, self.height // 2 - 30))
+
+    def show(self):
+        self.clicked = False
+        display.screen.blit(self.surface, (self.x, self.y))
+        self.change_text(self.text, self.color)
+        # pygame.draw.rect(self.surface, (255, 255, 255), self.rect)
+
+    def click(self, mouse_click):
+        x, y = pygame.mouse.get_pos()
+        if self.rect.collidepoint(x, y):
+            self.color = (0, 4, 255)
+            if mouse_click:
+                self.clicked = True
+        else:
+            self.color = (122, 124, 255)
 
     def is_clicked(self):
         return self.clicked
@@ -189,13 +231,20 @@ class LineEdit:
             if self.rect.collidepoint(x, y):
                 self.clicked = True
             else:
+                if self.clicked:
+                    save_name(self.get_text())
                 self.clicked = False
+
+    def set_text(self, text):
+        self.text.append(str(text))
 
     def show(self, key_press):
         key = pygame.key.get_pressed()
         if self.clicked and key_press:
             if key[pygame.K_BACKSPACE] and len(self.text) > 0:
                 self.text.pop()
+            if key[pygame.K_SPACE]:
+                self.text.append(' ')
             if key[pygame.K_1]:
                 self.text.append('1')
             if key[pygame.K_2]:
@@ -216,16 +265,61 @@ class LineEdit:
                 self.text.append('9')
             if key[pygame.K_0]:
                 self.text.append('0')
-            if key[pygame.K_PERIOD]:
-                self.text.append('.')
-            if key[pygame.K_COLON] or key[pygame.K_SEMICOLON]:
-                self.text.append(':')
             if key[pygame.K_v]:
-                self.text.append(str(pyperclip.paste()))
+                self.text.append('V')
             if key[pygame.K_c]:
-                pyperclip.copy(self.get_text())
-            draw_text(self.get_text() + ' |', font, (0, 0, 0), 935 * display.scr_w, 734 * display.scr_w)
-        draw_text(self.get_text(), font, (0, 0, 0), 935 * display.scr_w, 734 * display.scr_h)
+                self.text.append('C')
+            if key[pygame.K_q]:
+                self.text.append('Q')
+            if key[pygame.K_w]:
+                self.text.append('W')
+            if key[pygame.K_e]:
+                self.text.append('E')
+            if key[pygame.K_r]:
+                self.text.append('R')
+            if key[pygame.K_t]:
+                self.text.append('T')
+            if key[pygame.K_y]:
+                self.text.append('Y')
+            if key[pygame.K_u]:
+                self.text.append('U')
+            if key[pygame.K_i]:
+                self.text.append('I')
+            if key[pygame.K_o]:
+                self.text.append('O')
+            if key[pygame.K_p]:
+                self.text.append('P')
+            if key[pygame.K_a]:
+                self.text.append('A')
+            if key[pygame.K_s]:
+                self.text.append('S')
+            if key[pygame.K_d]:
+                self.text.append('D')
+            if key[pygame.K_f]:
+                self.text.append('F')
+            if key[pygame.K_g]:
+                self.text.append('G')
+            if key[pygame.K_h]:
+                self.text.append('H')
+            if key[pygame.K_j]:
+                self.text.append('J')
+            if key[pygame.K_k]:
+                self.text.append('K')
+            if key[pygame.K_l]:
+                self.text.append('L')
+            if key[pygame.K_z]:
+                self.text.append('Z')
+            if key[pygame.K_x]:
+                self.text.append('X')
+            if key[pygame.K_b]:
+                self.text.append('B')
+            if key[pygame.K_n]:
+                self.text.append('N')
+            if key[pygame.K_m]:
+                self.text.append('M')
+
+            draw_text(self.get_text() + ' |', font, (0, 0, 0), self.x + 7 * display.scr_w, self.y + 2 * display.scr_w)
+        draw_text(self.get_text(), font, (0, 0, 0), self.x + 7 * display.scr_w, self.y + 2 * display.scr_h)
 
     def get_text(self):
         return str("".join(self.text))
@@ -280,37 +374,47 @@ class MainMenu:
 
 
 class OnlineBattle:
-    def __init__(self, bg, player_heroes):
+    def __init__(self, bg, player_heroes, player_name=None):
         self.bg = bg
         self.enabled = False
         self.is_hide = False
         self.player_heroes = player_heroes
+        self.player_name = player_name
+        self.cansel_button = ButtonVisual("отменить", font, (500, 100), (710, 900))
         # self.enemy_heroes = enemy_heroes
         self.player_hero_1 = CardButton(player_heroes[0], (100 * display.scr_w, 500 * display.scr_h))
         self.player_hero_2 = CardButton(player_heroes[1], (350 * display.scr_w, 500 * display.scr_h))
         self.player_hero_3 = CardButton(player_heroes[2], (600 * display.scr_w, 500 * display.scr_h))
 
-    def show(self, mouse_click, chosen, enemy_pick):
-        if not self.is_hide:
-            scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
-            display.screen.blit(scaled_bg, (0, 0))
+    def show(self, mouse_click, chosen, enemy_pick, enemy_name):
+        scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
+        display.screen.blit(scaled_bg, (0, 0))
+
+        if enemy_pick:
+            scaled_found = pygame.transform.scale(BATTLE_MENU_FOUND, (display.screen_width, display.screen_height))
+            display.screen.blit(scaled_found, (0, 0))
             self.player_hero_1.show()
             self.player_hero_2.show()
             self.player_hero_3.show()
+            draw_text(self.player_name, font, (255, 255, 255), 100, 300)
             if not chosen:
                 self.player_hero_1.click(mouse_click)
                 self.player_hero_2.click(mouse_click)
                 self.player_hero_3.click(mouse_click)
-        if enemy_pick:
+
             enemy_hero_1 = CardButtonEnemy(enemy_pick[0],
-                                     (display.screen_width - 250 * display.scr_w, 500 * display.scr_h))
+                                     (display.screen_width - 250, 500))
             enemy_hero_2 = CardButtonEnemy(enemy_pick[1],
-                                     (display.screen_width - 500 * display.scr_w, 500 * display.scr_h))
+                                     (display.screen_width - 500, 500))
             enemy_hero_3 = CardButtonEnemy(enemy_pick[2],
-                                     (display.screen_width - 750 * display.scr_w, 500 * display.scr_h))
+                                     (display.screen_width - 750, 500))
             enemy_hero_1.show()
             enemy_hero_2.show()
             enemy_hero_3.show()
+            draw_text(enemy_name, font, (255, 255, 255), 1170, 300)
+        else:
+            self.cansel_button.show()
+            self.cansel_button.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled
@@ -336,6 +440,7 @@ class ChooseHeroMenu:
         self.lisa = CardButton(player.lisa, (350 * display.scr_w, 700 * display.scr_h))
         self.artestro = CardButton(player.artestro, (350 * display.scr_w, 400 * display.scr_h))
         self.aksenov = CardButton(player.aksenov, (600 * display.scr_w, 700 * display.scr_h))
+        self.bulat = CardButton(player.bulat, (350 * display.scr_w, 100 * display.scr_h))
 
         self.bg = bg
         self.enabled = False
@@ -358,6 +463,8 @@ class ChooseHeroMenu:
             self.artestro.click(mouse_click)
             self.aksenov.show()
             self.aksenov.click(mouse_click)
+            self.bulat.show()
+            self.bulat.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled
@@ -380,7 +487,7 @@ class ChooseHeroMenu:
 
 
 class ChooseOnlineModeMenu:
-    def __init__(self, scr_w, scr_h, bg, music):
+    def __init__(self, scr_w, scr_h, bg, music, player_name):
         self.connect_button = Button(
             (420 * scr_w, 330 * scr_h),
             (1406 * scr_w, 94 * scr_h), "local")
@@ -402,6 +509,7 @@ class ChooseOnlineModeMenu:
             (700 * scr_w, 410 * scr_h), "")
 
         self.line_edit = LineEdit((468 * scr_w, 59 * scr_h), (928 * scr_w, 733 * scr_h))
+        self.line_edit.set_text(player_name)
 
         self.bg = bg
         self.GUI = ONLINE_MODE_GUI

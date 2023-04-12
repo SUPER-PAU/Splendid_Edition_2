@@ -54,6 +54,7 @@ class PLAYER:
         self.in_grab = False
         self.sprint = False
         self.invisible = False
+        self.knifes = 0
         self.side = 1
         self.sex = 1
         self.prev_hit = 0
@@ -61,9 +62,9 @@ class PLAYER:
     def set_side(self, player):
         self.side = player
         if player == 1:
-            self.start_pos = 400 * display.scr_w, 540 * display.scr_h, False
+            self.start_pos = 400, 540, False
         else:
-            self.start_pos = 1400 * display.scr_w, 540 * display.scr_h, True
+            self.start_pos = 1400, 540, True
         self.reset_pos()
 
     def load_images(self, sprite_sheet, animation_steps):
@@ -87,6 +88,7 @@ class PLAYER:
         self.alive = True
         self.grabing = False
         self.in_grab = False
+        self.knifes = 0
         self.invisible = False
         self.blocking = False
         self.running = False
@@ -147,22 +149,22 @@ class PLAYER:
 
     def draw_round_statistic(self, name, font):
         if self.side == 1:
-            draw_text(f"{name}   {self.health}/100", font, black, 17 * display.scr_w,
-                      83 * display.scr_h)
-            draw_text(f"{name}   {self.health}/100", font, red, 20 * display.scr_w,
-                      80 * display.scr_h)
+            draw_text(f"{name}   {self.health}/100", font, black, 17,
+                      83)
+            draw_text(f"{name}   {self.health}/100", font, red, 20,
+                      80)
         else:
-            draw_text(f"{name}   {self.health}/100", font, black, 1097 * display.scr_w,
-                      83 * display.scr_h)
-            draw_text(f"{name}   {self.health}/100", font, red, 1100 * display.scr_w,
-                      80 * display.scr_h)
+            draw_text(f"{name}   {self.health}/100", font, black, 1097,
+                      83)
+            draw_text(f"{name}   {self.health}/100", font, red, 1100,
+                      80)
 
     def draw_hp(self):
         self.draw_cooldown_stats(display.screen)
         if self.side == 1:
-            draw_health_bar(self.health, 20 * display.scr_w, 20 * display.scr_h)
+            draw_health_bar(self.health, 20, 20)
         else:
-            draw_health_bar(self.health, 1100 * display.scr_w, 20 * display.scr_h)
+            draw_health_bar(self.health, 1100, 20)
 
     def get_attack_stats(self):
         temp = self.was_attacking
@@ -184,128 +186,59 @@ class PLAYER:
     def draw_cooldown_stats(self, surface):
         if self.side == 1:
             # draw atk cooldown
-            pygame.draw.rect(surface, (255, 255, 255),
-                             ((30 - 2) * display.scr_w, (1020 - 2) * display.scr_h, (440 + 4) * display.scr_w,
-                              19 * display.scr_h))
-            pygame.draw.rect(surface, (0, 0, 0),
-                             (30 * display.scr_w, 1020 * display.scr_h, 440 * display.scr_w, 15 * display.scr_h))
-            pygame.draw.rect(surface, (204, 51, 0),
-                             (
-                                 30 * display.scr_w, 1020 * display.scr_h, (440 - self.attack_cooldown * 8) * display.scr_w,
-                                 15 * display.scr_h))
+            pygame.draw.rect(surface, (255, 255, 255), ((30 - 2), (1020 - 2), (440 + 4), 19))
+            pygame.draw.rect(surface, (0, 0, 0), (30, 1020, 440, 15))
+            pygame.draw.rect(surface, (204, 51, 0), (30, 1020, (440 - self.attack_cooldown * 8), 15))
             # draw huge attack cooldown
             if self.player in player_spec:
-
-                pygame.draw.rect(surface, (255, 255, 255),
-                                 ((520 - 2) * display.scr_w, (60 - 2) * display.scr_h, (300 + 4) * display.scr_w,
-                                  19 * display.scr_h * display.scr_h))
-                pygame.draw.rect(surface, (0, 0, 0),
-                                 (520 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w, 15 * display.scr_h))
+                pygame.draw.rect(surface, (255, 255, 255), ((520 - 2), (60 - 2), (300 + 4),  19))
+                pygame.draw.rect(surface, (0, 0, 0), (520, 60, 300, 15))
                 if self.huge_attack_cooldown > 0:
-                    pygame.draw.rect(surface, (70, 70, 195), (
-                        520 * display.scr_w, 60 * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
-                        15 * display.scr_h))
-                    pygame.draw.rect(surface, (0, 0, 90), (
-                        520 * display.scr_w, (60 + 10) * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
-                        5 * display.scr_h))
-                    pygame.draw.rect(surface, (120, 120, 255), (
-                        520 * display.scr_w, 60 * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
-                        5 * display.scr_h))
+                    pygame.draw.rect(surface, (70, 70, 195), (520, 60, (300 - self.huge_attack_cooldown), 15))
+                    pygame.draw.rect(surface, (0, 0, 90), (520, (60 + 10), (300 - self.huge_attack_cooldown), 5))
+                    pygame.draw.rect(surface, (120, 120, 255), (520, 60, (300 - self.huge_attack_cooldown), 5))
                 else:
-                    pygame.draw.rect(surface, (204, 255, 255), (
-                        520 * display.scr_w, 60 * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
-                        15 * display.scr_h))
-                    pygame.draw.rect(surface, (0, 255, 255), (
-                        520 * display.scr_w, (60 + 7) * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
-                        8 * display.scr_h))
+                    pygame.draw.rect(surface, (204, 255, 255), (520, 60, (300 - self.huge_attack_cooldown), 15))
+                    pygame.draw.rect(surface, (0, 255, 255), (520, (60 + 7), (300 - self.huge_attack_cooldown), 8))
 
             if self.player in player_shield:
-                pygame.draw.rect(surface, (255, 255, 255), (
-                    (20 - 2) * display.scr_w, (60 - 2) * display.scr_h, (200 + 4) * display.scr_w,
-                    19 * display.scr_h))
-                pygame.draw.rect(surface, (0, 0, 0),
-                                 (20 * display.scr_w, 60 * display.scr_h, 200 * display.scr_w, 15 * display.scr_h))
+                pygame.draw.rect(surface, (255, 255, 255), ((20 - 2), (60 - 2), (200 + 4), 19))
+                pygame.draw.rect(surface, (0, 0, 0), (20, 60, 200, 15))
 
                 if self.shield_cooldown > 0:
-                    pygame.draw.rect(surface, (0, 102, 0), (
-                        20 * display.scr_w, 60 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
-                        15 * display.scr_h))
-                    pygame.draw.rect(surface, (0, 51, 0), (
-                        20 * display.scr_w, (60 + 10) * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
-                        5 * display.scr_h))
-                    pygame.draw.rect(surface, (51, 153, 51), (
-                        20 * display.scr_w, 60 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
-                        5 * display.scr_h))
+                    pygame.draw.rect(surface, (0, 102, 0), (20, 60, (200 - self.shield_cooldown), 15))
+                    pygame.draw.rect(surface, (0, 51, 0), (20, (60 + 10), (200 - self.shield_cooldown), 5))
+                    pygame.draw.rect(surface, (51, 153, 51), (20, 60, (200 - self.shield_cooldown), 5))
                 else:
-                    pygame.draw.rect(surface, (102, 255, 102), (
-                        20 * display.scr_w, 60 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
-                        15 * display.scr_h))
-                    pygame.draw.rect(surface, (102, 255, 153), (
-                        20 * display.scr_w, (60 + 7) * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
-                        8 * display.scr_h))
+                    pygame.draw.rect(surface, (102, 255, 102), (20, 60, (200 - self.shield_cooldown), 15))
+                    pygame.draw.rect(surface, (102, 255, 153), (20, (60 + 7), (200 - self.shield_cooldown), 8))
         else:
-            pygame.draw.rect(surface, (255, 255, 255),
-                             ((1450 - 2) * display.scr_w, (1020 - 2) * display.scr_h, (440 + 4) * display.scr_w,
-                              19 * display.scr_h))
-            pygame.draw.rect(surface, (204, 51, 0),
-                             (1450 * display.scr_w, 1020 * display.scr_h, 440 * display.scr_w, 15 * display.scr_h))
-            pygame.draw.rect(surface, (0, 0, 0),
-                             (
-                                 1450 * display.scr_w, 1020 * display.scr_h, self.attack_cooldown * 8 * display.scr_w,
-                                 15 * display.scr_h))
+            pygame.draw.rect(surface, (255, 255, 255), ((1450 - 2), (1020 - 2), (440 + 4), 19))
+            pygame.draw.rect(surface, (204, 51, 0), (1450, 1020, 440, 15))
+            pygame.draw.rect(surface, (0, 0, 0), (1450, 1020, self.attack_cooldown * 8, 15))
 
             # draw huge attack cooldown
             if self.player in player_spec:
-                pygame.draw.rect(surface, (255, 255, 255),
-                                 ((1100 - 2) * display.scr_w, (60 - 2) * display.scr_h, (300 + 4) * display.scr_w,
-                                  19 * display.scr_h))
-                pygame.draw.rect(surface, (70, 70, 195), (
-                    1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
-                    15 * display.scr_h))
-                pygame.draw.rect(surface, (0, 0, 90), (
-                    1100 * display.scr_w, (60 + 10) * display.scr_h, 300 * display.scr_w,
-                    5 * display.scr_h))
-                pygame.draw.rect(surface, (120, 120, 255), (
-                    1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
-                    5 * display.scr_h))
+                pygame.draw.rect(surface, (255, 255, 255), (1098, 58, 304, 19))
+                pygame.draw.rect(surface, (70, 70, 195), (1100, 60, 300, 15))
+                pygame.draw.rect(surface, (0, 0, 90), (1100, 70, 300, 5))
+                pygame.draw.rect(surface, (120, 120, 255), (1100, 60, 300, 5))
                 if self.huge_attack_cooldown > 0:
-                    pygame.draw.rect(surface, (0, 0, 0),
-                                     (1100 * display.scr_w, 60 * display.scr_h,
-                                      self.huge_attack_cooldown * display.scr_w,
-                                      15 * display.scr_h))
+                    pygame.draw.rect(surface, (0, 0, 0), (1100, 60, self.huge_attack_cooldown, 15))
                 else:
-                    pygame.draw.rect(surface, (204, 255, 255), (
-                        1100 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w,
-                        15 * display.scr_h))
-                    pygame.draw.rect(surface, (0, 255, 255), (
-                        1100 * display.scr_w, (60 + 7) * display.scr_h, 300 * display.scr_w,
-                        8 * display.scr_h))
+                    pygame.draw.rect(surface, (204, 255, 255), (1100, 60, 300, 15))
+                    pygame.draw.rect(surface, (0, 255, 255), (1100, 67, 300, 8))
             if self.player in player_shield:
-                pygame.draw.rect(surface, (255, 255, 255), (
-                    (1700 - 2) * display.scr_w, (60 - 2) * display.scr_h, (200 + 4) * display.scr_w,
-                    19 * display.scr_h))
-                pygame.draw.rect(surface, (0, 102, 0), (
-                    1700 * display.scr_w, 60 * display.scr_h, 200 * display.scr_w,
-                    15 * display.scr_h))
-                pygame.draw.rect(surface, (0, 51, 0), (
-                    1700 * display.scr_w, (60 + 10) * display.scr_h, 200 * display.scr_w,
-                    5 * display.scr_h))
-                pygame.draw.rect(surface, (51, 153, 51), (
-                    1700 * display.scr_w, 60 * display.scr_h, 200 * display.scr_w,
-                    5 * display.scr_h))
+                pygame.draw.rect(surface, (255, 255, 255), (1698, 58, 204, 19))
+                pygame.draw.rect(surface, (0, 102, 0), (1700, 60, 200, 15))
+                pygame.draw.rect(surface, (0, 51, 0), (1700, 70, 200, 5))
+                pygame.draw.rect(surface, (51, 153, 51), (1700, 60, 200, 5))
 
                 if self.shield_cooldown > 0:
-                    pygame.draw.rect(surface, (0, 0, 0),
-                                     (1700 * display.scr_w, 60 * display.scr_h, self.shield_cooldown * display.scr_w,
-                                      15 * display.scr_h))
+                    pygame.draw.rect(surface, (0, 0, 0), (1700, 60, self.shield_cooldown, 15))
                 else:
-                    pygame.draw.rect(surface, (102, 255, 102), (
-                        1700 * display.scr_w, 60 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
-                        15 * display.scr_h))
-                    pygame.draw.rect(surface, (102, 255, 153), (
-                        1700 * display.scr_w, (60 + 7) * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
-                        8 * display.scr_h))
-
+                    pygame.draw.rect(surface, (102, 255, 102), (1700, 60, (200 - self.shield_cooldown), 15))
+                    pygame.draw.rect(surface, (102, 255, 153), (1700, 67, (200 - self.shield_cooldown), 8))
 
     def heal(self, amount):
         if self.alive:
@@ -323,7 +256,7 @@ class PLAYER:
 
     def dash(self):
         if self.dashing and self.attacking:
-            self.rect.x += self.dash_x * display.scr_w
+            self.rect.x += self.dash_x
             if self.player == 4:
                 self.shield_on = True
 
@@ -349,9 +282,8 @@ class PLAYER:
                     self.blocking = True
                     self.update_huge_attack_cd(60)
             if self.side == 1:
-                create_damage_number((50 * display.scr_w, 150 * display.scr_h),
+                create_damage_number((50, 150),
                                      self.flip, hit)
             else:
-                create_damage_number((1750 * display.scr_w, 150 * display.scr_h),
+                create_damage_number((1750, 150),
                                      self.flip, hit)
-

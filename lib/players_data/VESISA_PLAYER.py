@@ -1,6 +1,5 @@
 from constants.audio.effects import shield_sfx
 from constants.textures.sprites import dust
-from lib.display import display
 from lib.particle import create_particles
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
@@ -32,11 +31,11 @@ class VesisaPlayer(SuperPauPlayer):
         elif self.hit:
             self.update_action(4)  # hit
             self.invisible = False
-            self.rect.x -= (8 - 16 * self.flip) * display.scr_w
+            self.rect.x -= (8 - 16 * self.flip)
         elif self.blocking:
             self.invisible = False
             self.update_action(3)  # block
-            self.rect.x -= (4 - 8 * self.flip) * display.scr_w
+            self.rect.x -= (4 - 8 * self.flip)
         elif self.attacking:
             match self.attack_type:
                 case 1:

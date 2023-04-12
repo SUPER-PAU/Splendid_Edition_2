@@ -21,16 +21,18 @@ def load_images(sprite_sheet, animation_steps, size, scale):
     return animation_list
 
 
-rock_animation = load_images(stone, [2, 2], 200, 0.6 * display.scr_w)
-knife_animation = load_images(knifes, [2, 2], 200, 0.6 * display.scr_w)
-bullet_animation = load_images(bullet, [2, 2], 20, 4.55 * display.scr_w)
+rock_animation = load_images(stone, [2, 2], 200, 0.6)
+knife_animation = load_images(knifes, [2, 2], 200, 0.6)
+bullet_animation = load_images(bullet, [2, 2], 20, 4.55)
+beam_animation = load_images(beam, [2, 2], 20, 4.55)
+explosion_animation = load_images(explosion, [5], 127, 7.7)
 sprite_by_name = {
-    "explosion": explosion,
+    "explosion": explosion_animation,
     "bullet": bullet_animation,
     "rocket": rocket,
     "stone": rock_animation,
     "enegry": energy,
-    "beam": beam,
+    "beam": beam_animation,
     "knife": knife_animation
 }
 
@@ -41,7 +43,7 @@ class Particle(pygame.sprite.Sprite):
     def __init__(self, pos, dx, dy, flip, particle):
         super().__init__(all_sprites)
         fire = [particle]
-        for scale in (20 * display.scr_w, 24 * display.scr_w, 28 * display.scr_w):
+        for scale in (18, 22, 25):
             fire.append(pygame.transform.scale(fire[0], (scale, scale)))
         self.image = random.choice(fire)
         self.rect = self.image.get_rect()
@@ -61,8 +63,8 @@ class Particle(pygame.sprite.Sprite):
         # движение с ускорением под действием гравитации
         self.velocity[1] += self.gravity
         # перемещаем частицу
-        self.rect.x += self.velocity[0] * display.scr_w
-        self.rect.y += self.velocity[1] * display.scr_h
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
         # убиваем, если частица ушла за экран
         if not self.rect.colliderect(screen_rect):
             self.kill()
@@ -145,7 +147,7 @@ class Bullet(pygame.sprite.Sprite):
                 dx = -self.speed
             else:
                 dx = self.speed
-        self.rect.x += dx * display.scr_w
+        self.rect.x += dx
         if not self.speed <= 20:
             self.speed -= 0.5
 
@@ -224,9 +226,10 @@ class Explosion(pygame.sprite.Sprite):
             self.update_time = pygame.time.get_ticks()
         if not self.hit:
             self.attack(n)
-        self.draw()
-        if self.frame_index >= 5:
+        if self.frame_index >= len(sprite_by_name[self.name][self.action]):
+            self.frame_index = 0
             self.kill()
+        self.draw()
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
 
     def attack(self, n):
@@ -265,8 +268,8 @@ class Rocket(Explosion):
         self.target = target
         self.damage = damage
         self.update_time = pygame.time.get_ticks()
-        self.speed = 30 * display.scr_w
-        self.vel_y = -50 * display.scr_h
+        self.speed = 30
+        self.vel_y = -50
         self.name = "rocket"
         # play shoot sound
         pygame.mixer.Sound.play(random.choice(gaubica_sounds))
@@ -291,7 +294,7 @@ class Rocket(Explosion):
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
 
     def move(self):
-        GRAVITY = 2 * display.scr_h
+        GRAVITY = 2
         dx = 0
         dy = 0
         if not self.hit:
@@ -299,8 +302,8 @@ class Rocket(Explosion):
                 dx = -self.speed
             else:
                 dx = self.speed
-        if self.speed > 2 * display.scr_w:
-            self.speed -= 0.5 * display.scr_w
+        if self.speed > 2:
+            self.speed -= 0.5
         # apply gravity
         self.vel_y += GRAVITY
         dy += self.vel_y
@@ -310,7 +313,7 @@ class Rocket(Explosion):
             dx = -self.rect.left
         if self.rect.right + dx > display.screen_width:
             dx = display.screen_width - self.rect.right
-        if self.rect.bottom + dy * display.scr_h > display.screen_height - 110 * display.scr_h:
+        if self.rect.bottom + dy > display.screen_height - 110:
             self.create_expl()
             self.kill()
 
@@ -321,13 +324,11 @@ class Rocket(Explosion):
     def create_expl(self):
         # play prilet sound
         pygame.mixer.Sound.play(random.choice(explosion_sounds))
-        explosion_rect = pygame.Rect(self.rect.centerx - (200 * display.scr_w),
-                                     display.screen_height - 710 * display.scr_h,
-                                     400 * display.scr_w, 600 * display.scr_h)
+        explosion_rect = pygame.Rect(self.rect.centerx - 200, display.screen_height - 710, 400, 600)
         offset = 34
         if self.flip:
             offset = 40
-        explosion_data = [127, 7.7 * display.scr_w, (offset, 10), [5], self.flip]
+        explosion_data = [127, 7.7, (offset, 10), [5], self.flip]
         create_explosion(explosion_rect, explosion_data, self.target, self.damage)
 
 
@@ -336,8 +337,8 @@ class Stone(Explosion):
         super().__init__(rect, data, target, damage)
         self.rect = rect.copy()
         self.name = "stone"
-        self.speed = 25 * display.scr_w
-        self.vel_y = -47 * display.scr_h
+        self.speed = 25
+        self.vel_y = -47
 
     def update(self, enemy, n):
         self.target = enemy
@@ -364,14 +365,14 @@ class Stone(Explosion):
             self.frame_index = 0
 
     def move(self):
-        GRAVITY = 2 * display.scr_h
+        GRAVITY = 2
         dy = 0
         if self.flip:
             dx = -self.speed
         else:
             dx = self.speed
-        if self.speed > 2 * display.scr_w:
-            self.speed -= 0.5 * display.scr_w
+        if self.speed > 2:
+            self.speed -= 0.5
         # apply gravity
         self.vel_y += GRAVITY
         dy += self.vel_y
@@ -381,7 +382,7 @@ class Stone(Explosion):
             dx = -self.rect.left
         if self.rect.right + dx > display.screen_width:
             dx = display.screen_width - self.rect.right
-        if self.rect.bottom + dy * display.scr_h > display.screen_height - 110 * display.scr_h:
+        if self.rect.bottom + dy > display.screen_height - 110:
             self.hit = True
         if not self.hit:
             # update position
@@ -412,12 +413,12 @@ class Beam(Bullet):
 class CreateBombing:
     def __init__(self):
         self.attack_cooldown = 150
-        self.data = [200, 0.6 * display.scr_w, (10, 10), [2, 2], False]
+        self.data = [200, 0.6, (10, 10), [2, 2], False]
 
     def enable(self, target):
         if self.attack_cooldown <= 0:
-            a = random.randint(int(50 * display.scr_w), int(1800 * display.scr_w))
-            bullet_rect = pygame.Rect(a, -400, 100 * display.scr_w, 100 * display.scr_h)
+            a = random.randint(50, 1800)
+            bullet_rect = pygame.Rect(a, -400, 100, 100)
             ScyRocket(bullet_rect, self.data, target, 10)
             self.attack_cooldown = 300
         else:
@@ -429,18 +430,16 @@ class Energy(Stone):
         super().__init__(rect, data, target, damage)
         self.speed = 25
         self.name = "energy"
-        self.vel_y = -30 * display.scr_h
+        self.vel_y = -30
 
     def create_expl(self):
         # play prilet sound
         pygame.mixer.Sound.play(random.choice(explosion_sounds))
-        explosion_rect = pygame.Rect(self.rect.centerx - (200 * display.scr_w),
-                                     display.screen_height - 710 * display.scr_h,
-                                     400 * display.scr_w, 600 * display.scr_h)
+        explosion_rect = pygame.Rect(self.rect.centerx - 200, display.screen_height - 710, 400, 600)
         offset = 34
         if self.flip:
             offset = 40
-        explosion_data = [127, 7.7 * display.scr_w, (offset, 10), [5], self.flip]
+        explosion_data = [127, 7.7, (offset, 10), [5], self.flip]
         create_explosion(explosion_rect, explosion_data, self.target, self.damage)
 
     def attack(self, n):
@@ -461,18 +460,18 @@ class DamageNumber(pygame.sprite.Sprite):
         super().__init__(damage_num_group)
         self.damage, self.flip = f"-{str(damage)}", flip
         self.rect = rect.copy()
-        self.vel_y = -0.1 * display.scr_h
+        self.vel_y = -0.1
         self.color = (255, 255, 255)
-        self.size = int(60 * display.scr_w)
+        self.size = 60
         if damage >= 20:
-            self.size = int(75 * display.scr_w)
+            self.size = 75
             self.color = (255, 255, 0)
         if damage >= 30:
-            self.size = int(90 * display.scr_w)
+            self.size = 90
             self.color = (255, 0, 0)
 
     def update(self):
-        if self.rect.top > 330 * display.scr_h:
+        if self.rect.top > 330:
             self.kill()
         self.move()
         self.draw()
@@ -480,12 +479,12 @@ class DamageNumber(pygame.sprite.Sprite):
     def draw(self):
         font = pygame.font.SysFont('Times New Roman', self.size)
         black_img = font.render(self.damage, True, (0, 0, 0))
-        display.screen.blit(black_img, (self.rect.x + 2 * display.scr_w, self.rect.y + 2 * display.scr_h))
+        display.screen.blit(black_img, (self.rect.x + 2, self.rect.y + 2))
         img = font.render(self.damage, True, self.color)
         display.screen.blit(img, (self.rect.x, self.rect.y))
 
     def move(self):
-        GRAVITY = 0.05 * display.scr_h
+        GRAVITY = 0.05
         dy = 0
         # apply gravity
         self.vel_y += GRAVITY
@@ -496,7 +495,7 @@ class DamageNumber(pygame.sprite.Sprite):
 
 def create_damage_number(coords, flip, damage):
     rect = pygame.Rect(coords[0], coords[1],
-                       int(90 * display.scr_w * (damage // 10)), int(90 * display.scr_w * (damage // 10)))
+                       int(90 * (damage // 10)), int(90 * (damage // 10)))
     DamageNumber(rect, flip, damage)
 
 

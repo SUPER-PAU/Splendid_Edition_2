@@ -6,7 +6,7 @@ import pygame
 
 from lib.display import display
 
-knife_img = pygame.transform.scale(knife, (60 * display.scr_w, 60 * display.scr_h))
+knife_img = pygame.transform.scale(knife, (60, 60))
 
 
 class ArtestroPlayer(SuperPauPlayer):
@@ -17,8 +17,8 @@ class ArtestroPlayer(SuperPauPlayer):
         self.name = "artestro"
 
     def move(self, surface, target, round_over, mouse_click, key_press):
-        SPEED = 8 * display.scr_w
-        GRAVITY = 2 * display.scr_h
+        SPEED = 8
+        GRAVITY = 2
         dx = 0
         dy = 0
         self.running = False
@@ -29,7 +29,7 @@ class ArtestroPlayer(SuperPauPlayer):
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
 
         if key[pygame.K_LSHIFT] and not self.jump:
-            SPEED += 8.3 * display.scr_w
+            SPEED += 8.3
             self.sprint = True
 
         # play emoji
@@ -41,7 +41,7 @@ class ArtestroPlayer(SuperPauPlayer):
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
             # jump
             if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
-                self.vel_y = -46 * display.scr_h
+                self.vel_y = -46
                 self.jump = True
             # attack
             if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] or mouse_middle or
@@ -71,8 +71,8 @@ class ArtestroPlayer(SuperPauPlayer):
                                     self.attack_type = 3
                                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                                               self.rect.y + self.rect.height * (0.1 + i * 0.15),
-                                                              50 * display.scr_w, 50 * display.scr_h)
-                                    bullet_data = [200, 0.6 * display.scr_w, (5, 3), [2, 2], self.flip]
+                                                              50, 50)
+                                    bullet_data = [200, 0.6, (5, 3), [2, 2], self.flip]
                                     hit = 9 - i * 2
                                     create_knife(bullet_rect, bullet_data, target, hit)
                                 self.attack(target, attack_group)
@@ -108,10 +108,10 @@ class ArtestroPlayer(SuperPauPlayer):
                 dx = -self.rect.left
             if self.rect.right + dx > display.screen_width:
                 dx = display.screen_width - self.rect.right
-            if self.rect.bottom + dy * display.scr_h > display.screen_height - 110 * display.scr_h:
+            if self.rect.bottom + dy > display.screen_height - 110:
                 self.vel_y = 0
                 self.jump = False
-                dy = display.screen_height - 110 * display.scr_h - self.rect.bottom
+                dy = display.screen_height - 110 - self.rect.bottom
             # update player position
             self.rect.x += dx
             self.rect.y += dy
@@ -144,8 +144,8 @@ class ArtestroPlayer(SuperPauPlayer):
                 case 2:
                     self.shield_cooldown = 200
                     hit = 20
-                    dash_rect = pygame.Rect(self.rect.x, self.rect.y + 50 * display.scr_h, self.rect.width,
-                                            self.rect.height - 50 * display.scr_h)
+                    dash_rect = pygame.Rect(self.rect.x, self.rect.y + 50, self.rect.width,
+                                            self.rect.height - 50)
                     self.dashing = True
                     if not self.flip:
                         self.dash_x = 30
@@ -155,8 +155,8 @@ class ArtestroPlayer(SuperPauPlayer):
                 case 3:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                               self.rect.y + self.rect.height * 0.35,
-                                              50 * display.scr_w, 50 * display.scr_h)
-                    bullet_data = [200, 0.6 * display.scr_w, (5, 3), [2, 2], self.flip]
+                                              50, 50)
+                    bullet_data = [200, 0.6, (5, 3), [2, 2], self.flip]
                     hit = 10
                     create_knife(bullet_rect, bullet_data, target, hit)
                     self.knifes -= 1
@@ -181,12 +181,12 @@ class ArtestroPlayer(SuperPauPlayer):
             if not self.flip:
                 imeg = pygame.transform.flip(knife_img, self.flip, False)
                 display.screen.blit(imeg,
-                                    ((self.rect.left - 60 * display.scr_w) + (60 * display.scr_w) * i,
+                                    ((self.rect.left - 60) + 60 * i,
                                      self.rect.y + self.rect.height * 0.35))
             else:
                 imeg = pygame.transform.flip(knife_img, self.flip, False)
                 display.screen.blit(imeg,
-                                    (self.rect.right - (60 * display.scr_w) * i,
+                                    (self.rect.right - 60 * i,
                                      self.rect.y + self.rect.height * 0.35))
 
 
@@ -215,10 +215,8 @@ class Dash(pygame.sprite.Sprite):
             self.kill()
 
     def move(self, target, n):
-        self.rect = pygame.Rect(self.rect.x, self.rect.y + 50 * display.scr_h, self.rect.width,
-                                self.rect.height - 50 * display.scr_h)
-        self.rect.x += self.player.dash_x * display.scr_w
-        self.rect.y = self.rect.y
+        self.rect.x += self.player.dash_x
+        pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
         self.attack(target, n)
 
     def attack(self, target, n):

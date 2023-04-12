@@ -1,4 +1,3 @@
-from lib.display import display
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
 
@@ -24,10 +23,10 @@ class LisaPlayer(SuperPauPlayer):
             self.hit = True
         elif self.hit:
             self.update_action(4)  # hit
-            self.rect.x -= (8 - 16 * self.flip) * display.scr_w
+            self.rect.x -= (8 - 16 * self.flip)
         elif self.blocking:
             self.update_action(3)  # block
-            self.rect.x -= (4 - 8 * self.flip) * display.scr_w
+            self.rect.x -= (4 - 8 * self.flip)
         elif self.attacking:
             match self.attack_type:
                 case 1:
@@ -68,7 +67,7 @@ class LisaPlayer(SuperPauPlayer):
                     self.attack_cooldown = 20
                     self.dashing = False
                     if self.action == 7:
-                        self.rect.x -= (200 - 400 * self.flip) * display.scr_w
+                        self.rect.x -= (200 - 400 * self.flip)
                 if self.action == 11:
                     self.hit = False
                     self.in_grab = False
@@ -92,13 +91,13 @@ class LisaPlayer(SuperPauPlayer):
         if self.alive:
             if self.action == 11:
                 if self.frame_index in [3, 4]:
-                    self.rect.x -= (23 - 46 * self.flip) * display.scr_w
+                    self.rect.x -= (23 - 46 * self.flip)
             if self.action in [6, 7, 8, 10, 9]:
                 self.attack_cooldown = 20
                 if self.action == 8:
                     self.huge_attack_cooldown = 300
                     if self.frame_index in [2, 3, 7, 8]:
-                        self.rect.x += (23 - 46 * self.flip) * display.scr_w
+                        self.rect.x += (23 - 46 * self.flip)
                 self.dash()
 
         # if player is stunned by beam

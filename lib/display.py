@@ -5,15 +5,16 @@ from ctypes import windll
 class Display:
     def __init__(self):
         # Нативное разрешение пользователя
-        # self.screen_width = windll.user32.GetSystemMetrics(0)
-        # self.screen_height = windll.user32.GetSystemMetrics(1)
-        self.screen_width = 640
-        self.screen_height = 360
+        self.screen_width = windll.user32.GetSystemMetrics(0)
+        self.screen_height = windll.user32.GetSystemMetrics(1)
+        self.native = (windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1))
+        # self.screen_width = 640
+        # self.screen_height = 360
         # settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
         # self.refresh_rate = int(getattr(settings, 'DisplayFrequency'))
         self.refresh_rate = 60
         # Разрешение экрана для pygame
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.FULLSCREEN)
         # Разрешение в сравнении с нативным
         self.scr_w = self.screen_width / 1920
         self.scr_h = self.screen_height / 1080
@@ -37,6 +38,23 @@ class Display:
 
     def set_fps(self, fps):
         self.refresh_rate = fps
+
+    def set_online_window(self):
+        self.screen_width = 1920
+        self.screen_height = 1080
+        self.scr_w = 1
+        self.scr_h = 1
+        if self.native == (self.screen_width, self.screen_height):
+            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.FULLSCREEN)
+        else:
+            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+
+    def set_normal_window(self):
+        self.screen_width = windll.user32.GetSystemMetrics(0)
+        self.screen_height = windll.user32.GetSystemMetrics(1)
+        self.scr_w = self.screen_width / 1920
+        self.scr_h = self.screen_height / 1080
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.FULLSCREEN)
 
 
 display = Display()

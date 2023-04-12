@@ -25,8 +25,8 @@ class SuperPauPlayer(PLAYER):
             create_emoji(emoji_rect, emoji_data, self.name, self)
 
     def move(self, surface, target, round_over, mouse_click, key_press):
-        SPEED = 8 * display.scr_w
-        GRAVITY = 2 * display.scr_h
+        SPEED = 8
+        GRAVITY = 2
         dx = 0
         dy = 0
         self.running = False
@@ -37,19 +37,19 @@ class SuperPauPlayer(PLAYER):
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
 
         if key[pygame.K_LSHIFT] and not self.jump:
-            SPEED += 8.3 * display.scr_w
+            SPEED += 8.3
             self.sprint = True
 
         # play emoji
-        if key[pygame.K_1] and self.emoji_cooldown <= 0:
-            self.play_emoji()
-            self.emoji_cooldown = 160
+        # if key[pygame.K_1] and self.emoji_cooldown <= 0:
+        #     self.play_emoji()
+        #     self.emoji_cooldown = 160
 
         # can only perform other actions if not attacking
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
             # jump
             if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
-                self.vel_y = -46 * display.scr_h
+                self.vel_y = -46
                 self.jump = True
             # attack
             if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] or mouse_middle or
@@ -58,21 +58,17 @@ class SuperPauPlayer(PLAYER):
                     # determine attack
                     if key[pygame.K_r] or mouse_left:
                         self.attack_type = 1
-                        hit = 12
                         self.attack(target, attack_group)
                     elif key[pygame.K_f] or mouse_middle:
                         if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                             self.attack_type = 3
-                            hit = 35
                             self.huge_attack_cooldown = 300
                             self.attack(target, attack_group)
                     elif key[pygame.K_t] or mouse_right:
                         self.attack_type = 2
-                        hit = 14
                         self.attack(target, attack_group)
                     elif key[pygame.K_e]:
                         self.attack_type = 4
-                        hit = 15
                         self.attack(target, attack_group)
             # movement
             if key[pygame.K_a]:
@@ -98,10 +94,10 @@ class SuperPauPlayer(PLAYER):
                 dx = -self.rect.left
             if self.rect.right + dx > display.screen_width:
                 dx = display.screen_width - self.rect.right
-            if self.rect.bottom + dy * display.scr_h > display.screen_height - 110 * display.scr_h:
+            if self.rect.bottom + dy > display.screen_height - 110:
                 self.vel_y = 0
                 self.jump = False
-                dy = display.screen_height - 110 * display.scr_h - self.rect.bottom
+                dy = display.screen_height - 110 - self.rect.bottom
             # update player position
             self.rect.x += dx
             self.rect.y += dy
@@ -128,11 +124,11 @@ class SuperPauPlayer(PLAYER):
             self.hit = True
         elif self.hit:
             self.update_action(4)  # hit
-            self.rect.x -= (8 - 16 * self.flip) * display.scr_w
+            self.rect.x -= (8 - 16 * self.flip)
             self.dashing = False
         elif self.blocking:
             self.update_action(3)  # block
-            self.rect.x -= (4 - 8 * self.flip) * display.scr_w
+            self.rect.x -= (4 - 8 * self.flip)
             self.dashing = False
         elif self.attacking:
             match self.attack_type:
@@ -204,7 +200,7 @@ class SuperPauPlayer(PLAYER):
         if self.alive:
             if self.action == 11:
                 if self.frame_index in [3, 4]:
-                    self.rect.x -= (23 - 46 * self.flip) * display.scr_w
+                    self.rect.x -= (23 - 46 * self.flip)
             if self.action in [6, 7, 8, 9, 10]:
                 self.attack_cooldown = 15
                 if self.action == 8:

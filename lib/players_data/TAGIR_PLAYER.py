@@ -13,8 +13,8 @@ class TagirPlayer(SuperPauPlayer):
         self.name = "tagir"
 
     def move(self, surface, target, round_over, mouse_click, key_press):
-        SPEED = 8 * display.scr_w
-        GRAVITY = 2 * display.scr_h
+        SPEED = 8
+        GRAVITY = 2
         dx = 0
         dy = 0
         self.running = False
@@ -25,7 +25,7 @@ class TagirPlayer(SuperPauPlayer):
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
 
         if key[pygame.K_LSHIFT] and not self.jump:
-            SPEED += 8.3 * display.scr_w
+            SPEED += 8.3
             self.sprint = True
 
         # play emoji
@@ -37,7 +37,7 @@ class TagirPlayer(SuperPauPlayer):
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
             # jump
             if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
-                self.vel_y = -46 * display.scr_h
+                self.vel_y = -46
                 self.jump = True
             # attack
             if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_e]) and \
@@ -77,10 +77,10 @@ class TagirPlayer(SuperPauPlayer):
                 dx = -self.rect.left
             if self.rect.right + dx > display.screen_width:
                 dx = display.screen_width - self.rect.right
-            if self.rect.bottom + dy * display.scr_h > display.screen_height - 110 * display.scr_h:
+            if self.rect.bottom + dy > display.screen_height - 110:
                 self.vel_y = 0
                 self.jump = False
-                dy = display.screen_height - 110 * display.scr_h - self.rect.bottom
+                dy = display.screen_height - 110 - self.rect.bottom
             # update player position
             self.rect.x += dx
             self.rect.y += dy
@@ -116,9 +116,8 @@ class TagirPlayer(SuperPauPlayer):
                 # att 1
                 case 2:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
-                                              self.rect.y + self.rect.height * 0.35,
-                                              100 * display.scr_w, 100 * display.scr_h)
-                    bullet_data = [200, 0.6 * display.scr_w, (10, 10), [2, 2], self.flip]
+                                              self.rect.y + self.rect.height * 0.35, 100, 100)
+                    bullet_data = [200, 0.6, (10, 10), [2, 2], self.flip]
                     hit = 20
                     create_stone(bullet_rect, bullet_data, target, hit)
                 # grab
@@ -159,11 +158,7 @@ class Dash(pygame.sprite.Sprite):
             self.kill()
 
     def move(self, target, n):
-        self.rect = pygame.Rect(self.player.rect.centerx - (1 * self.player.rect.width * self.flip),
-                                self.player.rect.y + self.player.rect.height * 0.3,
-                                1 * self.player.rect.width, self.player.rect.height * 0.5)
-        self.rect.x += self.player.dash_x * display.scr_w
-        self.rect.y = self.rect.y
+        self.rect.x += self.player.dash_x
         self.attack(target, n)
 
     def attack(self, target, n):

@@ -38,6 +38,26 @@ def get_settings():
     return mus, dif
 
 
+def get_player_name():
+    con = sqlite3.connect("G_PROGRESS.sqlite")
+    cur = con.cursor()
+    # Выполнение запроса и получение результатов
+    name = cur.execute("""SELECT name FROM SETTINGS""").fetchall()
+    con.close()
+    return name[0][0]
+
+
+def save_name(name):
+    nam = str(name)
+    con = sqlite3.connect("G_PROGRESS.sqlite")
+    # Создание курсора
+    cur = con.cursor()
+    cur.execute(f"""UPDATE SETTINGS
+                        SET name = '{nam}'""")
+    con.commit()
+    con.close()
+
+
 def save_settings(mus_vol, diffic):
     mus = float(mus_vol)
     dif = float(diffic)

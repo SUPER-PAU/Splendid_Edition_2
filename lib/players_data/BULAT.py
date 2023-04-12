@@ -1,16 +1,19 @@
+from random import choice
+
+from constants.audio.effects import explosion_sounds
 from constants.textures.sprites import attack_group
-from lib.players_data.particles_online import create_bullet
+from lib.players_data.particles_online import create_explosion
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
 
 from lib.display import display
 
 
-class AksenovPlayer(SuperPauPlayer):
+class BulatPlayer(SuperPauPlayer):
     def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(5, x, y, flip, data, attack_frame)
-        self.sex = 2
-        self.name = "aksenov"
+        super().__init__(2, x, y, flip, data, attack_frame)
+        self.sex = 1
+        self.name = "bulat"
 
     def move(self, surface, target, round_over, mouse_click, key_press):
         SPEED = 8
@@ -29,9 +32,9 @@ class AksenovPlayer(SuperPauPlayer):
             self.sprint = True
 
         # play emoji
-        if key[pygame.K_1] and self.emoji_cooldown <= 0:
-            self.play_emoji()
-            self.emoji_cooldown = 160
+        # if key[pygame.K_1] and self.emoji_cooldown <= 0:
+        #     self.play_emoji()
+        #     self.emoji_cooldown = 160
 
         # can only perform other actions if not attacking
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
@@ -40,15 +43,21 @@ class AksenovPlayer(SuperPauPlayer):
                 self.vel_y = -46
                 self.jump = True
             # attack
-            if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or
+            if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] or mouse_middle or
                key[pygame.K_e]) and (mouse_click or key_press):
                 if self.attack_cooldown <= 0:
                     # determine attack
                     if key[pygame.K_r] or mouse_left:
                         self.attack_type = 1
                         self.attack(target, attack_group)
-                    elif key[pygame.K_t] or mouse_right:
+                    elif key[pygame.K_f] or mouse_middle:
+                        if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
+                            self.attack_type = 3
+                            self.huge_attack_cooldown = 300
+                            self.attack(target, attack_group)
+                    elif key[pygame.K_t] or mouse_right and self.shield_cooldown <= 0:
                         self.attack_type = 2
+                        self.shield_cooldown = 200
                         self.attack(target, attack_group)
                     elif key[pygame.K_e]:
                         self.attack_type = 4
@@ -85,6 +94,8 @@ class AksenovPlayer(SuperPauPlayer):
             self.rect.x += dx
             self.rect.y += dy
         # apply attack cooldown
+        if self.shield_cooldown > 0:
+            self.shield_cooldown -= 1
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
         if self.emoji_cooldown > 0:
@@ -97,22 +108,39 @@ class AksenovPlayer(SuperPauPlayer):
             attacking_rect = None
             block_break = False
             hit = 0
+
             # att 1
             match self.attack_type:
-                # superpau web
+                # att 1
                 case 1:
-                    attacking_rect = pygame.Rect(self.rect.centerx - (1.09 * self.rect.width * self.flip),
-                                                 self.rect.y,
-                                                 1.09 * self.rect.width, self.rect.height)
-                    hit = 30
+                    attacking_rect = pygame.Rect(self.rect.centerx - (1.5 * self.rect.width * self.flip), self.rect.y,
+                                                 1.5 * self.rect.width, self.rect.height)
+                    hit = 20
+                # superpau web
                 case 2:
-                    size = 25
-                    bullet_data = [20, 4.55, (10, 6), [2, 2], self.flip]
-                    bullet_rect = pygame.Rect(self.rect.right * 0.9 - (self.rect.width * 0.2 * self.flip),
-                                              self.rect.y + self.rect.height * 0.4,
-                                              size, size)
-                    hit = 8
-                    create_bullet(bullet_rect, bullet_data, target, hit)
+                    attacking_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
+                                                 self.rect.y - self.rect.height,
+                                                 self.rect.width, self.rect.height)
+                    hit = 5
+                    self.heal(8)
+
+                # speshal
+                case 3:
+                    block_break = True
+                    pygame.mixer.Sound.play(choice(explosion_sounds))
+                    explosion_rect1 = pygame.Rect(self.rect.centerx - (400 * display.scr_w),
+                                                  display.screen_height - 710 * display.scr_h,
+                                                  400 * display.scr_w, 600 * display.scr_h)
+                    explosion_rect2 = pygame.Rect(self.rect.centerx,
+                                                  display.screen_height - 710 * display.scr_h,
+                                                  400 * display.scr_w, 600 * display.scr_h)
+                    offset = 34
+                    if self.flip:
+                        offset = 40
+                    explosion_data = [127, 7.7, (offset, 10), [5], self.flip]
+                    hit = 25
+                    create_explosion(explosion_rect1, explosion_data, target, hit)
+                    create_explosion(explosion_rect2, explosion_data, target, hit)
                 # grab
                 case 4:
                     block_break = True
