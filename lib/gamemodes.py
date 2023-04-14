@@ -131,6 +131,7 @@ class Game:
         # check for player defeat
         if not self.round_over:
             if not fighter1.alive:
+                fighter1.health = 0
                 self.score[1] += 1
                 self.round_over = True
                 self.chosen = False
@@ -144,9 +145,9 @@ class Game:
             all_sprites.empty()
             enemy_attack_group.empty()
             attack_group.empty()
+            bullet_sprites.empty()
             if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
                 damage_num_group.empty()
-                bullet_sprites.empty()
                 self.intro_count = 4
                 self.battle_menu.enable()
 
