@@ -20,7 +20,6 @@ import constants.colors as color
 import constants.fonts.turok as fonts
 from constants.progress import pg
 from lib.online.network import Network
-from lib.online.flask_network import FlaskNetwork
 
 import lib.players_data.online_players as online_fighter
 
@@ -264,21 +263,20 @@ class Game:
                 choose_online_mode_menu.disable()
                 hero_choose_menu.enable(2)
                 mouse_click = False
-
-            if choose_online_mode_menu.start_server.is_clicked():
-                self.network = FlaskNetwork(choose_online_mode_menu.line_edit.get_text())
-                self.current_player = self.network.getP()
-                if self.current_player != "game is full" and self.current_player:
-                    choose_online_mode_menu.disable()
-
-                    location = random.randrange(1, 56)
-                    self.online_location = location
-
-                    self.final_round_over = True
-                    self.online_on = True
-                else:
-                    print(self.current_player)
-                    print("cannot find a server")
+            # if choose_online_mode_menu.start_server.is_clicked():
+            #     self.network = FlaskNetwork(choose_online_mode_menu.line_edit.get_text())
+            #     self.current_player = self.network.getP()
+            #     if self.current_player != "game is full" and self.current_player:
+            #         choose_online_mode_menu.disable()
+            #
+            #         location = random.randrange(1, 56)
+            #         self.online_location = location
+            #
+            #         self.final_round_over = True
+            #         self.online_on = True
+            #     else:
+            #         print(self.current_player)
+            #         print("cannot find a server")
             if choose_online_mode_menu.connect_button.is_clicked():
                 self.network = Network()
                 self.current_player = self.network.getP()
@@ -299,23 +297,32 @@ class Game:
 
             flag = True
             if hero_choose_menu.super_pau.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.super_pau.get_p()
+                if not hero_choose_menu.super_pau.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.super_pau.get_p()
             elif hero_choose_menu.lisa.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.lisa.get_p()
+                if not hero_choose_menu.lisa.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.lisa.get_p()
             elif hero_choose_menu.vesisa.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.vesisa.get_p()
+                if not hero_choose_menu.vesisa.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.vesisa.get_p()
             elif hero_choose_menu.tagir.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.tagir.get_p()
+                if not hero_choose_menu.tagir.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.tagir.get_p()
             elif hero_choose_menu.artestro.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.artestro.get_p()
+                if not hero_choose_menu.artestro.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.artestro.get_p()
             elif hero_choose_menu.aksenov.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.aksenov.get_p()
+                if not hero_choose_menu.aksenov.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.aksenov.get_p()
             elif hero_choose_menu.bulat.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bulat.get_p()
+                if not hero_choose_menu.bulat.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bulat.get_p()
             elif hero_choose_menu.robot_woman.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.robot_woman.get_p()
+                if not hero_choose_menu.robot_woman.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.robot_woman.get_p()
             elif hero_choose_menu.bt25t.is_clicked():
-                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bt25t.get_p()
+                if not hero_choose_menu.bt25t.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bt25t.get_p()
             else:
                 flag = False
 

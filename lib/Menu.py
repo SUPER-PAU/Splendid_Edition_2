@@ -39,6 +39,10 @@ EXIT_OPTIONS = pygame.image.load(
     r'assets\images\UI\exit_options_button.png').convert_alpha()
 BATTLE_MENU_FOUND = pygame.image.load(
     r'assets\images\UI\Battle_menu_found.png').convert_alpha()
+ONLINE_MODE_BACK = pygame.image.load(
+    r'assets\images\UI\game_online_menu_back.png').convert_alpha()
+ONLINE_MODE_START = pygame.image.load(
+    r'assets\images\UI\game_online_menu_start.png').convert_alpha()
 
 
 class Button:
@@ -243,82 +247,83 @@ class LineEdit:
         if self.clicked and key_press:
             if key[pygame.K_BACKSPACE] and len(self.text) > 0:
                 self.text.pop()
-            if key[pygame.K_SPACE]:
-                self.text.append(' ')
-            if key[pygame.K_1]:
-                self.text.append('1')
-            if key[pygame.K_2]:
-                self.text.append('2')
-            if key[pygame.K_3]:
-                self.text.append('3')
-            if key[pygame.K_4]:
-                self.text.append('4')
-            if key[pygame.K_5]:
-                self.text.append('5')
-            if key[pygame.K_6]:
-                self.text.append('6')
-            if key[pygame.K_7]:
-                self.text.append('7')
-            if key[pygame.K_8]:
-                self.text.append('8')
-            if key[pygame.K_9]:
-                self.text.append('9')
-            if key[pygame.K_0]:
-                self.text.append('0')
-            if key[pygame.K_v]:
-                self.text.append('V')
-            if key[pygame.K_c]:
-                self.text.append('C')
-            if key[pygame.K_q]:
-                self.text.append('Q')
-            if key[pygame.K_w]:
-                self.text.append('W')
-            if key[pygame.K_e]:
-                self.text.append('E')
-            if key[pygame.K_r]:
-                self.text.append('R')
-            if key[pygame.K_t]:
-                self.text.append('T')
-            if key[pygame.K_y]:
-                self.text.append('Y')
-            if key[pygame.K_u]:
-                self.text.append('U')
-            if key[pygame.K_i]:
-                self.text.append('I')
-            if key[pygame.K_o]:
-                self.text.append('O')
-            if key[pygame.K_p]:
-                self.text.append('P')
-            if key[pygame.K_a]:
-                self.text.append('A')
-            if key[pygame.K_s]:
-                self.text.append('S')
-            if key[pygame.K_d]:
-                self.text.append('D')
-            if key[pygame.K_f]:
-                self.text.append('F')
-            if key[pygame.K_g]:
-                self.text.append('G')
-            if key[pygame.K_h]:
-                self.text.append('H')
-            if key[pygame.K_j]:
-                self.text.append('J')
-            if key[pygame.K_k]:
-                self.text.append('K')
-            if key[pygame.K_l]:
-                self.text.append('L')
-            if key[pygame.K_z]:
-                self.text.append('Z')
-            if key[pygame.K_x]:
-                self.text.append('X')
-            if key[pygame.K_b]:
-                self.text.append('B')
-            if key[pygame.K_n]:
-                self.text.append('N')
-            if key[pygame.K_m]:
-                self.text.append('M')
+            if len(self.text) < 20:
+                if key[pygame.K_SPACE]:
+                    self.text.append(' ')
+                if key[pygame.K_1]:
+                    self.text.append('1')
+                if key[pygame.K_2]:
+                    self.text.append('2')
+                if key[pygame.K_3]:
+                    self.text.append('3')
+                if key[pygame.K_4]:
+                    self.text.append('4')
+                if key[pygame.K_5]:
+                    self.text.append('5')
+                if key[pygame.K_6]:
+                    self.text.append('6')
+                if key[pygame.K_7]:
+                    self.text.append('7')
+                if key[pygame.K_8]:
+                    self.text.append('8')
+                if key[pygame.K_9]:
+                    self.text.append('9')
+                if key[pygame.K_0]:
+                    self.text.append('0')
+                if key[pygame.K_v]:
+                    self.text.append('V')
+                if key[pygame.K_c]:
+                    self.text.append('C')
+                if key[pygame.K_q]:
+                    self.text.append('Q')
+                if key[pygame.K_w]:
+                    self.text.append('W')
+                if key[pygame.K_e]:
+                    self.text.append('E')
+                if key[pygame.K_r]:
+                    self.text.append('R')
+                if key[pygame.K_t]:
+                    self.text.append('T')
+                if key[pygame.K_y]:
+                    self.text.append('Y')
+                if key[pygame.K_u]:
+                    self.text.append('U')
+                if key[pygame.K_i]:
+                    self.text.append('I')
+                if key[pygame.K_o]:
+                    self.text.append('O')
+                if key[pygame.K_p]:
+                    self.text.append('P')
+                if key[pygame.K_a]:
+                    self.text.append('A')
+                if key[pygame.K_s]:
+                    self.text.append('S')
+                if key[pygame.K_d]:
+                    self.text.append('D')
+                if key[pygame.K_f]:
+                    self.text.append('F')
+                if key[pygame.K_g]:
+                    self.text.append('G')
+                if key[pygame.K_h]:
+                    self.text.append('H')
+                if key[pygame.K_j]:
+                    self.text.append('J')
+                if key[pygame.K_k]:
+                    self.text.append('K')
+                if key[pygame.K_l]:
+                    self.text.append('L')
+                if key[pygame.K_z]:
+                    self.text.append('Z')
+                if key[pygame.K_x]:
+                    self.text.append('X')
+                if key[pygame.K_b]:
+                    self.text.append('B')
+                if key[pygame.K_n]:
+                    self.text.append('N')
+                if key[pygame.K_m]:
+                    self.text.append('M')
 
-            draw_text(self.get_text() + ' |', font, (0, 0, 0), self.x + 7 * display.scr_w, self.y + 2 * display.scr_w)
+            draw_text(self.get_text() + ' |', font, (0, 0, 0), self.x + 6 * display.scr_w, self.y + 2 * display.scr_w)
         draw_text(self.get_text(), font, (0, 0, 0), self.x + 7 * display.scr_w, self.y + 2 * display.scr_h)
 
     def get_text(self):
@@ -496,26 +501,26 @@ class ChooseHeroMenu:
 class ChooseOnlineModeMenu:
     def __init__(self, scr_w, scr_h, bg, music, player_name):
         self.connect_button = Button(
-            (420 * scr_w, 330 * scr_h),
-            (1406 * scr_w, 94 * scr_h), "local")
-        self.start_server = Button(
-            (418 * scr_w, 333 * scr_h),
-            (1406 * scr_w, 460 * scr_h), "ranked")
+            (496, 108),
+            (710, 911), "START", ONLINE_MODE_START)
+        # self.start_server = Button(
+        #     (418 * scr_w, 333 * scr_h),
+        #     (1406 * scr_w, 460 * scr_h), "ranked")
         self.exit_button = Button(
-            (997 * scr_w, 173 * scr_h),
-            (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON)
+            (60, 60),
+            (21, 19), "", ONLINE_MODE_BACK)
 
         self.hero_button_1 = Button(
             (200 * scr_w, 400 * scr_h),
-            (100 * scr_w, 410 * scr_h), "")
+            (460 * scr_w, 410 * scr_h), "")
         self.hero_button_2 = Button(
             (200 * scr_w, 400 * scr_h),
-            (400 * scr_w, 420 * scr_h), "")
+            (860 * scr_w, 420 * scr_h), "")
         self.hero_button_3 = Button(
             (200 * scr_w, 400 * scr_h),
-            (700 * scr_w, 410 * scr_h), "")
+            (1260 * scr_w, 410 * scr_h), "")
 
-        self.line_edit = LineEdit((468 * scr_w, 59 * scr_h), (928 * scr_w, 733 * scr_h))
+        self.line_edit = LineEdit((588, 54), (1302, 23))
         self.line_edit.set_text(player_name)
 
         self.bg = bg
@@ -532,16 +537,16 @@ class ChooseOnlineModeMenu:
             display.screen.blit(scaled_GUI, (0, 0))
             self.connect_button.show()
             self.exit_button.show()
-            self.start_server.show()
+            # self.start_server.show()
             self.exit_button.click(mouse_click)
             self.connect_button.click(mouse_click)
-            self.start_server.click(mouse_click)
+            # self.start_server.click(mouse_click)
             self.line_edit.show(key_press)
             self.line_edit.click(mouse_click)
 
-            team[0].draw_menu((100 * display.scr_w, 410 * display.scr_h))
-            team[1].draw_menu((400 * display.scr_w, 420 * display.scr_h))
-            team[2].draw_menu((700 * display.scr_w, 410 * display.scr_h))
+            team[0].draw_menu((460 * display.scr_w, 410 * display.scr_h))
+            team[1].draw_menu((860 * display.scr_w, 420 * display.scr_h))
+            team[2].draw_menu((1260 * display.scr_w, 410 * display.scr_h))
 
             self.hero_button_1.show()
             self.hero_button_1.click(mouse_click)
