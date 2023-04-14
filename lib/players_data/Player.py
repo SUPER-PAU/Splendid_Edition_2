@@ -268,10 +268,10 @@ class PLAYER:
         self.stunned = 45
 
     def take_damage(self, hit, block_break=False, sender=2):
-        if not (hit == self.prev_hit and self.hit) and self.hit_cooldown > 0:
-            self.hit_cooldown = 2
+        if not (hit == self.prev_hit and self.hit):
             if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
                 if sender == 2:
+                    self.prev_hit = hit
                     self.health -= hit
                     self.hit = True
                     self.update_huge_attack_cd(100)
@@ -283,6 +283,7 @@ class PLAYER:
             else:
                 hit = round(hit * 0.2)
                 if sender == 2:
+                    self.prev_hit = hit
                     self.health -= hit
                     self.blocking = True
                     self.update_huge_attack_cd(60)
