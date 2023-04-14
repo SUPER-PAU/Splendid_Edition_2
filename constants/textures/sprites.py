@@ -43,6 +43,7 @@ tagir_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\tagir.png").conv
 artestro_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\artestro.png").convert_alpha()
 aksenov_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\aksenov.png").convert_alpha()
 bulat_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\bulat.png").convert_alpha()
+robot_woman_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\robot_woman.png").convert_alpha()
 
 # партиклы
 blood = pygame.image.load(r"assets\images\main hero\particles\blood.png").convert_alpha()

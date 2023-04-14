@@ -390,7 +390,7 @@ class OnlineBattle:
         scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
         display.screen.blit(scaled_bg, (0, 0))
 
-        if enemy_pick:
+        if enemy_name:
             scaled_found = pygame.transform.scale(BATTLE_MENU_FOUND, (display.screen_width, display.screen_height))
             display.screen.blit(scaled_found, (0, 0))
             self.player_hero_1.show()
@@ -401,16 +401,16 @@ class OnlineBattle:
                 self.player_hero_1.click(mouse_click)
                 self.player_hero_2.click(mouse_click)
                 self.player_hero_3.click(mouse_click)
-
-            enemy_hero_1 = CardButtonEnemy(enemy_pick[0],
-                                     (display.screen_width - 250, 500))
-            enemy_hero_2 = CardButtonEnemy(enemy_pick[1],
-                                     (display.screen_width - 500, 500))
-            enemy_hero_3 = CardButtonEnemy(enemy_pick[2],
-                                     (display.screen_width - 750, 500))
-            enemy_hero_1.show()
-            enemy_hero_2.show()
-            enemy_hero_3.show()
+            if enemy_pick:
+                enemy_hero_1 = CardButtonEnemy(enemy_pick[0],
+                                         (display.screen_width - 250, 500))
+                enemy_hero_2 = CardButtonEnemy(enemy_pick[1],
+                                         (display.screen_width - 500, 500))
+                enemy_hero_3 = CardButtonEnemy(enemy_pick[2],
+                                         (display.screen_width - 750, 500))
+                enemy_hero_1.show()
+                enemy_hero_2.show()
+                enemy_hero_3.show()
             draw_text(enemy_name, font, (255, 255, 255), 1170, 300)
         else:
             self.cansel_button.show()
@@ -441,6 +441,7 @@ class ChooseHeroMenu:
         self.artestro = CardButton(player.artestro, (350 * display.scr_w, 400 * display.scr_h))
         self.aksenov = CardButton(player.aksenov, (600 * display.scr_w, 700 * display.scr_h))
         self.bulat = CardButton(player.bulat, (350 * display.scr_w, 100 * display.scr_h))
+        self.robot_woman = CardButton(player.robot_woman, (600 * display.scr_w, 400 * display.scr_h))
 
         self.bg = bg
         self.enabled = False
@@ -465,6 +466,8 @@ class ChooseHeroMenu:
             self.aksenov.click(mouse_click)
             self.bulat.show()
             self.bulat.click(mouse_click)
+            self.robot_woman.show()
+            self.robot_woman.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled
@@ -475,6 +478,7 @@ class ChooseHeroMenu:
     def enable(self, p):
         self.enabled = True
         self.player_picking = p
+
 
     def get_pick(self):
         return self.player_picking
@@ -549,7 +553,9 @@ class ChooseOnlineModeMenu:
     def disable(self):
         self.enabled = False
 
-    def enable(self):
+    def enable(self, enable_music=True):
+        if enable_music:
+            play_music_bg(self.music)
         self.enabled = True
 
     def hide(self):

@@ -306,12 +306,14 @@ class Game:
                 self.team[hero_choose_menu.get_pick()] = hero_choose_menu.aksenov.get_p()
             elif hero_choose_menu.bulat.is_clicked():
                 self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bulat.get_p()
+            elif hero_choose_menu.robot_woman.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.robot_woman.get_p()
             else:
                 flag = False
 
             if flag:
                 hero_choose_menu.disable()
-                choose_online_mode_menu.enable()
+                choose_online_mode_menu.enable(False)
 
         if choose_mode_menu.is_enabled():
             choose_mode_menu.show(mouse_click)

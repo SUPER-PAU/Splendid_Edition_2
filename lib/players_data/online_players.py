@@ -8,6 +8,7 @@ from lib.players_data.TAGIR_PLAYER import TagirPlayer
 from lib.players_data.ARTESTRO import ArtestroPlayer
 from lib.players_data.AKSENOV import AksenovPlayer
 from lib.players_data.BULAT import BulatPlayer
+from lib.players_data.ROBOT_WOMAN import RobotFemalePlayer
 
 
 class OnlinePlayer:
@@ -56,11 +57,12 @@ tagir = None
 artestro = None
 aksenov = None
 bulat = None
+robot_woman = None
 animation_list_by_name = {}
 
 
 def load_chara_online():
-    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat
+    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat, robot_woman
     AKSENOV_SIZE = 486
     AKSENOV_SCALE = 3 * display.scr_h
     AKSENOV_OFFSET = [216, 168]
@@ -96,6 +98,10 @@ def load_chara_online():
     VESISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 1, 3, 5, 6]
     VESISA_ANIMATION_LIST = VESISA_p.load_images(sheet.vesisa_2, VESISA_2_ANIMATION_STEPS)
 
+    ROBOT_FEM_p = RobotFemalePlayer(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [3, 3, 8, 2])
+    ROBOT_WOMAN_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 10, 3, 5, 6]
+    ROBOT_WOMAN_ANIMATION_LIST = ROBOT_FEM_p.load_images(sheet.robot_woman_2, ROBOT_WOMAN_2_ANIMATION_STEPS)
+
     TAGIR_P = TagirPlayer(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [1, 2, 0, 2])
     TAGIR_2_ANIMATION_STEPS = [8, 4, 1, 3, 3, 6, 6, 4, 1, 3, 5, 6]
     TAGIR_ANIMATION_LIST = TAGIR_P.load_images(sheet.tagir_2, TAGIR_2_ANIMATION_STEPS)
@@ -107,6 +113,7 @@ def load_chara_online():
     artestro = OnlinePlayer(ARTESTRO_p, c.artestro, ARTESTRO_p.name, ARTESTRO_ANIMATION_LIST)
     aksenov = OnlinePlayer(AKSENOV_p, c.aksenov, AKSENOV_p.name, AKSENOV_ANIMATION_LIST)
     bulat = OnlinePlayer(BULAT_p, c.bulat, BULAT_p.name, BULAT_2_ANIMATION_LIST)
+    robot_woman = OnlinePlayer(ROBOT_FEM_p, c.robot_woman, ROBOT_FEM_p.name, ROBOT_WOMAN_ANIMATION_LIST)
 
     animation_list_by_name = {
         "pau": PAU_ANIMATION_LIST,
@@ -115,6 +122,7 @@ def load_chara_online():
         "tagir": TAGIR_ANIMATION_LIST,
         "artestro": ARTESTRO_ANIMATION_LIST,
         "aksenov": AKSENOV_ANIMATION_LIST,
-        "bulat": BULAT_2_ANIMATION_LIST
+        "bulat": BULAT_2_ANIMATION_LIST,
+        "robot_woman": ROBOT_WOMAN_ANIMATION_LIST
     }
 

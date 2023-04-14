@@ -1,8 +1,9 @@
 import socket
 import pickle
+import sys
 
-
-BYTES = 6144 ** 2
+# BYTES = 6144 ** 2
+BYTES = 4096
 
 
 class Network:
@@ -35,7 +36,10 @@ class Network:
 
     def send(self, data):
         try:
-            self.client.send(pickle.dumps(data))
+            d = pickle.dumps(data)
+            if int(sys.getsizeof(d)) > 1600:
+                print(sys.getsizeof(pickle.dumps(data)))
+            self.client.send(d)
             return pickle.loads(self.client.recv(BYTES))
         except socket.error as e:
             print(e)

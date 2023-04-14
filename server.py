@@ -13,7 +13,9 @@ server = "192.168.1.36"
 port = int(os.environ.get("PORT", 5555))
 print(f"{datetime.datetime.now()}, server {server}:{port}")
 
-BYTES = 6144 ** 2
+# BYTES = 6144 ** 2
+BYTES = 4096
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)

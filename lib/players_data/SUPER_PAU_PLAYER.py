@@ -285,15 +285,18 @@ class Attack(pygame.sprite.Sprite):
                             player.rect.centerx - (self.rect.width * player.flip),
                             self.rect.y,
                             self.rect.width, self.rect.height)
-                        # pygame.draw.rect(display.screen, (255, 255, 0), self.rect)
+                        # pygame.draw.rect(display.screen, (255, 255, 0), attacking_rect)
 
                         if attacking_rect.colliderect(target.rect) or self.rect2.colliderect(target.rect):
-                            player.was_attacking = (self.damage, self.block_break)
                             if self.attack_type == 4:
-                                if not target.jump or not target.attacking:
-                                    player.update_huge_attack_cd(50)
-                                    player.grabing = True
-                                    target.in_grab = True
+                                if not target.is_tank:
+                                    if not target.jump or not target.attacking:
+                                        player.update_huge_attack_cd(50)
+                                        player.grabing = True
+                                        target.in_grab = True
+                                else:
+                                    hit = 0
+                                    self.block_break = False
                             else:
                                 if self.block_break or target.jump or target.sprint or target.attacking:
                                     player.update_huge_attack_cd(50)

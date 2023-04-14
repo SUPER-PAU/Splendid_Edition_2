@@ -54,6 +54,7 @@ class PLAYER:
         self.in_grab = False
         self.sprint = False
         self.invisible = False
+        self.is_tank = False
         self.knifes = 0
         self.side = 1
         self.sex = 1
@@ -96,6 +97,7 @@ class PLAYER:
         self.attacking = False
         self.was_attacking = None
         self.playing_emoji = False
+        self.is_tank = False
         self.same_attack_count = 0
         self.vel_y = 0
         self.dash_x = 0
@@ -121,6 +123,7 @@ class PLAYER:
         self.attacking = False
         self.was_attacking = None
         self.playing_emoji = False
+        self.is_tank = False
         self.same_attack_count = 0
         self.vel_y = 0
         self.dash_x = 0

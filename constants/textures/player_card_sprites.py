@@ -15,6 +15,7 @@ bulat = pygame.image.load(r"assets\images\main hero\card_sprites\bulat.png").con
 egor = pygame.image.load(r"assets\images\main hero\card_sprites\egor.png").convert_alpha()
 kingartema = pygame.image.load(r"assets\images\main hero\card_sprites\kingartema.png").convert_alpha()
 artestro = pygame.image.load(r"assets\images\main hero\card_sprites\artestro.png").convert_alpha()
+robot_woman = pygame.image.load(r"assets\images\main hero\card_sprites\robot_woman.png").convert_alpha()
 
 
 card_by_name = {
@@ -28,6 +29,7 @@ card_by_name = {
     "bulat": bulat,
     "egor": egor,
     "kingartema": kingartema,
-    "artestro": artestro
+    "artestro": artestro,
+    "robot_woman": robot_woman
 }
 
