@@ -15,6 +15,7 @@ class Network:
         self.server = "188.120.248.249"
         self.port = 5555
         self.addr = (self.server, self.port)
+        self.previous_data = None
         self.p = self.connect()
 
     def getIP(self):
@@ -40,9 +41,13 @@ class Network:
             if int(sys.getsizeof(d)) > 2000:
                 print(sys.getsizeof(pickle.dumps(data)))
             self.client.send(d)
-            return pickle.loads(self.client.recv(BYTES))
+            res = pickle.loads(self.client.recv(BYTES))
+            self.previous_data = res
+            return res
         except socket.error as e:
+            res = self.previous_data
             print(e)
+            return res
 
     def leave(self):
         pass

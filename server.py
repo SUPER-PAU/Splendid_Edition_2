@@ -4,6 +4,7 @@ from _thread import *
 import pickle
 import datetime
 
+import sys
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
@@ -48,7 +49,9 @@ def threaded_client(conn, player):
                     reply = players[0]
                 else:
                     reply = players[1]
-
+            size = sys.getsizeof(reply)
+            if int(size) > 2000:
+                print(size)
             conn.sendall(reply)
         except:
             break
