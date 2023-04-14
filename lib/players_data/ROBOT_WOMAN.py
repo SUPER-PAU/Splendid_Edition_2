@@ -1,8 +1,4 @@
-from random import choice
-
-from constants.audio.effects import explosion_sounds
 from constants.textures.sprites import attack_group
-from lib.players_data.particles_online import create_explosion
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
 

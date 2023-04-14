@@ -442,6 +442,7 @@ class ChooseHeroMenu:
         self.aksenov = CardButton(player.aksenov, (600 * display.scr_w, 700 * display.scr_h))
         self.bulat = CardButton(player.bulat, (350 * display.scr_w, 100 * display.scr_h))
         self.robot_woman = CardButton(player.robot_woman, (600 * display.scr_w, 400 * display.scr_h))
+        self.bt25t = CardButton(player.bt25t, (600 * display.scr_w, 100 * display.scr_h))
 
         self.bg = bg
         self.enabled = False
@@ -468,6 +469,8 @@ class ChooseHeroMenu:
             self.bulat.click(mouse_click)
             self.robot_woman.show()
             self.robot_woman.click(mouse_click)
+            self.bt25t.show()
+            self.bt25t.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled

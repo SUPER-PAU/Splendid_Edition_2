@@ -219,7 +219,7 @@ class Dash(pygame.sprite.Sprite):
 
     def move(self, target, n):
         self.rect.x += self.player.dash_x
-        pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
+        # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
         self.attack(target, n)
 
     def attack(self, target, n):

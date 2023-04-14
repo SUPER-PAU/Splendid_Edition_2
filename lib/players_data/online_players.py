@@ -9,6 +9,7 @@ from lib.players_data.ARTESTRO import ArtestroPlayer
 from lib.players_data.AKSENOV import AksenovPlayer
 from lib.players_data.BULAT import BulatPlayer
 from lib.players_data.ROBOT_WOMAN import RobotFemalePlayer
+from lib.players_data.BT25T import Bt25T
 
 
 class OnlinePlayer:
@@ -58,11 +59,12 @@ artestro = None
 aksenov = None
 bulat = None
 robot_woman = None
+bt25t = None
 animation_list_by_name = {}
 
 
 def load_chara_online():
-    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat, robot_woman
+    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat, robot_woman, bt25t
     AKSENOV_SIZE = 486
     AKSENOV_SCALE = 3 * display.scr_h
     AKSENOV_OFFSET = [216, 168]
@@ -106,6 +108,10 @@ def load_chara_online():
     TAGIR_2_ANIMATION_STEPS = [8, 4, 1, 3, 3, 6, 6, 4, 1, 3, 5, 6]
     TAGIR_ANIMATION_LIST = TAGIR_P.load_images(sheet.tagir_2, TAGIR_2_ANIMATION_STEPS)
 
+    BT25T_p = Bt25T(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [1, 1, 1, 0])
+    BT25T_2_ANIMATION_STEPS = [10, 3, 1, 1, 3, 7, 7, 4, 1, 1, 1, 1]
+    BT25T_ANIMATION_LIST = BT25T_p.load_images(sheet.bt25t_2, BT25T_2_ANIMATION_STEPS)
+
     super_pau = OnlinePlayer(super_pau_online, c.pau, "pau", PAU_ANIMATION_LIST)
     lisa = OnlinePlayer(lisa_online, c.lisa, "lisa", LISA_ANIMATION_LIST)
     vesisa = OnlinePlayer(VESISA_p, c.vesisa, "vesisa", VESISA_ANIMATION_LIST)
@@ -114,6 +120,7 @@ def load_chara_online():
     aksenov = OnlinePlayer(AKSENOV_p, c.aksenov, AKSENOV_p.name, AKSENOV_ANIMATION_LIST)
     bulat = OnlinePlayer(BULAT_p, c.bulat, BULAT_p.name, BULAT_2_ANIMATION_LIST)
     robot_woman = OnlinePlayer(ROBOT_FEM_p, c.robot_woman, ROBOT_FEM_p.name, ROBOT_WOMAN_ANIMATION_LIST)
+    bt25t = OnlinePlayer(BT25T_p, c.bt25, BT25T_p.name, BT25T_ANIMATION_LIST)
 
     animation_list_by_name = {
         "pau": PAU_ANIMATION_LIST,
@@ -123,6 +130,7 @@ def load_chara_online():
         "artestro": ARTESTRO_ANIMATION_LIST,
         "aksenov": AKSENOV_ANIMATION_LIST,
         "bulat": BULAT_2_ANIMATION_LIST,
-        "robot_woman": ROBOT_WOMAN_ANIMATION_LIST
+        "robot_woman": ROBOT_WOMAN_ANIMATION_LIST,
+        "bt25t": BT25T_ANIMATION_LIST
     }
 

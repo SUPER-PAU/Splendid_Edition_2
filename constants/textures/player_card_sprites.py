@@ -24,7 +24,7 @@ card_by_name = {
     "vesisa": vesisa,
     "tagir": tagir,
     "aksenov": aksenov,
-    "bt25": bt25,
+    "bt25t": bt25,
     "aynur": aynur,
     "bulat": bulat,
     "egor": egor,

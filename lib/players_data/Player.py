@@ -98,12 +98,12 @@ class PLAYER:
         self.attacking = False
         self.was_attacking = None
         self.playing_emoji = False
-        self.is_tank = False
         self.same_attack_count = 0
         self.vel_y = 0
         self.dash_x = 0
         self.attack_type = 0
         self.attack_cooldown = 0
+        self.prev_hit = 0
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
         self.ready = False
@@ -126,6 +126,8 @@ class PLAYER:
         self.playing_emoji = False
         self.is_tank = False
         self.same_attack_count = 0
+        self.stunned = 0
+        self.prev_hit = 0
         self.vel_y = 0
         self.dash_x = 0
         self.attack_type = 0
@@ -268,6 +270,7 @@ class PLAYER:
         self.stunned = 45
 
     def take_damage(self, hit, block_break=False, sender=2):
+        hit = round(hit)
         if not (hit == self.prev_hit and self.hit):
             if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
                 if sender == 2:

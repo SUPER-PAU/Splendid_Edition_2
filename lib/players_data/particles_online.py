@@ -24,11 +24,13 @@ def load_images(sprite_sheet, animation_steps, size, scale):
 rock_animation = load_images(stone, [2, 2], 200, 0.6)
 knife_animation = load_images(knifes, [2, 2], 200, 0.6)
 bullet_animation = load_images(bullet, [2, 2], 20, 4.55)
-beam_animation = load_images(beam, [2, 2], 20, 4.55)
+tank_bullet_animation = load_images(bullet, [2, 2], 20, 9.1)
+beam_animation = load_images(beam, [2, 2], 20, 9.1)
 explosion_animation = load_images(explosion, [5], 127, 7.7)
 sprite_by_name = {
     "explosion": explosion_animation,
     "bullet": bullet_animation,
+    "tank_bullet": tank_bullet_animation,
     "rocket": rocket,
     "stone": rock_animation,
     "enegry": energy,
@@ -175,6 +177,12 @@ class Knife(Bullet):
     def __init__(self, rect, data, target, damage):
         super().__init__(rect, data, target, damage)
         self.name = "knife"
+
+
+class TankBullet(Bullet):
+    def __init__(self, rect, data, target, damage):
+        super().__init__(rect, data, target, damage)
+        self.name = "tank_bullet"
 
 
 class Explosion(pygame.sprite.Sprite):
@@ -397,6 +405,10 @@ class ScyRocket(Rocket):
 
 
 class Beam(Bullet):
+    def __init__(self, rect, data, target, damage):
+        super().__init__(rect, data, target, damage)
+        self.name = "beam"
+
     def attack(self, n):
         if self.sec_hit and (self.target.hit or self.target.blocking):
             self.hit = True
@@ -513,6 +525,10 @@ def create_energy(rect, data, target, damage):
 
 def create_bullet(rect, data, target, damage):
     Bullet(rect, data, target, damage)
+
+
+def create_tank_bullet(rect, data, target, damage):
+    TankBullet(rect, data, target, damage)
 
 
 def create_knife(rect, data, target, damage):

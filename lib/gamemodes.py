@@ -107,8 +107,12 @@ class Game:
 
         # update countdown
         if self.intro_count <= 0:
-            # move fighter
-            fighter1.move(display.screen, fighter2, self.round_over, mouse_click, key_press)
+            if not fighter1.stunned:
+                # move fighter
+                fighter1.move(display.screen, fighter2, self.round_over, mouse_click, key_press)
+            else:
+                fighter1.stunned -= 1
+                fighter1.hit = True
         else:
             # display count timer
             draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
@@ -237,7 +241,8 @@ class Game:
             else:
                 self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost, None,
                                        attack_group, bullet_sprites, self.online_name])
-                self.online_fight(mouse_click, key_click)
+                if self.enemy[0]:
+                    self.online_fight(mouse_click, key_click)
 
         if choose_online_mode_menu.is_enabled():
             choose_online_mode_menu.show(mouse_click, key_click, self.team)
@@ -308,6 +313,8 @@ class Game:
                 self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bulat.get_p()
             elif hero_choose_menu.robot_woman.is_clicked():
                 self.team[hero_choose_menu.get_pick()] = hero_choose_menu.robot_woman.get_p()
+            elif hero_choose_menu.bt25t.is_clicked():
+                self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bt25t.get_p()
             else:
                 flag = False
 
