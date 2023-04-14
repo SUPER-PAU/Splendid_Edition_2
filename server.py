@@ -8,12 +8,11 @@ import datetime
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
-server = "192.168.1.36"
+server = "188.120.248.249"
 
 port = int(os.environ.get("PORT", 5555))
 print(f"{datetime.datetime.now()}, server {server}:{port}")
 
-# BYTES = 6144 ** 2
 BYTES = 4096
 
 
@@ -49,8 +48,6 @@ def threaded_client(conn, player):
                     reply = players[0]
                 else:
                     reply = players[1]
-                # print("Received: ", data)
-                # print("Sending : ", reply)
 
             conn.sendall(reply)
         except:
