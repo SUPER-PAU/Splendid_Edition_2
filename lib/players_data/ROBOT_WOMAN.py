@@ -104,6 +104,8 @@ class RobotFemalePlayer(SuperPauPlayer):
             self.attack_cooldown -= 1
         if self.emoji_cooldown > 0:
             self.emoji_cooldown -= 1
+        if self.hit_cooldown > 0:
+            self.hit_cooldown -= 1
 
     def attack(self, target, group):
         if not self.hit:

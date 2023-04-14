@@ -106,6 +106,8 @@ class SuperPauPlayer(PLAYER):
             self.attack_cooldown -= 1
         if self.emoji_cooldown > 0:
             self.emoji_cooldown -= 1
+        if self.hit_cooldown > 0:
+            self.hit_cooldown -= 1
 
     def check_action(self):
         # check what action the player is performing

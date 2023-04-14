@@ -28,6 +28,7 @@ class PLAYER:
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
         self.vel_y = 0
+        self.hit_cooldown = 0
         self.running = False
         self.dashing = False
         self.jump = False
@@ -267,7 +268,8 @@ class PLAYER:
         self.stunned = 45
 
     def take_damage(self, hit, block_break=False, sender=2):
-        if not (hit == self.prev_hit and self.hit):
+        if not (hit == self.prev_hit and self.hit) and self.hit_cooldown > 0:
+            self.hit_cooldown = 2
             if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
                 if sender == 2:
                     self.health -= hit

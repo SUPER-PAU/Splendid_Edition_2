@@ -37,7 +37,7 @@ class Network:
     def send(self, data):
         try:
             d = pickle.dumps(data)
-            if int(sys.getsizeof(d)) > 1600:
+            if int(sys.getsizeof(d)) > 2000:
                 print(sys.getsizeof(pickle.dumps(data)))
             self.client.send(d)
             return pickle.loads(self.client.recv(BYTES))

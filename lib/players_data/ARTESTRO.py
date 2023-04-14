@@ -67,16 +67,17 @@ class ArtestroPlayer(SuperPauPlayer):
                                 self.attack_type = 3
                                 self.attack(target, attack_group)
                             else:
-                                for i in range(self.knifes - 1):
+                                if not self.hit:
+                                    self.attacking = True
                                     self.attack_type = 3
-                                    bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
-                                                              self.rect.y + self.rect.height * (0.1 + i * 0.15),
-                                                              50, 50)
+                                    hit = 35
                                     bullet_data = [200, 0.6, (5, 3), [2, 2], self.flip]
-                                    hit = 9 - i * 2
-                                    create_knife(bullet_rect, bullet_data, target, hit)
-                                self.attack(target, attack_group)
-                                self.knifes = 0
+                                    for i in range(self.knifes):
+                                        bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
+                                                                  self.rect.y + self.rect.height * (0.1 + i * 0.15),
+                                                                  50, 50)
+                                        create_knife(bullet_rect, bullet_data, target, hit)
+                                    self.knifes = 0
                         else:
                             if self.shield_cooldown <= 0:
                                 self.attack_type = 2
@@ -122,6 +123,8 @@ class ArtestroPlayer(SuperPauPlayer):
             self.attack_cooldown -= 1
         if self.emoji_cooldown > 0:
             self.emoji_cooldown -= 1
+        if self.hit_cooldown > 0:
+            self.hit_cooldown -= 1
 
     def attack(self, target, group):
         if not self.hit:
