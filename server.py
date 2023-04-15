@@ -9,8 +9,7 @@ import sys
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
-server = "192.168.1.36"
-# 188.120.248.249
+server = "188.120.248.249"
 
 port = int(os.environ.get("PORT", 10000))
 print(f"{datetime.datetime.now()}, server {server}:{port}")
@@ -40,7 +39,6 @@ def threaded_client(conn, player):
     while True:
         try:
             data = conn.recv(BYTES)
-            # print(data)
             players[player] = data
             if not data:
                 print(datetime.datetime.now(), "Disconnected: player", player)
@@ -54,7 +52,14 @@ def threaded_client(conn, player):
             if int(size) > 2000:
                 print(size)
             conn.sendall(reply)
-        except:
+        except ConnectionResetError:
+            print(datetime.datetime.now(), "==> ConnectionResetError")
+            pass
+        except socket.timeout:
+            print(datetime.datetime.now(), "==> Timeout")
+            continue
+        except Exception as e:
+            print(datetime.datetime.now(), e)
             break
     currentPlayer -= 1
     players = [pickle.dumps([None, False, False, None, None, None, ""]),

@@ -1,3 +1,4 @@
+import datetime
 import socket
 import pickle
 import sys
@@ -12,9 +13,12 @@ class Network:
         self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         # hostname = socket.gethostname()
         # IPAddr = socket.gethostbyname(hostname)
-        self.server = "192.168.1.36"
+        self.server = "188.120.248.249"
         self.port = 10000
         self.addr = (self.server, self.port)
+
+        self.temp_data = None
+        self.temp_timer = 300
         self.p = self.connect()
 
     def getIP(self):
@@ -42,9 +46,18 @@ class Network:
             self.client.send(d)
             res = self.client.recv(BYTES)
             res = pickle.loads(res)
+            self.temp_data = res
+            self.temp_timer = 300
             return res
         except socket.error as e:
-            print(e)
+            print(datetime.datetime.now(), e)
+        except pickle.UnpicklingError as err:
+            if self.temp_timer > 0:
+                self.temp_timer -= 1
+                return self.temp_data
+            else:
+                print(datetime.datetime.now(), err)
+                return [None, False, True, None, None, None, ""]
 
     def leave(self):
         pass

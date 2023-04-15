@@ -37,6 +37,11 @@ class OnlinePlayer:
         return self.animation_list
 
     def update(self):
+        if self.player.hit_timer > 0:
+            self.player.hit_timer -= 1
+        if self.player.stunned > 0:
+            self.player.stunned -= 1
+            self.player.hit = True
         self.player.update(self.animation_list)
         action, frame_index = self.player.get_animation_params()
         self.image = self.animation_list[action][frame_index]

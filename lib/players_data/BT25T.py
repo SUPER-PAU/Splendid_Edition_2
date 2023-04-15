@@ -163,10 +163,11 @@ class Bt25T(SuperPauPlayer):
                 Attack(self, attacking_rect, attacking_rect_2, self.attack_type, target, hit, group, block_break)
 
     def take_damage(self, hit, block_break=False, sender=2):
-        if not (hit == self.prev_hit and self.hit):
+        if not (hit == self.prev_hit and self.hit) and self.hit_timer <= 0:
             hit = round(hit * 0.5)
             choice(bt_sound).play()
             if sender == 2:
+                self.hit_timer = 2
                 self.prev_hit = hit
                 self.health -= hit
                 self.hit = True

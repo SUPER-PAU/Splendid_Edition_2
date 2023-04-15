@@ -106,12 +106,9 @@ class Game:
 
         # update countdown
         if self.intro_count <= 0:
-            if not fighter1.stunned:
+            if fighter1.stunned <= 0:
                 # move fighter
                 fighter1.move(display.screen, fighter2, self.round_over, mouse_click, key_press)
-            else:
-                fighter1.stunned -= 1
-                fighter1.hit = True
         else:
             # display count timer
             draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
@@ -241,6 +238,8 @@ class Game:
             else:
                 self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost, None,
                                        attack_group, bullet_sprites, self.online_name])
+                if self.enemy[2]:
+                    self.battle_menu.enable()
                 if self.enemy[0]:
                     self.online_fight(mouse_click, key_click)
 
