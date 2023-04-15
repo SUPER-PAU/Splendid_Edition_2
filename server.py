@@ -9,9 +9,10 @@ import sys
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
-server = "188.120.248.249"
+server = "192.168.1.36"
+# 188.120.248.249
 
-port = int(os.environ.get("PORT", 5555))
+port = int(os.environ.get("PORT", 10000))
 print(f"{datetime.datetime.now()}, server {server}:{port}")
 
 BYTES = 4096

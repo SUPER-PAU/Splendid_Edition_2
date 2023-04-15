@@ -12,10 +12,9 @@ class Network:
         self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         # hostname = socket.gethostname()
         # IPAddr = socket.gethostbyname(hostname)
-        self.server = "188.120.248.249"
-        self.port = 5555
+        self.server = "192.168.1.36"
+        self.port = 10000
         self.addr = (self.server, self.port)
-        self.previous_data = None
         self.p = self.connect()
 
     def getIP(self):
@@ -41,13 +40,11 @@ class Network:
             if int(sys.getsizeof(d)) > 2000:
                 print(sys.getsizeof(pickle.dumps(data)))
             self.client.send(d)
-            res = pickle.loads(self.client.recv(BYTES))
-            self.previous_data = res
+            res = self.client.recv(BYTES)
+            res = pickle.loads(res)
             return res
         except socket.error as e:
-            res = self.previous_data
             print(e)
-            return res
 
     def leave(self):
         pass
