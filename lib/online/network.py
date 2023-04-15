@@ -51,6 +51,9 @@ class Network:
             return res
         except socket.error as e:
             print(datetime.datetime.now(), e)
+        except UnicodeDecodeError as e:
+            self.temp_timer -= 1
+            return self.temp_data
         except pickle.UnpicklingError as err:
             if self.temp_timer > 0:
                 self.temp_timer -= 1
