@@ -17,7 +17,7 @@ class Network:
         self.port = 10000
         self.addr = (self.server, self.port)
 
-        self.temp_data = None
+        self.temp_data = [None, False, False, None, None, None, ""]
         self.temp_timer = 300
         self.p = self.connect()
 

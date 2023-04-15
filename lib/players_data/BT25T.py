@@ -167,7 +167,7 @@ class Bt25T(SuperPauPlayer):
             hit = round(hit * 0.5)
             choice(bt_sound).play()
             if sender == 2:
-                self.hit_timer = 2
+                self.hit_timer = 6
                 self.prev_hit = hit
                 self.health -= hit
                 self.hit = True

@@ -60,7 +60,7 @@ class PLAYER:
         self.side = 1
         self.sex = 1
         self.prev_hit = 0
-        self.hit_timer = 2
+        self.hit_timer = 6
 
     def set_side(self, player):
         self.side = player
@@ -108,7 +108,7 @@ class PLAYER:
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
         self.ready = False
-        self.hit_timer = 2
+        self.hit_timer = 6
 
     def reset_params(self):
         x, y, self.flip = self.start_pos
@@ -140,7 +140,7 @@ class PLAYER:
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
         self.ready = False
-        self.hit_timer = 2
+        self.hit_timer = 6
 
     def update_action(self, new_action):
         # check if the new action is different to the previous one
@@ -277,7 +277,7 @@ class PLAYER:
         if not (hit == self.prev_hit and self.hit) and self.hit_timer <= 0:
             if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
                 if sender == 2:
-                    self.hit_timer = 2
+                    self.hit_timer = 6
                     self.prev_hit = hit
                     self.health -= hit
                     self.hit = True
@@ -290,7 +290,7 @@ class PLAYER:
             else:
                 hit = round(hit * 0.2)
                 if sender == 2:
-                    self.hit_timer = 2
+                    self.hit_timer = 6
                     self.prev_hit = hit
                     self.health -= hit
                     self.blocking = True

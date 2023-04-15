@@ -176,6 +176,8 @@ class Game:
                 self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost,
                                                 [self.team[0].player, self.team[1].player, self.team[2].player],
                                                 attack_group, bullet_sprites, self.online_name])
+                if self.online_player.player.health != 100 and not self.enemy[0]:
+                    self.enemy[2] = True
                 self.intro_count = 4
                 self.battle_menu.show(mouse_click, self.chosen, self.enemy[3], self.enemy[6])
                 if not self.enemy[0]:
@@ -238,10 +240,10 @@ class Game:
             else:
                 self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost, None,
                                        attack_group, bullet_sprites, self.online_name])
-                if self.enemy[2]:
-                    self.battle_menu.enable()
                 if self.enemy[0]:
                     self.online_fight(mouse_click, key_click)
+                else:
+                    self.battle_menu.enable()
 
         if choose_online_mode_menu.is_enabled():
             choose_online_mode_menu.show(mouse_click, key_click, self.team)
