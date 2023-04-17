@@ -84,7 +84,8 @@ class Game:
 
         attack_group.update(fighter2, fighter1, 1)
 
-        draw_text("YOU", fonts.online_font, (0, 0, 0), fighter1.rect.centerx - 30, 70)
+        draw_text("YOU", fonts.online_font, (0, 0, 0), fighter1.rect.centerx - 30, 1010)
+        draw_text("YOU", fonts.online_font, (255, 255, 255), fighter1.rect.centerx - 31, 1011)
 
         fighter1.draw_hp()
         fighter1.draw_round_statistic(self.online_name, font)

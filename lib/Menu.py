@@ -323,11 +323,11 @@ class LineEdit:
                 if key[pygame.K_m]:
                     self.text.append('M')
 
-            draw_text(self.get_text() + ' |', font, (0, 0, 0), self.x + 6 * display.scr_w, self.y + 2 * display.scr_w)
-        draw_text(self.get_text(), font, (0, 0, 0), self.x + 7 * display.scr_w, self.y + 2 * display.scr_h)
+            draw_text(self.get_text() + ' |', font, (0, 0, 0), self.x + 1 * display.scr_w, self.y + 2 * display.scr_w)
+        draw_text(self.get_text(), font, (0, 0, 0), self.x + 2 * display.scr_w, self.y + 2 * display.scr_h)
 
     def get_text(self):
-        return str("".join(self.text))
+        return f" {str(''.join(self.text))}"
 
 
 class MainMenu:
