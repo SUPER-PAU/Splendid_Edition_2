@@ -2,7 +2,7 @@ from lib.display import display
 import pygame
 import random
 from constants.textures.sprites import all_sprites, bullet_sprites, damage_num_group, \
-    explosion, bullet, beam, rocket, energy, stone, knifes
+    explosion, bullet, beam, rocket, energy, stone, knifes, bag
 from constants.audio.effects import explosion_sounds, gaubica_sounds
 
 screen_rect = (0, 0, display.screen_width, display.screen_height)
@@ -27,6 +27,7 @@ bullet_animation = load_images(bullet, [2, 2], 20, 4.55)
 tank_bullet_animation = load_images(bullet, [2, 2], 20, 9.1)
 beam_animation = load_images(beam, [2, 2], 20, 9.1)
 explosion_animation = load_images(explosion, [5], 127, 7.7)
+bag_animation = load_images(bag, [2, 2], 200, 0.6)
 sprite_by_name = {
     "explosion": explosion_animation,
     "bullet": bullet_animation,
@@ -35,7 +36,8 @@ sprite_by_name = {
     "stone": rock_animation,
     "enegry": energy,
     "beam": beam_animation,
-    "knife": knife_animation
+    "knife": knife_animation,
+    "bag": bag_animation
 }
 
 
@@ -121,11 +123,10 @@ class Bullet(pygame.sprite.Sprite):
         self.target = enemy
         if not self.hit:
             self.update_action(0)
+            self.draw()
         else:
             self.update_action(1)
-        if not self.sec_hit:
-            self.move()
-        self.draw()
+        self.move()
         if not self.hit:
             self.attack(n)
         animation_cooldown = 100
@@ -340,6 +341,17 @@ class Rocket(Explosion):
         create_explosion(explosion_rect, explosion_data, self.target, self.damage)
 
 
+class Bag(Rocket):
+    def __init__(self, rect, data, target, damage, speed=30):
+        super().__init__(rect, data, target, damage)
+        self.name = "bag"
+        self.speed = speed
+
+
+def create_bag(rect, data, target, damage, speed=30):
+    Bag(rect, data, target, damage, speed)
+
+
 class Stone(Explosion):
     def __init__(self, rect, data, target, damage):
         super().__init__(rect, data, target, damage)
@@ -356,11 +368,10 @@ class Stone(Explosion):
             self.update_action(1)
         animation_cooldown = 100
         # update image
-        if not self.sec_hit:
-            self.move()
-        self.draw()
         if not self.hit:
+            self.move()
             self.attack(n)
+        self.draw()
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1

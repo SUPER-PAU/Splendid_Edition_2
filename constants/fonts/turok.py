@@ -11,3 +11,4 @@ victory_text = pygame.font.Font(r'assets\fonts\turok.ttf', int(200 * display.scr
 # Системный шрифт для диалогов
 sys = pygame.font.SysFont('Times New Roman', int(40 * display.scr_w))
 bigger_sys = pygame.font.SysFont('Times New Roman', int(80 * display.scr_w))
+online_font = pygame.font.SysFont('Times New Roman', 20)

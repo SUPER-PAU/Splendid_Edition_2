@@ -84,6 +84,8 @@ class Game:
 
         attack_group.update(fighter2, fighter1, 1)
 
+        draw_text("YOU", fonts.online_font, (0, 0, 0), fighter1.rect.centerx - 30, 70)
+
         fighter1.draw_hp()
         fighter1.draw_round_statistic(self.online_name, font)
         fighter2.draw_hp()
@@ -94,8 +96,8 @@ class Game:
             self.playing_emoji = True
         elif not fighter2.playing_emoji and self.playing_emoji:
             self.playing_emoji = False
-        # update fighters
 
+        # update fighters
         fighter1.check_action()
         fighter2.check_action()
 
@@ -324,6 +326,9 @@ class Game:
             elif hero_choose_menu.bt25t.is_clicked():
                 if not hero_choose_menu.bt25t.get_p() in self.team:
                     self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bt25t.get_p()
+            elif hero_choose_menu.egor.is_clicked():
+                if not hero_choose_menu.egor.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.egor.get_p()
             else:
                 flag = False
 

@@ -1,6 +1,7 @@
 import constants.textures.player_card_sprites as c
 import constants.textures.sprites as sheet
 from lib.display import display
+from lib.players_data.EGOR import EgorPlayer
 from lib.players_data.LISA_PLAYER import LisaPlayer
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
 from lib.players_data.VESISA_PLAYER import VesisaPlayer
@@ -53,7 +54,10 @@ class OnlinePlayer:
     def draw_menu(self, coords):
         self.draw_p()
         self.player.flip = False
-        self.player.rect.x, self.player.rect.y = coords[0], coords[1]
+        if self.name != "egor":
+            self.player.rect.x, self.player.rect.y = coords[0], coords[1]
+        else:
+            self.player.rect.x, self.player.rect.y = coords[0] + 50, coords[1] + 200
 
 
 super_pau = None
@@ -65,11 +69,12 @@ aksenov = None
 bulat = None
 robot_woman = None
 bt25t = None
+egor = None
 animation_list_by_name = {}
 
 
 def load_chara_online():
-    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat, robot_woman, bt25t
+    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat, robot_woman, bt25t, egor
     AKSENOV_SIZE = 486
     AKSENOV_SCALE = 3 * display.scr_h
     AKSENOV_OFFSET = [216, 168]
@@ -101,6 +106,10 @@ def load_chara_online():
     BULAT_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 8, 7, 7, 3, 5, 6]
     BULAT_2_ANIMATION_LIST = BULAT_p.load_images(sheet.bulat_2, BULAT_2_ANIMATION_STEPS)
 
+    EGOR_p = EgorPlayer(400 * display.scr_w, 540 * display.scr_h, False, EGOR_DATA, [2, 2, 2, 2])
+    EGOR_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 5, 3, 5, 6]
+    EGOR_ANIMATION_LIST = EGOR_p.load_images(sheet.egor_2, EGOR_2_ANIMATION_STEPS)
+
     VESISA_p = VesisaPlayer(400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, [2, 2, 0, 2])
     VESISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 1, 3, 5, 6]
     VESISA_ANIMATION_LIST = VESISA_p.load_images(sheet.vesisa_2, VESISA_2_ANIMATION_STEPS)
@@ -126,6 +135,7 @@ def load_chara_online():
     bulat = OnlinePlayer(BULAT_p, c.bulat, BULAT_p.name, BULAT_2_ANIMATION_LIST)
     robot_woman = OnlinePlayer(ROBOT_FEM_p, c.robot_woman, ROBOT_FEM_p.name, ROBOT_WOMAN_ANIMATION_LIST)
     bt25t = OnlinePlayer(BT25T_p, c.bt25, BT25T_p.name, BT25T_ANIMATION_LIST)
+    egor = OnlinePlayer(EGOR_p, c.egor, EGOR_p.name, EGOR_ANIMATION_LIST)
 
     animation_list_by_name = {
         "pau": PAU_ANIMATION_LIST,
@@ -136,6 +146,7 @@ def load_chara_online():
         "aksenov": AKSENOV_ANIMATION_LIST,
         "bulat": BULAT_2_ANIMATION_LIST,
         "robot_woman": ROBOT_WOMAN_ANIMATION_LIST,
-        "bt25t": BT25T_ANIMATION_LIST
+        "bt25t": BT25T_ANIMATION_LIST,
+        "egor": EGOR_ANIMATION_LIST
     }
 

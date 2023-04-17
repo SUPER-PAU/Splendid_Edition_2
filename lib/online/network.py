@@ -54,12 +54,20 @@ class Network:
         except UnicodeDecodeError as e:
             self.temp_timer -= 1
             return self.temp_data
-        except pickle.UnpicklingError as err:
+        except pickle.UnpicklingError as e:
+            if self.temp_timer > 0:
+                self.temp_timer -= 1
+                return self.temp_data
+        except ValueError as e:
+            if self.temp_timer > 0:
+                self.temp_timer -= 1
+                return self.temp_data
+        except Exception as e:
             if self.temp_timer > 0:
                 self.temp_timer -= 1
                 return self.temp_data
             else:
-                print(datetime.datetime.now(), err)
+                print(datetime.datetime.now(), e)
                 return [None, False, True, None, None, None, ""]
 
     def leave(self):

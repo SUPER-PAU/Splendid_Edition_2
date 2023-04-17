@@ -362,7 +362,7 @@ class FighterEnemy:
                     self.move_ai((1.2, 1.3), (1.13, 1), SPEED, target)
                 # egor
                 case 13:
-                    SPEED -= 3 * display.scr_w
+                    SPEED += 3 * display.scr_w
                     # атаковать ли
                     bot_attack_check_rect = pygame.Rect(self.rect.centerx - (3 * self.rect.width * self.flip),
                                                         self.rect.y,

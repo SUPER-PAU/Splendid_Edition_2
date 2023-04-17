@@ -448,6 +448,7 @@ class ChooseHeroMenu:
         self.bulat = CardButton(player.bulat, (350 * display.scr_w, 100 * display.scr_h))
         self.robot_woman = CardButton(player.robot_woman, (600 * display.scr_w, 400 * display.scr_h))
         self.bt25t = CardButton(player.bt25t, (600 * display.scr_w, 100 * display.scr_h))
+        self.egor = CardButton(player.egor, (850 * display.scr_w, 700 * display.scr_h))
 
         self.bg = bg
         self.enabled = False
@@ -476,6 +477,8 @@ class ChooseHeroMenu:
             self.robot_woman.click(mouse_click)
             self.bt25t.show()
             self.bt25t.click(mouse_click)
+            self.egor.show()
+            self.egor.click(mouse_click)
 
     def is_enabled(self):
         return self.enabled
@@ -486,7 +489,6 @@ class ChooseHeroMenu:
     def enable(self, p):
         self.enabled = True
         self.player_picking = p
-
 
     def get_pick(self):
         return self.player_picking

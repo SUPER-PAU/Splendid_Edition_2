@@ -297,7 +297,7 @@ class Attack(pygame.sprite.Sprite):
                                         player.grabing = True
                                         target.in_grab = True
                                 else:
-                                    hit = 0
+                                    self.damage = 0
                                     self.block_break = False
                             else:
                                 if self.block_break or target.jump or target.sprint or target.attacking:
