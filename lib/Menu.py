@@ -236,7 +236,7 @@ class LineEdit:
                 self.clicked = True
             else:
                 if self.clicked:
-                    save_name(self.get_text())
+                    save_name(self.get_raw_text())
                 self.clicked = False
 
     def set_text(self, text):
@@ -328,6 +328,9 @@ class LineEdit:
 
     def get_text(self):
         return f" {str(''.join(self.text))}"
+
+    def get_raw_text(self):
+        return str(''.join(self.text))
 
 
 class MainMenu:

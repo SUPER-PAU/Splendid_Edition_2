@@ -158,14 +158,14 @@ class PLAYER:
 
     def draw_round_statistic(self, name, font):
         if self.side == 1:
-            draw_text(f"{name}   {self.health}/100", font, black, 17,
+            draw_text(f"{name}   {self.health}/100", font, black, 7,
                       83)
-            draw_text(f"{name}   {self.health}/100", font, red, 20,
+            draw_text(f"{name}   {self.health}/100", font, red, 10,
                       80)
         else:
-            draw_text(f"{name}   {self.health}/100", font, black, 1097,
+            draw_text(f"{name}   {self.health}/100", font, black, 1087,
                       83)
-            draw_text(f"{name}   {self.health}/100", font, red, 1100,
+            draw_text(f"{name}   {self.health}/100", font, red, 1090,
                       80)
 
     def draw_hp(self):
@@ -194,10 +194,6 @@ class PLAYER:
 
     def draw_cooldown_stats(self, surface):
         if self.side == 1:
-            # draw atk cooldown
-            pygame.draw.rect(surface, (255, 255, 255), ((30 - 2), (1020 - 2), (440 + 4), 19))
-            pygame.draw.rect(surface, (0, 0, 0), (30, 1020, 440, 15))
-            pygame.draw.rect(surface, (204, 51, 0), (30, 1020, (440 - self.attack_cooldown * 8), 15))
             # draw huge attack cooldown
             if self.player in player_spec:
                 pygame.draw.rect(surface, (255, 255, 255), ((520 - 2), (60 - 2), (300 + 4),  19))
@@ -222,10 +218,6 @@ class PLAYER:
                     pygame.draw.rect(surface, (102, 255, 102), (20, 60, (200 - self.shield_cooldown), 15))
                     pygame.draw.rect(surface, (102, 255, 153), (20, (60 + 7), (200 - self.shield_cooldown), 8))
         else:
-            pygame.draw.rect(surface, (255, 255, 255), ((1450 - 2), (1020 - 2), (440 + 4), 19))
-            pygame.draw.rect(surface, (204, 51, 0), (1450, 1020, 440, 15))
-            pygame.draw.rect(surface, (0, 0, 0), (1450, 1020, self.attack_cooldown * 8, 15))
-
             # draw huge attack cooldown
             if self.player in player_spec:
                 pygame.draw.rect(surface, (255, 255, 255), (1098, 58, 304, 19))
