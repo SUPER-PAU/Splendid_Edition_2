@@ -43,6 +43,8 @@ ONLINE_MODE_BACK = pygame.image.load(
     r'assets\images\UI\game_online_menu_back.png').convert_alpha()
 ONLINE_MODE_START = pygame.image.load(
     r'assets\images\UI\game_online_menu_start.png').convert_alpha()
+HERO_PICK_BACK = pygame.image.load(
+    r'assets\images\UI\hero_pick_back_button.png').convert_alpha()
 
 
 class Button:
@@ -442,6 +444,10 @@ class OnlineBattle:
 
 class ChooseHeroMenu:
     def __init__(self, bg):
+        self.exit_button = Button(
+            (60, 60),
+            (1845, 7), "", HERO_PICK_BACK)
+
         self.super_pau = CardButton(player.super_pau, (100 * display.scr_w, 100 * display.scr_h))
         self.vesisa = CardButton(player.vesisa, (100 * display.scr_w, 400 * display.scr_h))
         self.tagir = CardButton(player.tagir, (100 * display.scr_w, 700 * display.scr_h))
@@ -458,10 +464,12 @@ class ChooseHeroMenu:
         self.is_hide = False
         self.player_picking = 0
 
-    def show(self, mouse_click):
+    def show(self, mouse_click, p):
         if not self.is_hide:
             scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
             display.screen.blit(scaled_bg, (0, 0))
+            self.exit_button.show()
+            self.exit_button.click(mouse_click)
             self.lisa.show()
             self.lisa.click(mouse_click)
             self.super_pau.show()
@@ -482,6 +490,8 @@ class ChooseHeroMenu:
             self.bt25t.click(mouse_click)
             self.egor.show()
             self.egor.click(mouse_click)
+
+            p.draw_hero_pick_menu()
 
     def is_enabled(self):
         return self.enabled

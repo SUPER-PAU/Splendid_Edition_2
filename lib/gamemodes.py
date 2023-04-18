@@ -34,7 +34,7 @@ game_menu = MainMenu(display.scr_w, display.scr_h, bg.main_menu, music.main_menu
 options_menu = OptionsMenu(display.scr_w, display.scr_h, bg.options_menu)
 choose_mode_menu = ChooseModeMenu(display.scr_w, display.scr_h, bg.game_menu_animated, music.main_menu)
 choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.online_menu, music.main_menu, "")
-hero_choose_menu = ChooseHeroMenu(bg.choose_hero)
+hero_choose_menu = ChooseHeroMenu(bg.hero_pick_menu)
 bg.briff_war.play()
 display.set_fps(24)
 
@@ -297,9 +297,7 @@ class Game:
                     print("cannot find a server")
 
         if hero_choose_menu.is_enabled():
-            hero_choose_menu.show(mouse_click)
-
-            flag = True
+            hero_choose_menu.show(mouse_click, self.team[hero_choose_menu.get_pick()])
             if hero_choose_menu.super_pau.is_clicked():
                 if not hero_choose_menu.super_pau.get_p() in self.team:
                     self.team[hero_choose_menu.get_pick()] = hero_choose_menu.super_pau.get_p()
@@ -330,10 +328,8 @@ class Game:
             elif hero_choose_menu.egor.is_clicked():
                 if not hero_choose_menu.egor.get_p() in self.team:
                     self.team[hero_choose_menu.get_pick()] = hero_choose_menu.egor.get_p()
-            else:
-                flag = False
 
-            if flag:
+            if hero_choose_menu.exit_button.is_clicked():
                 hero_choose_menu.disable()
                 choose_online_mode_menu.enable(False)
 
@@ -354,7 +350,7 @@ class Game:
                 self.team = [online_fighter.lisa, online_fighter.super_pau, online_fighter.tagir]
                 choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.online_menu,
                                                                music.main_menu, self.online_name)
-                hero_choose_menu = ChooseHeroMenu(bg.choose_hero)
+                hero_choose_menu = ChooseHeroMenu(bg.hero_pick_menu)
                 choose_online_mode_menu.enable()
                 choose_mode_menu.disable()
 

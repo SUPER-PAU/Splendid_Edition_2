@@ -1,6 +1,7 @@
 import constants.textures.player_card_sprites as c
 import constants.textures.sprites as sheet
 from lib.display import display
+from lib.drawer import draw_text
 from lib.players_data.EGOR import EgorPlayer
 from lib.players_data.LISA_PLAYER import LisaPlayer
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
@@ -11,6 +12,7 @@ from lib.players_data.AKSENOV import AksenovPlayer
 from lib.players_data.BULAT import BulatPlayer
 from lib.players_data.ROBOT_WOMAN import RobotFemalePlayer
 from lib.players_data.BT25T import Bt25T
+from constants.fonts.turok import online_sys, online_font
 
 
 class OnlinePlayer:
@@ -51,14 +53,76 @@ class OnlinePlayer:
         self.update()
         self.player.draw(display.screen, self.image)
 
+    def draw_hero_pick_menu(self):
+        self.player.flip = False
+        if self.name != "EGOR":
+            self.player.rect.x, self.player.rect.y = 1500, 200
+            draw_text(self.name, online_sys, (0, 0, 0), 1468,
+                      638)
+            draw_text(self.name, online_sys, (250, 200, 0), 1470,
+                      640)
+        else:
+            self.player.rect.x, self.player.rect.y = 1550, 400
+            draw_text(self.name, online_sys, (0, 0, 0), 1528,
+                      638)
+            draw_text(self.name, online_sys, (250, 200, 0), 1530,
+                      640)
+        for index, txt in enumerate(description_by_name[self.player.name]):
+            draw_text(txt, online_font, (0, 0, 0), 1368, 698 + 40 * index)
+            draw_text(txt, online_font, (255, 255, 255), 1370, 700 + 40 * index)
+        self.draw_p()
+
     def draw_menu(self, coords):
         self.draw_p()
         self.player.flip = False
-        if self.name != "egor":
+        if self.name != "EGOR":
             self.player.rect.x, self.player.rect.y = coords[0], coords[1]
         else:
             self.player.rect.x, self.player.rect.y = coords[0] + 50, coords[1] + 200
 
+
+description_by_name = {
+    "pau": ('Помогая своему другу Камилю, Семен Посетил “Daun Corp”,',
+            'после чего стал именоваться SUPER PAU. Он не может',
+            'позволить Абобе ОС распространиться, потому охотно',
+            'рушит планы Моисеева со своей командой.'),
+    "lisa": ('Из-за своих «Феминистических» взглядов Лиза идет на',
+             'сделку с Моисеевым и летит в Японию, где после пары',
+             'десятков лет захватывает власть. Но странный образ в',
+             'её голове все никак не дает ей покоя...'),
+    "vesisa": ('Будучи похищенной для экспериментов корпорацией',
+               'DeTech, Васиса стала киборгом. Ей вовремя удалось',
+               'сбежать от кишащей роботами лаборатории, после чего',
+               'стала врагом номер 1 для DeTech.'),
+    "tagir": ('“Ночная бабочка” – именно так прозвали Тагира,',
+              'который ради денег готов пойти на все. За пару грошей',
+              'он соглашается помочь Моисееву в борьбе против',
+              'Супер Пау. Использует КАМни как свое оружие.'),
+    "artestro": ('Артестро – Администратор Daun Corp. Он',
+                 'является правой рукой Моисеева. После того',
+                 'как Лиза выходит за рамки планов, Моисеев посылает',
+                 'Артиста в Японию, с целью урегулирования ситуации.'),
+    "aksenov": ('Человек помешанный на Аниме. Ему всегда хотелось стать',
+                'сказочным персонажем. Когда он понял, что Супер Пау',
+                'заберет его Абобу, присоединяется к Булату, а затем',
+                'улетает в Японию. Там он встречает Лизу.'),
+    "bulat": ('Основатель ISKHAKOV INDUSTRIES и человек с большим',
+              'умом. Ему не нужна Абоба ОС, чтобы бороться на равных',
+              'с её обладателями. Помогает Супер Пау победить Моисеева,',
+              'но потом у него появляется свой план.'),
+    "robot_woman": ('Военный робот высокого уровня, разработанный DeTech.',
+                    'Использует Абобу ОС 5. Размещается на важнейших объектах',
+                    'США с целью охраны и уничтожения противников,',
+                    'представляющих огромную опасность.'),
+    "bt25t": ('В поисках денег на подарок для своей сестры, Камиль,',
+              'вместе с Семёном зашли в “Daun Corp”, где они получили',
+              'свои Абобы ОС. Камиль, как настоящий задрот в танки,',
+              'стал своим любимым танком X уровня Bt 25t.'),
+    "egor": ('Счастливый обладатель мешка с обувью. Бесится,',
+             'когда его называют гномом. Сначала помогает Моисееву',
+             'вместе со своим другим Артёмом, а потом присоединяется',
+             'к Булату.')
+}
 
 super_pau = None
 lisa = None
@@ -126,16 +190,16 @@ def load_chara_online():
     BT25T_2_ANIMATION_STEPS = [10, 3, 1, 1, 3, 7, 7, 4, 1, 1, 1, 1]
     BT25T_ANIMATION_LIST = BT25T_p.load_images(sheet.bt25t_2, BT25T_2_ANIMATION_STEPS)
 
-    super_pau = OnlinePlayer(super_pau_online, c.pau, "pau", PAU_ANIMATION_LIST)
-    lisa = OnlinePlayer(lisa_online, c.lisa, "lisa", LISA_ANIMATION_LIST)
-    vesisa = OnlinePlayer(VESISA_p, c.vesisa, "vesisa", VESISA_ANIMATION_LIST)
-    tagir = OnlinePlayer(TAGIR_P, c.tagir, "tagir", TAGIR_ANIMATION_LIST)
-    artestro = OnlinePlayer(ARTESTRO_p, c.artestro, ARTESTRO_p.name, ARTESTRO_ANIMATION_LIST)
-    aksenov = OnlinePlayer(AKSENOV_p, c.aksenov, AKSENOV_p.name, AKSENOV_ANIMATION_LIST)
-    bulat = OnlinePlayer(BULAT_p, c.bulat, BULAT_p.name, BULAT_2_ANIMATION_LIST)
-    robot_woman = OnlinePlayer(ROBOT_FEM_p, c.robot_woman, ROBOT_FEM_p.name, ROBOT_WOMAN_ANIMATION_LIST)
-    bt25t = OnlinePlayer(BT25T_p, c.bt25, BT25T_p.name, BT25T_ANIMATION_LIST)
-    egor = OnlinePlayer(EGOR_p, c.egor, EGOR_p.name, EGOR_ANIMATION_LIST)
+    super_pau = OnlinePlayer(super_pau_online, c.pau, "SUPER PAU", PAU_ANIMATION_LIST)
+    lisa = OnlinePlayer(lisa_online, c.lisa, "LISA", LISA_ANIMATION_LIST)
+    vesisa = OnlinePlayer(VESISA_p, c.vesisa, "VASISA", VESISA_ANIMATION_LIST)
+    tagir = OnlinePlayer(TAGIR_P, c.tagir, "TAGIR", TAGIR_ANIMATION_LIST)
+    artestro = OnlinePlayer(ARTESTRO_p, c.artestro, "ARTESTRO", ARTESTRO_ANIMATION_LIST)
+    aksenov = OnlinePlayer(AKSENOV_p, c.aksenov, "AKSENOV", AKSENOV_ANIMATION_LIST)
+    bulat = OnlinePlayer(BULAT_p, c.bulat, "BULAT", BULAT_2_ANIMATION_LIST)
+    robot_woman = OnlinePlayer(ROBOT_FEM_p, c.robot_woman, "KILLER ROBOT", ROBOT_WOMAN_ANIMATION_LIST)
+    bt25t = OnlinePlayer(BT25T_p, c.bt25, "Bt25t", BT25T_ANIMATION_LIST)
+    egor = OnlinePlayer(EGOR_p, c.egor, "EGOR", EGOR_ANIMATION_LIST)
 
     animation_list_by_name = {
         "pau": PAU_ANIMATION_LIST,
@@ -149,4 +213,3 @@ def load_chara_online():
         "bt25t": BT25T_ANIMATION_LIST,
         "egor": EGOR_ANIMATION_LIST
     }
-
