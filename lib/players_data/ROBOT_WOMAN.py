@@ -28,6 +28,11 @@ class RobotFemalePlayer(SuperPauPlayer):
             SPEED += 8.3
             self.sprint = True
 
+        # play emoji
+        if key[pygame.K_1] and self.emoji_cooldown <= 0:
+            self.play_emoji()
+            self.emoji_cooldown = 160
+
         if self.action == 8:
             if self.frame_index == 3 and not self.tpd:
                 if target.rect.centerx >= self.rect.centerx:

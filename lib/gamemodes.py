@@ -146,13 +146,11 @@ class Game:
             attack_group.empty()
             bullet_sprites.empty()
             if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
-                damage_num_group.empty()
                 self.intro_count = 4
                 self.battle_menu.enable()
 
         self.enemy[4].update(fighter1, fighter2, 2)
         self.enemy[5].update(fighter1, 2)
-        damage_num_group.update()
         all_sprites.update()
         all_sprites.draw(display.screen)
         bullet_sprites.update(fighter2, 1)

@@ -155,13 +155,14 @@ class Dash(pygame.sprite.Sprite):
     def update(self, enemy, player, n=1):
         self.player = player
         self.target = enemy
-        self.move(enemy, n)
+        if n == 1:
+            self.move()
+        self.attack(enemy, n)
         if not self.player.attacking:
             self.kill()
 
-    def move(self, target, n):
+    def move(self):
         self.rect.x += self.player.dash_x
-        self.attack(target, n)
 
     def attack(self, target, n):
         if self.hit and (target.hit or target.blocking):

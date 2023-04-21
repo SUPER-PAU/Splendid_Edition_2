@@ -30,11 +30,11 @@ class EgorPlayer(SuperPauPlayer):
                 case 1:
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.5 * self.rect.width * self.flip), self.rect.y,
                                                  self.rect.width, self.rect.height)
-                    hit = 18
+                    hit = 25
                 case 2:
                     attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y,
                                                  2 * self.rect.width, self.rect.height * 2)
-                    hit = 23
+                    hit = 18
                 case 3:
                     size = 50
                     bullet_data = [200, 0.6, (10, 10), [2, 2], True]

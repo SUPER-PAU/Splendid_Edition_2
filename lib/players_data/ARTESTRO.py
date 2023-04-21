@@ -70,7 +70,7 @@ class ArtestroPlayer(SuperPauPlayer):
                                 if not self.hit:
                                     self.attacking = True
                                     self.attack_type = 3
-                                    hit = 35
+                                    hit = 8 * self.knifes
                                     bullet_data = [200, 0.6, (5, 3), [2, 2], self.flip]
                                     for i in range(self.knifes):
                                         bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
@@ -212,15 +212,15 @@ class Dash(pygame.sprite.Sprite):
 
     def update(self, enemy, player, n=1):
         self.player = player
-        self.target = enemy
-        self.move(enemy, n)
+        if n == 1:
+            self.move()
+        self.attack(enemy, n)
         if not self.player.attacking:
             self.kill()
 
-    def move(self, target, n):
+    def move(self):
         self.rect.x += self.player.dash_x
         # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
-        self.attack(target, n)
 
     def attack(self, target, n):
         if self.hit and (target.hit or target.blocking):

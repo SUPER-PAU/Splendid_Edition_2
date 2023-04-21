@@ -46,9 +46,13 @@ class Network:
             self.client.send(d)
             res = self.client.recv(BYTES)
             res = pickle.loads(res)
-            self.temp_data = res
-            self.temp_timer = 300
-            return res
+            if isinstance(res, list):
+                self.temp_data = res
+                self.temp_timer = 300
+                return res
+            else:
+                self.temp_timer -= 1
+                return self.temp_data
         except socket.error as e:
             print(datetime.datetime.now(), e)
         except UnicodeDecodeError as e:

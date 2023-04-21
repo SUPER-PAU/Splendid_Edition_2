@@ -1,7 +1,7 @@
 import pygame
 
 from lib.display import display
-from lib.particle import create_emoji
+from lib.players_data.particles_online import create_emoji
 from constants.textures.sprites import attack_group
 from lib.players_data.Player import PLAYER
 
@@ -17,12 +17,12 @@ class SuperPauPlayer(PLAYER):
             emoji_rect = pygame.Rect(
                 1470 * display.scr_w, 150 * display.scr_h, 250 * display.scr_w, 250 * display.scr_h)
             emoji_data = [500, 0.5 * display.scr_w, (0, 0), [3], True]
-            create_emoji(emoji_rect, emoji_data, self.name, self)
+            create_emoji(emoji_rect, emoji_data, self.sex, self)
         else:
             emoji_rect = pygame.Rect(
                 250 * display.scr_w, 150 * display.scr_h, 250 * display.scr_w, 250 * display.scr_h)
             emoji_data = [500, 0.5 * display.scr_w, (0, 0), [3], False]
-            create_emoji(emoji_rect, emoji_data, self.name, self)
+            create_emoji(emoji_rect, emoji_data, self.sex, self)
 
     def move(self, surface, target, round_over, mouse_click, key_press):
         SPEED = 8
@@ -41,9 +41,9 @@ class SuperPauPlayer(PLAYER):
             self.sprint = True
 
         # play emoji
-        # if key[pygame.K_1] and self.emoji_cooldown <= 0:
-        #     self.play_emoji()
-        #     self.emoji_cooldown = 160
+        if key[pygame.K_1] and self.emoji_cooldown <= 0:
+            self.play_emoji()
+            self.emoji_cooldown = 160
 
         # can only perform other actions if not attacking
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:

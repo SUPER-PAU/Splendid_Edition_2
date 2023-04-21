@@ -1,8 +1,9 @@
 from lib.display import display
 import pygame
 import random
-from constants.textures.sprites import all_sprites, bullet_sprites, damage_num_group, \
+from constants.textures.sprites import all_sprites, bullet_sprites, \
     explosion, bullet, beam, rocket, energy, stone, knifes, bag
+from constants.textures.emoji import pau, lisa
 from constants.audio.effects import explosion_sounds, gaubica_sounds
 
 screen_rect = (0, 0, display.screen_width, display.screen_height)
@@ -28,6 +29,9 @@ tank_bullet_animation = load_images(bullet, [2, 2], 20, 9.1)
 beam_animation = load_images(beam, [2, 2], 20, 9.1)
 explosion_animation = load_images(explosion, [5], 127, 7.7)
 bag_animation = load_images(bag, [2, 2], 200, 0.6)
+emo_pau_animation = load_images(pau, [3], 500, 0.5)
+emo_lisa_animation = load_images(lisa, [3], 500, 0.5)
+
 sprite_by_name = {
     "explosion": explosion_animation,
     "bullet": bullet_animation,
@@ -37,7 +41,9 @@ sprite_by_name = {
     "enegry": energy,
     "beam": beam_animation,
     "knife": knife_animation,
-    "bag": bag_animation
+    "bag": bag_animation,
+    "emoji_1": emo_pau_animation,
+    "emoji_2": emo_lisa_animation
 }
 
 
@@ -126,7 +132,8 @@ class Bullet(pygame.sprite.Sprite):
             self.draw()
         else:
             self.update_action(1)
-        self.move()
+        if n == 1:
+            self.move()
         if not self.hit:
             self.attack(n)
         animation_cooldown = 100
@@ -480,7 +487,7 @@ class Energy(Stone):
 
 class DamageNumber(pygame.sprite.Sprite):
     def __init__(self, rect, flip, damage):
-        super().__init__(damage_num_group)
+        super().__init__(bullet_sprites)
         self.damage, self.flip = f"-{str(damage)}", flip
         self.rect = rect.copy()
         self.vel_y = -0.1
@@ -493,7 +500,7 @@ class DamageNumber(pygame.sprite.Sprite):
             self.size = 90
             self.color = (255, 0, 0)
 
-    def update(self):
+    def update(self, p=1, n=1):
         if self.rect.top > 330:
             self.kill()
         self.move()
@@ -514,6 +521,47 @@ class DamageNumber(pygame.sprite.Sprite):
         dy += self.vel_y
         # update position
         self.rect.y += dy
+
+
+class Emoji(Explosion):
+    def __init__(self, rect, data, sex, player):
+        super().__init__(rect, data, None, 0)
+        self.cooldown = 150
+        self.player = player
+        self.name = f'emoji_{str(sex)}'
+        self.player.playing_emoji = True
+
+    def update(self, p=1, n=1):
+        self.update_action(0)
+        animation_cooldown = 140
+        # update image
+        # check if enough time has passed sinse the last update
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.frame_index += 1
+            self.update_time = pygame.time.get_ticks()
+        self.draw()
+        if self.frame_index >= len(sprite_by_name[self.name][self.action]):
+            self.frame_index = 0
+        if self.cooldown <= 0:
+            self.kill()
+            self.player.playing_emoji = False
+        else:
+            self.cooldown -= 1
+
+    def draw(self):
+        image = sprite_by_name[self.name][self.action][self.frame_index]
+        # pygame.draw.rect(display.screen, (255, 0, 0), self.rect)
+        img = pygame.transform.flip(image, self.flip, False)
+        display.screen.blit(img,
+                            (self.rect.x - self.offset[0] * self.image_scale,
+                             self.rect.y - self.offset[1] * self.image_scale))
+
+
+def create_emoji(rect, data, sex, player):
+    if sex == 2:
+        Emoji(rect, data, 2, player)
+    else:
+        Emoji(rect, data, 1, player)
 
 
 def create_damage_number(coords, flip, damage):

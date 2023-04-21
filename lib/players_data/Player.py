@@ -287,9 +287,10 @@ class PLAYER:
                     self.health -= hit
                     self.blocking = True
                     self.update_huge_attack_cd(60)
-            if self.side == 1:
-                create_damage_number((50, 150),
-                                     self.flip, hit)
-            else:
-                create_damage_number((1750, 150),
-                                     self.flip, hit)
+            if sender == 2:
+                if self.side == 1:
+                    create_damage_number((50, 150),
+                                         self.flip, hit)
+                else:
+                    create_damage_number((1750, 150),
+                                         self.flip, hit)
