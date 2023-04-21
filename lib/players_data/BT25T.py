@@ -176,12 +176,12 @@ class Bt25T(SuperPauPlayer):
                 self.health -= hit
                 self.hit = True
                 self.update_huge_attack_cd(60)
-            if self.side == 1:
-                create_damage_number((50, 150),
-                                     self.flip, hit)
-            else:
-                create_damage_number((1750, 150),
-                                     self.flip, hit)
+                if self.side == 1:
+                    create_damage_number((50, 150),
+                                         self.flip, hit)
+                else:
+                    create_damage_number((1750, 150),
+                                         self.flip, hit)
 
 
 def create_dash_online(rect, flip, target, player, damage, group):

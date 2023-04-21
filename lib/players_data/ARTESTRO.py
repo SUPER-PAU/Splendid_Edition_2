@@ -70,7 +70,7 @@ class ArtestroPlayer(SuperPauPlayer):
                                 if not self.hit:
                                     self.attacking = True
                                     self.attack_type = 3
-                                    hit = 8 * self.knifes
+                                    hit = 7 * self.knifes
                                     bullet_data = [200, 0.6, (5, 3), [2, 2], self.flip]
                                     for i in range(self.knifes):
                                         bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
@@ -146,7 +146,7 @@ class ArtestroPlayer(SuperPauPlayer):
                 # att 1
                 case 2:
                     self.shield_cooldown = 200
-                    hit = 20
+                    hit = 18
                     dash_rect = pygame.Rect(self.rect.x, self.rect.y + 50, self.rect.width,
                                             self.rect.height - 50)
                     self.dashing = True

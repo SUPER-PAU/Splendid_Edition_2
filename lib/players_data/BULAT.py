@@ -32,9 +32,9 @@ class BulatPlayer(SuperPauPlayer):
             self.sprint = True
 
         # play emoji
-        # if key[pygame.K_1] and self.emoji_cooldown <= 0:
-        #     self.play_emoji()
-        #     self.emoji_cooldown = 160
+        if key[pygame.K_1] and self.emoji_cooldown <= 0:
+            self.play_emoji()
+            self.emoji_cooldown = 160
 
         # can only perform other actions if not attacking
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:

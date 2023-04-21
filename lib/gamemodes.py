@@ -22,6 +22,7 @@ from constants.progress import pg
 from lib.online.network import Network
 
 import lib.players_data.online_players as online_fighter
+from lib.players_data.particles_online import on_fire_class_enemy
 
 clocks = Clock()
 
@@ -126,6 +127,10 @@ class Game:
         # draw fighters
         fighter2.draw(display.screen, figter2_sprite)
         self.online_player.draw_p()
+
+        if fighter2.fire_cooldown > 0:
+            on_fire_class_enemy.update()
+            fighter2.burn(on_fire_class_enemy.get_image())
 
         # check for player defeat
         if not self.round_over:
@@ -326,6 +331,9 @@ class Game:
             elif hero_choose_menu.egor.is_clicked():
                 if not hero_choose_menu.egor.get_p() in self.team:
                     self.team[hero_choose_menu.get_pick()] = hero_choose_menu.egor.get_p()
+            elif hero_choose_menu.kingartema.is_clicked():
+                if not hero_choose_menu.kingartema.get_p() in self.team:
+                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.kingartema.get_p()
 
             if hero_choose_menu.exit_button.is_clicked():
                 hero_choose_menu.disable()

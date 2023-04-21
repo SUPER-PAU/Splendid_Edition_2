@@ -46,6 +46,7 @@ bulat_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\bulat.png").conv
 robot_woman_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\robot_woman.png").convert_alpha()
 bt25t_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\bt25t.png").convert_alpha()
 egor_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\egor.png").convert_alpha()
+kingartema_2 = pygame.image.load(r"assets\images\main hero\Sprites_2\dumpling.png").convert_alpha()
 
 # партиклы
 blood = pygame.image.load(r"assets\images\main hero\particles\blood.png").convert_alpha()
@@ -55,6 +56,7 @@ dumplings = pygame.image.load(r"assets\images\main hero\particles\dumpling.png")
 dust = pygame.image.load(r"assets\images\main hero\particles\dust.png").convert_alpha()
 shield_parts = pygame.image.load(r"assets\images\main hero\particles\shield_parts.png").convert_alpha()
 bag = pygame.image.load(r"assets\images\main hero\particles\bag.png").convert_alpha()
+on_fire = pygame.image.load(r"assets\images\main hero\particles\fire.png").convert_alpha()
 
 energy = pygame.image.load(r"assets\images\main hero\particles\energy.png").convert_alpha()
 explosion = pygame.image.load(r"assets\images\main hero\particles\explosion.png").convert_alpha()

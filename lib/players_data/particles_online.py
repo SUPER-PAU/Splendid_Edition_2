@@ -2,7 +2,7 @@ from lib.display import display
 import pygame
 import random
 from constants.textures.sprites import all_sprites, bullet_sprites, \
-    explosion, bullet, beam, rocket, energy, stone, knifes, bag
+    explosion, bullet, beam, rocket, energy, stone, knifes, bag, on_fire
 from constants.textures.emoji import pau, lisa
 from constants.audio.effects import explosion_sounds, gaubica_sounds
 
@@ -539,9 +539,9 @@ class Emoji(Explosion):
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
-        self.draw()
         if self.frame_index >= len(sprite_by_name[self.name][self.action]):
             self.frame_index = 0
+        self.draw()
         if self.cooldown <= 0:
             self.kill()
             self.player.playing_emoji = False
@@ -555,6 +555,32 @@ class Emoji(Explosion):
         display.screen.blit(img,
                             (self.rect.x - self.offset[0] * self.image_scale,
                              self.rect.y - self.offset[1] * self.image_scale))
+
+
+class OnFire:
+    def __init__(self):
+        self.update_time = pygame.time.get_ticks()
+        self.animation_list = load_images(on_fire, [3], 486, 3)
+        self.image = self.animation_list[0][0]
+        self.frame_index = 0
+        self.action = 0
+
+    def update(self):
+        animation_cooldown = 70
+        # check if enough time has passed sinse the last update
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.frame_index += 1
+            self.update_time = pygame.time.get_ticks()
+        if self.frame_index >= len(self.animation_list[self.action]):
+            self.frame_index = 0
+        self.image = self.animation_list[self.action][self.frame_index]
+
+    def get_image(self):
+        return self.image
+
+
+on_fire_class = OnFire()
+on_fire_class_enemy = OnFire()
 
 
 def create_emoji(rect, data, sex, player):

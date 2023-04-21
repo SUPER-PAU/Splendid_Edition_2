@@ -2,6 +2,8 @@ import constants.textures.player_card_sprites as c
 import constants.textures.sprites as sheet
 from lib.display import display
 from lib.drawer import draw_text
+from lib.players_data.KINGARTEMA import Kingartema
+from lib.players_data.particles_online import on_fire_class
 from lib.players_data.EGOR import EgorPlayer
 from lib.players_data.LISA_PLAYER import LisaPlayer
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer
@@ -52,6 +54,9 @@ class OnlinePlayer:
     def draw_p(self):
         self.update()
         self.player.draw(display.screen, self.image)
+        if self.player.fire_cooldown > 0:
+            on_fire_class.update()
+            self.player.burn(on_fire_class.get_image())
 
     def draw_hero_pick_menu(self):
         self.player.flip = False
@@ -121,7 +126,12 @@ description_by_name = {
     "egor": ('Счастливый обладатель мешка с обувью. Бесится,',
              'когда его называют гномом. Сначала помогает Моисееву',
              'вместе со своим другим Артёмом, а потом присоединяется',
-             'к Булату.')
+             'к Булату.'),
+    "kingartema": ('Лучший друг Егора. Имеет собственный подвал,',
+                   'в котором он героически спас детей. После того,',
+                   'как Моисеев рекрутировал его и Егора, он',
+                   'поставил над Артёмом опыт, который превратил',
+                   'его в электрический летающий пельмень.')
 }
 
 super_pau = None
@@ -134,11 +144,14 @@ bulat = None
 robot_woman = None
 bt25t = None
 egor = None
+kingartema = None
 animation_list_by_name = {}
 
 
 def load_chara_online():
-    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat, robot_woman, bt25t, egor
+    global super_pau, lisa, vesisa, tagir, aksenov, artestro, animation_list_by_name, bulat, robot_woman, bt25t, egor, \
+        kingartema
+
     AKSENOV_SIZE = 486
     AKSENOV_SCALE = 3 * display.scr_h
     AKSENOV_OFFSET = [216, 168]
@@ -170,6 +183,10 @@ def load_chara_online():
     BULAT_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 8, 7, 7, 3, 5, 6]
     BULAT_2_ANIMATION_LIST = BULAT_p.load_images(sheet.bulat_2, BULAT_2_ANIMATION_STEPS)
 
+    KINGARTEMA_p = Kingartema(400 * display.scr_w, 540 * display.scr_h, False, KINGARTEMA_DATA, [2, 2, 2, 2])
+    KINGARTEMA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 7, 7, 7, 8, 3, 5, 6]
+    KINGARTEMA_2_ANIMATION_LIST = KINGARTEMA_p.load_images(sheet.kingartema_2, KINGARTEMA_2_ANIMATION_STEPS)
+
     EGOR_p = EgorPlayer(400 * display.scr_w, 540 * display.scr_h, False, EGOR_DATA, [2, 2, 2, 2])
     EGOR_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 5, 3, 5, 6]
     EGOR_ANIMATION_LIST = EGOR_p.load_images(sheet.egor_2, EGOR_2_ANIMATION_STEPS)
@@ -200,6 +217,7 @@ def load_chara_online():
     robot_woman = OnlinePlayer(ROBOT_FEM_p, c.robot_woman, "KILLER ROBOT", ROBOT_WOMAN_ANIMATION_LIST)
     bt25t = OnlinePlayer(BT25T_p, c.bt25, "Bt25t", BT25T_ANIMATION_LIST)
     egor = OnlinePlayer(EGOR_p, c.egor, "EGOR", EGOR_ANIMATION_LIST)
+    kingartema = OnlinePlayer(KINGARTEMA_p, c.kingartema, "KINGARTEMA", KINGARTEMA_2_ANIMATION_LIST)
 
     animation_list_by_name = {
         "pau": PAU_ANIMATION_LIST,
@@ -211,5 +229,6 @@ def load_chara_online():
         "bulat": BULAT_2_ANIMATION_LIST,
         "robot_woman": ROBOT_WOMAN_ANIMATION_LIST,
         "bt25t": BT25T_ANIMATION_LIST,
-        "egor": EGOR_ANIMATION_LIST
+        "egor": EGOR_ANIMATION_LIST,
+        "kingartema": KINGARTEMA_2_ANIMATION_LIST
     }

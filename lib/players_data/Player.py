@@ -61,6 +61,7 @@ class PLAYER:
         self.sex = 1
         self.prev_hit = 0
         self.hit_timer = 6
+        self.fire_cooldown = 0
 
     def set_side(self, player):
         self.side = player
@@ -109,6 +110,7 @@ class PLAYER:
         self.frame_index = 0
         self.ready = False
         self.hit_timer = 6
+        self.fire_cooldown = 0
 
     def reset_params(self):
         x, y, self.flip = self.start_pos
@@ -128,6 +130,7 @@ class PLAYER:
         self.playing_emoji = False
         self.is_tank = False
         self.same_attack_count = 0
+        self.fire_cooldown = 0
         self.stunned = 0
         self.prev_hit = 0
         self.vel_y = 0
@@ -158,14 +161,14 @@ class PLAYER:
 
     def draw_round_statistic(self, name, font):
         if self.side == 1:
-            draw_text(f"{name}   {self.health}/100", font, black, 7,
+            draw_text(f"{name}   {round(self.health)}/100", font, black, 7,
                       83)
-            draw_text(f"{name}   {self.health}/100", font, red, 10,
+            draw_text(f"{name}   {round(self.health)}/100", font, red, 10,
                       80)
         else:
-            draw_text(f"{name}   {self.health}/100", font, black, 1087,
+            draw_text(f"{name}   {round(self.health)}/100", font, black, 1087,
                       83)
-            draw_text(f"{name}   {self.health}/100", font, red, 1090,
+            draw_text(f"{name}   {round(self.health)}/100", font, red, 1090,
                       80)
 
     def draw_hp(self):
@@ -294,3 +297,14 @@ class PLAYER:
                 else:
                     create_damage_number((1750, 150),
                                          self.flip, hit)
+
+    def set_on_fire(self):
+        self.fire_cooldown = 250
+
+    def burn(self, img):
+        img = pygame.transform.flip(img, self.flip, False)
+        # pygame.draw.rect(surface, (255, 0, 0), self.rect)
+        display.screen.blit(img,
+                     (self.rect.x - self.offset[0] * self.image_scale, self.rect.y - self.offset[1] * self.image_scale))
+        self.fire_cooldown -= 1
+        self.health -= 0.1
