@@ -10,6 +10,4 @@
 > 
 > Music track by Jamie Christopherson · Metal Gear Rising: Revengence
 > 
-> Music track by Brian Tyler · CoD Modern Warfare 3
-> 
 > Music track by John Paesano · Marvel's Spider-Man
