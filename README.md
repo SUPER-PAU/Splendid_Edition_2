@@ -3,7 +3,7 @@
 
 Продолжение первой части Великолепного издания.
 
-###Project is non-commercial
+### Project is non-commercial
 
 > Music track by DavidKBD
 > 
