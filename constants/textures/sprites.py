@@ -11,6 +11,7 @@ damage_num_group = pygame.sprite.Group()
 # Спрайты персов
 aksenov = pygame.image.load(r"assets\images\main hero\Sprites\aksenov.png").convert_alpha()
 lisa = pygame.image.load(r"assets\images\main hero\Sprites\lisa.png").convert_alpha()
+lisa_boss = pygame.image.load(r"assets\images\main hero\Sprites\lisa_boss.png").convert_alpha()
 soldier = pygame.image.load(r"assets\images\main hero\Sprites\soldier.png").convert_alpha()
 yacugi = pygame.image.load(r"assets\images\main hero\Sprites\yakugi.png").convert_alpha()
 soldier_japan = pygame.image.load(r"assets\images\main hero\Sprites\japanese_soldier.png").convert_alpha()

@@ -80,7 +80,7 @@ class FighterPLAYER:
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
 
-    def move(self, surface, target, round_over):
+    def move(self, target, round_over):
         SPEED = 9 * display.scr_w
         GRAVITY = 2 * display.scr_h
         dx = 0
@@ -123,7 +123,7 @@ class FighterPLAYER:
                                 self.attack_type = 7
                                 hit = 15
                                 self.huge_attack_cooldown = 300
-                        self.attack(surface, target, 1.09, hit)
+                        self.attack(target, 1.09, hit)
                 # trio
                 case 11:
                     SPEED += 2 * display.scr_w
@@ -136,11 +136,11 @@ class FighterPLAYER:
                         if key[pygame.K_r] or mouse_left:
                             self.attack_type = 17
                             hit = 12
-                            self.attack(surface, target, 2.9, hit)
+                            self.attack(target, 2.9, hit)
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 16
                             hit = 20
-                            self.attack(surface, target, 2.4, hit)
+                            self.attack(target, 2.4, hit)
                 # walker
                 case 10:
                     SPEED -= 5 * display.scr_w
@@ -150,12 +150,12 @@ class FighterPLAYER:
                         if key[pygame.K_r] or mouse_left:
                             self.attack_type = 22
                             hit = 25
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 14
                             hit = 35
                             self.shield_cooldown = 200
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
 
                 # bulat
                 case 9:
@@ -171,19 +171,19 @@ class FighterPLAYER:
                         if key[pygame.K_r] or mouse_left:
                             self.attack_type = 1
                             hit = 18
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                         elif key[pygame.K_f] or mouse_middle:
                             if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                                 self.attack_type = 18
                                 hit = 25
                                 self.huge_attack_cooldown = 300
-                                self.attack(surface, target, 2.6, hit)
+                                self.attack(target, 2.6, hit)
                         elif key[pygame.K_t] or mouse_right:
                             if self.shield_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                                 self.attack_type = 16
                                 self.heal(10)
                                 self.shield_cooldown = 200
-                                self.attack(surface, target, 1, hit)
+                                self.attack(target, 1, hit)
                 # vesisa
                 case 8:
                     SPEED += 2 * display.scr_w
@@ -196,11 +196,11 @@ class FighterPLAYER:
                         if key[pygame.K_r] or mouse_left:
                             self.attack_type = 17
                             hit = 12
-                            self.attack(surface, target, 2.9, hit)
+                            self.attack(target, 2.9, hit)
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 16
                             hit = 18
-                            self.attack(surface, target, 2.4, hit)
+                            self.attack(target, 2.4, hit)
 
                 # kingartema
                 case 7:
@@ -216,7 +216,7 @@ class FighterPLAYER:
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 3
                             hit = 12
-                        self.attack(surface, target, 2.5, hit)
+                        self.attack(target, 2.5, hit)
                 # egor
                 case 6:
                     # movement
@@ -234,7 +234,7 @@ class FighterPLAYER:
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 2
                             hit = 17
-                        self.attack(surface, target, 1.3, hit)
+                        self.attack(target, 1.3, hit)
                 # tagir
                 case 5:
                     SPEED += 1 * display.scr_w
@@ -248,11 +248,11 @@ class FighterPLAYER:
                         if key[pygame.K_r] or mouse_left:
                             self.attack_type = 15
                             hit = 18
-                            self.attack(surface, target, 1.09, hit)
+                            self.attack(target, 1.09, hit)
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 27
                             hit = 21
-                            self.attack(surface, target, 1.09, hit)
+                            self.attack(target, 1.09, hit)
 
                 # bt25t
                 case 4:
@@ -267,7 +267,7 @@ class FighterPLAYER:
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 3
                             hit = 18
-                        self.attack(surface, target, 1.09, hit)
+                        self.attack(target, 1.09, hit)
 
                 # check aks controls
                 case 3:
@@ -285,7 +285,7 @@ class FighterPLAYER:
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 3
                             hit = 14
-                        self.attack(surface, target, 1.09, hit)
+                        self.attack(target, 1.09, hit)
 
                 # check player 1 controls lisa
                 case 2:
@@ -304,7 +304,7 @@ class FighterPLAYER:
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 2
                             hit = 12
-                        self.attack(surface, target, 1.3, hit)
+                        self.attack(target, 1.3, hit)
 
                 # super pau player
                 case 1:
@@ -321,17 +321,17 @@ class FighterPLAYER:
                         if key[pygame.K_r] or mouse_left:
                             self.attack_type = 8
                             hit = 12
-                            self.attack(surface, target, 1.3, hit)
+                            self.attack(target, 1.3, hit)
                         elif key[pygame.K_f] or mouse_middle:
                             if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                                 self.attack_type = 13
                                 hit = 35
                                 self.huge_attack_cooldown = 300
-                                self.attack(surface, target, 1.3, hit)
+                                self.attack(target, 1.3, hit)
                         elif key[pygame.K_t] or mouse_right:
                             self.attack_type = 4
                             hit = 14
-                            self.attack(surface, target, 2.5, hit)
+                            self.attack(target, 2.5, hit)
             # movement
             if key[pygame.K_a]:
                 dx = -SPEED
@@ -339,7 +339,6 @@ class FighterPLAYER:
             if key[pygame.K_d]:
                 dx = SPEED
                 self.running = True
-
 
             # ensure players face each other
             if target.rect.centerx >= self.rect.centerx and not self.attacking:
@@ -443,7 +442,7 @@ class FighterPLAYER:
                 self.attack_cooldown = 55
                 self.dash()
 
-    def attack(self, surface, target, hg_att, hit):
+    def attack(self, target, hg_att, hit):
         if self.attack_cooldown == 0 and not self.hit:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)

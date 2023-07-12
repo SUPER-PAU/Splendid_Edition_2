@@ -2,7 +2,6 @@ import pygame
 from pygame import mixer
 from lib.clock import Clock
 from lib.display import display
-from lib.players import reset_players
 from lib.gamemodes import Game
 
 # Инициализация
@@ -13,7 +12,7 @@ game = Game()
 # Загрузка клока
 clocks = Clock()
 # загрузить бойцов
-reset_players()
+# reset_players()
 
 # определить клики
 mouse_click = False
@@ -40,6 +39,6 @@ while game.aplication_run:
     pygame.display.flip()
     # Обновление кадра дисплея
     pygame.display.update()
-    clocks.clock.tick(display.refresh_rate)
+    clocks.clock.tick(clocks.fps)
 
 pygame.quit()

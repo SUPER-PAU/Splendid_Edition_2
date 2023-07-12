@@ -16,7 +16,7 @@ pg = [
     (bg.destroyed_daun_corp, music.digital_justice),  # 8
     (bg.saratov_iskhakov, music.parlament),  # 9
     (bg.saratov_moiseev, music.lisa_boss),  # 10
-    (bg.saratov_moiseev, music.the_stains_of_time),  # 11
+    (bg.saratov_moiseev, music.the_stains_of_time_instrumental),  # 11
     (bg.bunker, music.lower_levels),  # 12
     (bg.angar_animated, music.burning_town),  # 13
     (bg.canals, music.scyscrapers),  # 14
@@ -30,7 +30,7 @@ pg = [
     (bg.bulat_lab, music.may),  # 22
     (bg.bulats_robot, music.gates_of_shadows),  # 23
     (bg.broken_robot, music.burning_town),  # 24
-    (bg.broken_robot, music.the_only_thing_i_know),  # 25
+    (bg.broken_robot, music.the_only_thing_i_know_instrumental),  # 25
     (bg.broken_robot, music.broken_robot),  # 26
     (bg.shop, music.streets),  # 27
     (bg.shop, music.streets),  # 28
@@ -42,7 +42,7 @@ pg = [
     (bg.buildings, music.valorant_halftrue_remix),  # 34
     (bg.shop, music.scyscrapers),  # 35
     (bg.aboba, music.aboba_realm),  # 36
-    (bg.shop, music.the_stranger_i_remain),  # 37
+    (bg.shop, music.a_stranger_i_remain_instrumental),  # 37
     (bg.city_ruins, music.negrominator_invasion),  # 38
     (bg.shelter, music.lisa_boss2),  # 39
     (bg.shelter, music.lisa_boss2),  # 40

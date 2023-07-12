@@ -1,7 +1,9 @@
 import pygame
 from random import randint, choice
 
-from lib.attack import Attack
+from lib.mixer import play_music_bg
+from constants.audio.music import the_stains_of_time, the_only_thing_i_know, a_stranger_i_remain
+from lib.attack import Attack, Attack2
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_beam, create_rocket, create_bombing, \
     create_energy, create_stone, create_damage_number, create_explosion
@@ -9,8 +11,8 @@ from constants.audio.effects import shield_sfx, shield_on_sfx, explosion_sounds
 from lib.Settings import settings
 from constants.textures.sprites import shield_parts, dust
 
-player_spec = [7, 8, 10, 11, 1, 15, 16, 18, 22, 25]
-player_attack3 = [1, 15, 16, 18, 22]
+player_spec = [7, 8, 10, 11, 1, 15, 16, 18, 22, 25, 9]
+player_attack3 = [1, 15, 16, 18, 22, 9]
 player_shield = [10, 1, 14, 16, 20, 22]
 bomb_levels = [7, 15, 16, 23, 41, 45]
 
@@ -32,8 +34,6 @@ class FighterEnemy:
         self.dash_x = 0
         self.stunned = 0
         self.cooldown = 55
-        if self.player == 14:
-            self.cooldown = 20
         self.attack_type = 0
         self.attack_cooldown = 40
         self.huge_attack_cooldown = 300
@@ -50,18 +50,7 @@ class FighterEnemy:
         self.attacking = False
         self.dashing = False
         self.was_stunned = False
-
-    def load_images(self, sprite_sheet, animation_steps):
-        # extract images from sprite_sheets
-        animation_list = []
-        for y, animation in enumerate(animation_steps):
-            temp_img_list = []
-            for x in range(animation):
-                temp_img = sprite_sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
-                temp_img_list.append(
-                    pygame.transform.scale(temp_img, (self.size * self.image_scale, self.size * self.image_scale)))
-            animation_list.append(temp_img_list)
-        return animation_list
+        self.second_phase = False
 
     def reset_params(self):
         x, y, self.flip = self.start_pos
@@ -86,7 +75,19 @@ class FighterEnemy:
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
 
-    def move(self, surface, target, round_over, game_progress):
+    def load_images(self, sprite_sheet, animation_steps):
+        # extract images from sprite_sheets
+        animation_list = []
+        for y, animation in enumerate(animation_steps):
+            temp_img_list = []
+            for x in range(animation):
+                temp_img = sprite_sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
+                temp_img_list.append(
+                    pygame.transform.scale(temp_img, (self.size * self.image_scale, self.size * self.image_scale)))
+            animation_list.append(temp_img_list)
+        return animation_list
+
+    def move(self, target, round_over, game_progress, round):
         if game_progress in bomb_levels:
             create_bombing.enable(target)
         self.running = False
@@ -122,7 +123,7 @@ class FighterEnemy:
                         else:
                             self.attack_type = 3
                             hit = 23
-                        self.attack(surface, target, 1.09, hit)
+                        self.attack(target, 1.09, hit)
                     self.move_ai((2.3, 1.3), (1.6, 1), SPEED, target)
                 # moiseev_bot
                 case 24:
@@ -137,11 +138,11 @@ class FighterEnemy:
                         if attack_rand == 1:
                             self.attack_type = 1
                             hit = 22
-                            self.attack(surface, target, 1.8, hit)
+                            self.attack(target, 1.8, hit)
                         else:
                             self.attack_type = 26
                             hit = 20
-                            self.attack(surface, target, 2.4, hit)
+                            self.attack(target, 2.4, hit)
                     self.move_ai((1.7, 1.3), (1.6, 1), SPEED, target)
                 # albinos
                 case 23:
@@ -160,7 +161,7 @@ class FighterEnemy:
                         # determine attack
                         self.attack_type = 1
                         hit = 55
-                        self.attack(surface, target, 2, hit)
+                        self.attack(target, 2, hit)
                     self.move_ai((2, 1.3), (1.6, 1), SPEED, target)
                 # supertank
                 case 22:
@@ -174,13 +175,13 @@ class FighterEnemy:
                         # determine attack
                         self.attack_type = 25
                         hit = 25
-                        if self.shield_cooldown <= 0:
-                            self.attack_type = 23
-                            hit = 25
-                        elif self.huge_attack_cooldown <= 0:
+                        if self.huge_attack_cooldown <= 0:
                             self.attack_type = 24
                             hit = 35
-                        self.attack(surface, target, 1.05, hit)
+                        elif self.shield_cooldown <= 0:
+                            self.attack_type = 23
+                            hit = 25
+                        self.attack(target, 1.05, hit)
                     self.move_ai((2.3, 2), (0.8, 1), SPEED, target)
                 # aynur
                 case 21:
@@ -201,11 +202,11 @@ class FighterEnemy:
                         if attack_rand == 1 and game_progress > 2:
                             self.attack_type = 1
                             hit = 14
-                            self.attack(surface, target, 2.9, hit)
+                            self.attack(target, 2.9, hit)
                         else:
                             self.attack_type = 17
                             hit = 16
-                            self.attack(surface, target, 2.4, hit)
+                            self.attack(target, 2.4, hit)
                     self.move_ai((2.3, 1.3), (1.6, 1), SPEED, target)
                 # security mais
                 case 19:
@@ -225,7 +226,7 @@ class FighterEnemy:
                         else:
                             self.attack_type = 1
                             hit = 14
-                        self.attack(surface, target, 1.8, hit)
+                        self.attack(target, 1.8, hit)
 
                     if game_progress > 0:
                         self.move_ai((1.6, 1.1), (1.3, 1), SPEED, target)
@@ -246,15 +247,15 @@ class FighterEnemy:
                         if self.huge_attack_cooldown <= 0:
                             self.attack_type = 13
                             hit = 40
-                            self.attack(surface, target, 3.7, hit)
+                            self.attack(target, 3.7, hit)
                         elif attack_rand == 1:
                             self.attack_type = 5
                             hit = 25
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                         else:
                             self.attack_type = 8
                             hit = 20
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                     self.move_ai((2.1, 1), (1.3, 1), SPEED, target)
 
                 # robot_woman
@@ -277,11 +278,11 @@ class FighterEnemy:
                         if attack_rand == 1:
                             self.attack_type = 18
                             hit = 23
-                            self.attack(surface, target, 2.1, hit)
+                            self.attack(target, 2.1, hit)
                         elif attack_rand == 2:
                             self.attack_type = 17
                             hit = 15
-                            self.attack(surface, target, 2.3, hit)
+                            self.attack(target, 2.3, hit)
                     self.move_ai((1.7, 1.1), (1.2, 1), SPEED, target)
                 # bulat
                 case 16:
@@ -297,19 +298,35 @@ class FighterEnemy:
                         self.jump_cooldown = 250
 
                     if bot_attack_check_rect.colliderect(target.rect):
-                        if self.huge_attack_cooldown <= 0 and game_progress > 10:
-                            self.attack_type = 19
-                            hit = 45
-                            self.attack(surface, target, 2.5, hit)
+                        if self.huge_attack_cooldown <= 0 and game_progress > 20:
+                            if game_progress == 25:
+                                if not self.second_phase and round > 1:
+                                    self.second_phase = True
+                                    play_music_bg(the_only_thing_i_know)
+                                    self.attack_cooldown = self.cooldown
+                                    target.attack_coldown = self.cooldown
+                                elif self.second_phase:
+                                    self.attack_type = 19
+                                    hit = 45
+                                    self.attack(target, 2.5, hit)
+                                else:
+                                    # determine attack
+                                    self.attack_type = 1
+                                    hit = 22
+                                    self.attack(target, 1.5, hit)
+                            else:
+                                self.attack_type = 19
+                                hit = 35
+                                self.attack(target, 2.5, hit)
                         elif self.shield_cooldown <= 0 and game_progress > 10:
                             self.attack_type = 21
                             hit = 22
-                            self.attack(surface, target, 1.05, hit)
+                            self.attack(target, 1.05, hit)
                         else:
                             # determine attack
                             self.attack_type = 1
                             hit = 22
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                     self.move_ai((1.4, 1.1), (1.1, 1), SPEED, target)
                 # vesisa
                 case 15:
@@ -335,14 +352,21 @@ class FighterEnemy:
                         elif attack_rand == 1:
                             self.attack_type = 1
                             hit = 19
-                            self.attack(surface, target, 2.9, hit)
+                            self.attack(target, 2.9, hit)
                         elif attack_rand == 2:
                             self.attack_type = 17
                             hit = 23
-                            self.attack(surface, target, 2.4, hit)
+                            self.attack(target, 2.4, hit)
                     self.move_ai((2.3, 1.3), (1.6, 1), SPEED, target)
                 # kingartema
                 case 14:
+                    if game_progress > 11:
+                        self.cooldown = 30
+                    elif round > 1:
+                        self.cooldown = 20
+                        if not self.second_phase:
+                            self.second_phase = True
+                            play_music_bg(the_stains_of_time)
                     # атаковать ли
                     bot_attack_check_rect = pygame.Rect(self.rect.centerx - (3 * self.rect.width * self.flip),
                                                         self.rect.y,
@@ -354,11 +378,11 @@ class FighterEnemy:
                     if bot_attack_check_rect.colliderect(target.rect):
                         # determine attack
                         self.attack_type = 16
-                        hit = 8
+                        hit = 14
                         if self.shield_cooldown <= 0:
                             self.attack_type = 3
                             hit = 20
-                        self.attack(surface, target, 1.5, hit)
+                        self.attack(target, 1.5, hit)
                     self.move_ai((1.2, 1.3), (1.13, 1), SPEED, target)
                 # egor
                 case 13:
@@ -381,7 +405,7 @@ class FighterEnemy:
                         elif attack_rand == 2:
                             self.attack_type = 2
                             hit = 18
-                        self.attack(surface, target, 1.5, hit)
+                        self.attack(target, 1.5, hit)
                     self.move_ai((1.2, 1.3), (1.13, 1), SPEED, target)
                 # tagir
                 case 12:
@@ -400,12 +424,12 @@ class FighterEnemy:
                         attack_rand = randint(1, 2)
                         if attack_rand == 1:
                             self.attack_type = 15
-                            hit = 14
-                            self.attack(surface, target, 1.09, hit)
+                            hit = 12
+                            self.attack(target, 1.09, hit)
                         else:
                             self.attack_type = 27
-                            hit = 21
-                            self.attack(surface, target, 1.09, hit)
+                            hit = 12
+                            self.attack(target, 1.09, hit)
                     self.move_ai((3, 1.3), (1.13, 1), SPEED, target)
 
                 # moiseev
@@ -430,7 +454,7 @@ class FighterEnemy:
                         else:
                             self.attack_type = 10
                             hit = 26
-                        self.attack(surface, target, 1.05, hit)
+                        self.attack(target, 1.05, hit)
                     self.move_ai((3, 1.1), (1.7, 1), SPEED, target)
 
                 # bot ai close yacuji
@@ -449,7 +473,7 @@ class FighterEnemy:
                         elif attack_rand == 2:
                             self.attack_type = 2
                             hit = 18
-                        self.attack(surface, target, 1.5, hit)
+                        self.attack(target, 1.5, hit)
                     self.move_ai((1.5, 1.1), (1.3, 1), SPEED, target)
 
                 case 5:
@@ -467,7 +491,7 @@ class FighterEnemy:
                         else:
                             self.attack_type = 4
                             hit = 26
-                        self.attack(surface, target, 1.5, hit)
+                        self.attack(target, 1.5, hit)
                     self.move_ai((1.8, 1.1), (1.3, 1), SPEED, target)
 
                 case 6:
@@ -485,7 +509,7 @@ class FighterEnemy:
                         elif attack_rand == 2:
                             self.attack_type = 3
                             hit = 16
-                        self.attack(surface, target, 1.5, hit)
+                        self.attack(target, 1.5, hit)
                     self.move_ai((2, 1.3), (1.3, 1), SPEED, target)
                 # negrominator
                 case 7:
@@ -499,12 +523,12 @@ class FighterEnemy:
                         if not self.huge_attack_cooldown == 0 and game_progress > 15:
                             self.attack_type = 3
                             hit = 20
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                         else:
                             if self.huge_attack_cooldown == 0:
                                 self.attack_type = 5
                                 hit = 65
-                                self.attack(surface, target, 1.5, hit)
+                                self.attack(target, 1.5, hit)
                     self.move_ai((2.6, 1.3), (1.13, 1), SPEED, target)
                 # artestro
                 case 8:
@@ -521,7 +545,7 @@ class FighterEnemy:
                         else:
                             self.attack_type = 6
                             hit = 20
-                        self.attack(surface, target, 1.5, hit)
+                        self.attack(target, 1.5, hit)
                     self.move_ai((2.6, 1.3), (1.13, 1), SPEED, target)
                 # lisa boss
                 case 9:
@@ -530,19 +554,29 @@ class FighterEnemy:
                                                         self.rect.y / 1,
                                                         3.5 * self.rect.width, self.rect.height * 1.2)
                     if self.jump_cooldown == 0 and not self.jump:
-                        self.vel_y = -50 * display.scr_h
+                        self.vel_y = -40 * display.scr_h
                         self.jump = True
-                        self.jump_cooldown = 110
+                        if self.second_phase:
+                            self.jump_cooldown = 75
+                        else:
+                            self.jump_cooldown = 130
+                    if not self.second_phase and round > 1 and self.huge_attack_cooldown <= 50:
+                        play_music_bg(a_stranger_i_remain)
+                        self.second_phase = True
                     if bot_attack_check_rect.colliderect(target.rect):
                         # determine attack
-                        attack_rand = randint(1, 2)
-                        if attack_rand == 1:
-                            self.attack_type = 1
-                            hit = 19
-                        elif attack_rand == 2:
-                            self.attack_type = 2
-                            hit = 14
-                        self.attack(surface, target, 1.7, hit)
+                        if self.huge_attack_cooldown <= 0 and self.second_phase:
+                            self.attack_type = 28
+                            self.attack(target, 3.7, hit)
+                        else:
+                            attack_rand = randint(1, 2)
+                            if attack_rand == 1:
+                                self.attack_type = 1
+                                hit = 19
+                            elif attack_rand == 2:
+                                self.attack_type = 2
+                                hit = 14
+                            self.attack(target, 1.7, hit)
                     self.move_ai((1.5, 1.1), (1.3, 1), SPEED, target)
                 # walker
                 case 20:
@@ -555,11 +589,11 @@ class FighterEnemy:
                         if self.shield_cooldown == 0 and game_progress > 15:
                             self.attack_type = 14
                             hit = 25
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                         else:
                             self.attack_type = 22
                             hit = 25
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
 
                     self.move_ai((1.2, 1), (0.5, 1), SPEED, target)
                 # general
@@ -574,13 +608,13 @@ class FighterEnemy:
                         if self.huge_attack_cooldown == 0:
                             self.attack_type = 5
                             hit = 45
-                            self.attack(surface, target, 1.5, hit)
+                            self.attack(target, 1.5, hit)
                         elif self.shield_cooldown == 0:
                             self.attack_type = 20
                             heal = 15
                             if game_progress > 42:
                                 heal = 5
-                            self.attack(surface, target, heal, hit)
+                            self.attack(target, heal, hit)
                     self.move_ai((1.4, 1), (0.5, 1), SPEED, target)
                 # pau enemy
                 case 11:
@@ -598,7 +632,7 @@ class FighterEnemy:
                         else:
                             self.attack_type = 8
                             hit = 15
-                        self.attack(surface, target, 1.5, hit)
+                        self.attack(target, 1.5, hit)
                     self.move_ai((1.8, 1.1), (1.3, 1), SPEED, target)
                 case _:
                     SPEED -= 5.3 * display.scr_w
@@ -704,7 +738,7 @@ class FighterEnemy:
                 case 20 | 11 | 8 | 2 | 6 | 3 | 14 | 17 | 21 | 23 | 26 | 27:
                     self.update_action(4)
                 # 3rd attack
-                case 12 | 13 | 24 | 19:
+                case 12 | 13 | 24 | 19 | 28:
                     self.update_action(7)
 
         elif self.jump:
@@ -714,7 +748,7 @@ class FighterEnemy:
         else:
             self.update_action(0)  # idle
 
-        if self.player != 10:
+        if self.player not in [10, 22]:
             animation_cooldown = 63
         else:
             animation_cooldown = 83
@@ -761,6 +795,9 @@ class FighterEnemy:
                 if self.player in player_attack3 and self.action == 7:
                     self.huge_attack_cooldown = 300
                     self.attack_cooldown = self.cooldown
+                    if self.player == 9:
+                        if self.frame_index in [2, 3, 7, 8]:
+                            self.rect.x += (23 - 46 * self.flip)
                 elif self.action == 3 and self.player in player_spec and self.player \
                         not in player_attack3:
                     self.huge_attack_cooldown = 300
@@ -774,7 +811,7 @@ class FighterEnemy:
                     self.attack_cooldown = self.cooldown
             # check if damage was taken
 
-    def attack(self, surface, target, hg_att, hit):
+    def attack(self, target, hg_att, hit):
         if self.attack_cooldown == 0 and not self.hit:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)
@@ -940,6 +977,16 @@ class FighterEnemy:
                     offset = 10
                     bullet_data = [200, 0.6 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_rocket(bullet_rect, bullet_data, target, hit)
+                case 28:
+                    hit = 15
+                    attacking_rect = pygame.Rect(self.rect.centerx - (2.5 * self.rect.width * self.flip),
+                                                 self.rect.y - self.rect.height / 2,
+                                                 2.5 * self.rect.width, self.rect.height * 1.6)
+                    Attack2(self, attacking_rect, attacking_rect_2, target, hit, False, True)
+                    hit = 20
+                    attacking_rect = pygame.Rect(self.rect.centerx - (1.6 * self.rect.width * self.flip),
+                                                 self.rect.y - self.rect.height / 2,
+                                                 1.6 * self.rect.width, self.rect.height * 1.6)
                 case 3:
                     size = 25
                     bullet_data = [20, 4.55 * display.scr_w, (10, 6), [2, 2], self.flip]
@@ -998,7 +1045,7 @@ class FighterEnemy:
                 case _:
                     attacking_rect = pygame.Rect(self.rect.centerx - (0 * self.rect.width * self.flip), self.rect.y * 0,
                                                  0 * self.rect.width, self.rect.height * 0)
-            # pygame.draw.rect(surface, (255, 255, 0), attacking_rect)
+            # pygame.draw.rect(display.screen, (255, 255, 0), attacking_rect)
             # pygame.draw.rect(surface, (255, 255, 0), attacking_rect_2)
             # take damage
             if attacking_rect:
