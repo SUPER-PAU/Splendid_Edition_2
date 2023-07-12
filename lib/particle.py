@@ -2,7 +2,8 @@ from constants.textures.emoji import pau, lisa
 from lib.display import display
 import pygame
 import random
-from constants.textures.sprites import all_sprites, bullet_sprites, explosion, bullet, beam, rocket, energy, stone
+from constants.textures.sprites import all_sprites, bullet_sprites, explosion, bullet, beam, rocket, energy, stone, \
+    green_energy
 from constants.audio.effects import explosion_sounds, gaubica_sounds, shield_sfx
 
 screen_rect = (0, 0, display.screen_width, display.screen_height)
@@ -452,6 +453,31 @@ class DamageNumber(pygame.sprite.Sprite):
         dy += self.vel_y
         # update position
         self.rect.y += dy
+
+
+class GreenEnergy(Stone):
+    def __init__(self, rect, sprite_sheet, data, target, damage):
+        super().__init__(rect, sprite_sheet, data, target, damage)
+        self.speed = 15
+        self.vel_y = 0
+
+    def move(self):
+        if self.flip:
+            dx = -self.speed
+        else:
+            dx = self.speed
+        if self.rect.right < 0:
+            self.kill()
+        elif self.rect.left > display.screen_width:
+            self.kill()
+        self.rect.bottom = display.screen_height - 110 * display.scr_h
+        if not self.hit:
+            # update position
+            self.rect.x += dx
+
+
+def create_green_energy(rect, data, target, damage):
+    GreenEnergy(rect, green_energy, data, target, damage)
 
 
 def create_damage_number(coords, flip, damage):

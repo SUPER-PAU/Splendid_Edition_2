@@ -30,7 +30,7 @@ KINGARTEMA_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 7]
 SOLDIER_ANIMATION_STEPS = [8, 8, 1, 7, 4, 3, 6]
 YACUGI_ANIMATION_STEPS = [8, 8, 1, 5, 7, 3, 6]
 NEGROMINATOR_ANIMATION_STEPS = [8, 8, 1, 7, 5, 3, 6]
-GENERAL_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
+GENERAL_ANIMATION_STEPS = [4, 4, 1, 8, 4, 3, 4, 7]
 WALKER_ANIMATION_STEPS = [4, 4, 1, 7, 4, 3, 4]
 SUPER_PAU_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 4]
 SUPER_PAU_PLAYER_ANIMATION_STEPS = [8, 8, 1, 6, 7, 3, 6, 8]
@@ -276,7 +276,7 @@ def lisa_boss():
 def general():
     return FighterEnemy(10, 1340 * display.scr_w, 370 * display.scr_h, True, GENERAL_DATA, sheet.general,
                         GENERAL_ANIMATION_STEPS,
-                        boss_sound, sheet.electricity, [1, 2])
+                        boss_sound, sheet.electricity, [7, 2, 1])
 
 
 def super_pau_boss():

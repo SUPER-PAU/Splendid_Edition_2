@@ -6,13 +6,13 @@ from constants.audio.music import the_stains_of_time, the_only_thing_i_know, a_s
 from lib.attack import Attack, Attack2
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_beam, create_rocket, create_bombing, \
-    create_energy, create_stone, create_damage_number, create_explosion
+    create_energy, create_stone, create_damage_number, create_explosion, create_green_energy
 from constants.audio.effects import shield_sfx, shield_on_sfx, explosion_sounds
 from lib.Settings import settings
 from constants.textures.sprites import shield_parts, dust
 
 player_spec = [7, 8, 10, 11, 1, 15, 16, 18, 22, 25, 9]
-player_attack3 = [1, 15, 16, 18, 22, 9]
+player_attack3 = [1, 15, 16, 18, 22, 9, 10]
 player_shield = [10, 1, 14, 16, 20, 22]
 bomb_levels = [7, 15, 16, 23, 41, 45]
 
@@ -606,7 +606,7 @@ class FighterEnemy:
                     if bot_attack_check_rect.colliderect(target.rect):
                         # determine attack
                         if self.huge_attack_cooldown == 0:
-                            self.attack_type = 5
+                            self.attack_type = 30
                             hit = 45
                             self.attack(target, 1.5, hit)
                         elif self.shield_cooldown == 0:
@@ -615,6 +615,10 @@ class FighterEnemy:
                             if game_progress > 42:
                                 heal = 5
                             self.attack(target, heal, hit)
+                        else:
+                            self.attack_type = 29
+                            hit = 15
+                            self.attack(target, 1.5, hit)
                     self.move_ai((1.4, 1), (0.5, 1), SPEED, target)
                 # pau enemy
                 case 11:
@@ -732,13 +736,13 @@ class FighterEnemy:
             self.update_action(5)  # hit
         elif self.attacking:
             match self.attack_type:
-                case 1 | 4 | 5 | 7 | 9 | 10 | 15 | 16 | 18 | 22 | 25:  # attack1
+                case 1 | 4 | 5 | 7 | 9 | 10 | 15 | 16 | 18 | 22 | 25 | 29:  # attack1
                     self.update_action(3)
                 # attack 2
                 case 20 | 11 | 8 | 2 | 6 | 3 | 14 | 17 | 21 | 23 | 26 | 27:
                     self.update_action(4)
                 # 3rd attack
-                case 12 | 13 | 24 | 19 | 28:
+                case 12 | 13 | 24 | 19 | 28 | 30:
                     self.update_action(7)
 
         elif self.jump:
@@ -752,6 +756,8 @@ class FighterEnemy:
             animation_cooldown = 63
         else:
             animation_cooldown = 83
+            if self.attacking and self.attack_type == 29:
+                animation_cooldown = 130
         # update image
         self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed sinse the last update
@@ -977,6 +983,7 @@ class FighterEnemy:
                     offset = 10
                     bullet_data = [200, 0.6 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_rocket(bullet_rect, bullet_data, target, hit)
+
                 case 28:
                     hit = 15
                     attacking_rect = pygame.Rect(self.rect.centerx - (2.5 * self.rect.width * self.flip),
@@ -987,6 +994,12 @@ class FighterEnemy:
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.6 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height / 2,
                                                  1.6 * self.rect.width, self.rect.height * 1.6)
+                case 29:
+                    attacking_rect = pygame.Rect(-1, -1, 1, 1)
+                case 30:
+                    attacking_rect = pygame.Rect(self.rect.centerx - (1.8 * self.rect.width * self.flip),
+                                                 self.rect.y - self.rect.height * 0.4,
+                                                 1.8 * self.rect.width, self.rect.height * 1.4)
                 case 3:
                     size = 25
                     bullet_data = [20, 4.55 * display.scr_w, (10, 6), [2, 2], self.flip]

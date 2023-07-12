@@ -67,3 +67,4 @@ rocket = pygame.image.load(r"assets\images\main hero\particles\rocket.png").conv
 stone = pygame.image.load(r"assets\images\main hero\particles\stone.png").convert_alpha()
 knifes = pygame.image.load(r"assets\images\main hero\particles\knifes.png").convert_alpha()
 knife = pygame.image.load(r"assets\images\main hero\particles\knife.png").convert_alpha()
+green_energy = pygame.image.load(r"assets\images\main hero\particles\green_energy.png").convert_alpha()

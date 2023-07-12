@@ -1,5 +1,7 @@
 import pygame
 from constants.textures.sprites import bullet_sprites
+from lib.display import display
+from lib.particle import create_green_energy
 
 
 class Attack(pygame.sprite.Sprite):
@@ -16,14 +18,15 @@ class Attack(pygame.sprite.Sprite):
                     self.attack_frame = player.attack_frame[2]
         else:
             match player.attack_type:
-                case 1 | 4 | 5 | 7 | 9 | 10 | 15 | 16 | 18 | 22 | 25:  # attack1
+                case 1 | 4 | 5 | 7 | 9 | 10 | 15 | 16 | 18 | 22 | 25 | 29:  # attack1
                     self.attack_frame = player.attack_frame[0]
                 # attack 2
                 case 20 | 11 | 8 | 2 | 6 | 3 | 14 | 17 | 21 | 23 | 26 | 27:
                     self.attack_frame = player.attack_frame[1]
                 # 3rd attack
-                case 12 | 13 | 24 | 19 | 28:
+                case 12 | 13 | 24 | 19 | 28 | 30:
                     self.attack_frame = player.attack_frame[2]
+        self.attack_type = player.attack_type
         self.block_break = block_break
         self.rect, self.rect2 = rect, rect2
         self.player = player
@@ -34,9 +37,20 @@ class Attack(pygame.sprite.Sprite):
     def update(self):
         if self.player.attacking and not self.hit and not self.player.hit:
             if self.attack_frame == self.player.frame_index:
-                if self.rect.colliderect(self.target.rect) or self.rect2.colliderect(self.target.rect):
-                    self.target.take_damage(self.damage, self.block_break)
+                if self.attack_type == 29:
+                    a = -250
+                    if not self.player.flip:
+                        a += 500
+                    bullet_rect = pygame.Rect(self.player.rect.centerx + (a * display.scr_w),
+                                              self.player.rect.bottom,
+                                              150 * display.scr_w, 150 * display.scr_h)
+                    bullet_data = [200, 2 * display.scr_w, (40, 40), [2, 2], self.player.flip]
+                    create_green_energy(bullet_rect, bullet_data, self.target, self.damage)
                     self.hit = True
+                else:
+                    if self.rect.colliderect(self.target.rect) or self.rect2.colliderect(self.target.rect):
+                        self.target.take_damage(self.damage, self.block_break)
+                        self.hit = True
         else:
             self.kill()
 
