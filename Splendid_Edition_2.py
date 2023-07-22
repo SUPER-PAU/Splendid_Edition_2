@@ -39,6 +39,6 @@ while game.aplication_run:
     pygame.display.flip()
     # Обновление кадра дисплея
     pygame.display.update()
-    clocks.clock.tick(clocks.fps)
+    clocks.clock.tick(display.refresh_rate)
 
 pygame.quit()

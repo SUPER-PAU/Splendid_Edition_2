@@ -377,7 +377,7 @@ class FightersInstances:
                 self.enemy_figters = [egor_enemy(), trio_enemy(), bt25t_enemy(), kingartema_enemy()]
             case 24:
                 self.player_fighters = [bt25t(), super_pau(), bt25t(), super_pau(), super_pau(), super_pau(), bt25t(),
-                                        super_pau()],
+                                        super_pau()]
                 self.enemy_figters = [egor_enemy(), egor_enemy(), trio_enemy(), trio_enemy(), kingartema_enemy(),
                                       kingartema_enemy(), tagir_enemy(), tagir_enemy()]
             case 25:

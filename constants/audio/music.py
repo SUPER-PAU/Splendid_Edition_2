@@ -40,5 +40,9 @@ rules_of_nature = r'assets\audio\music\mgrr\rules_of_nature.mp3'
 the_only_thing_i_know_instrumental = r'assets\audio\music\mgrr\The_Only_Thing_I_Know_For_Real_[Instrumental].mp3'
 the_stains_of_time_instrumental = r'assets\audio\music\mgrr\The_Stains_of_Time_[Instrumental].mp3'
 a_stranger_i_remain_instrumental = r'assets\audio\music\mgrr\a_stranger_i_remain_instrumental.mp3'
+red_sun = r'assets\audio\music\mgrr\red_sun.mp3'
+red_sun_instrumental = r'assets\audio\music\mgrr\red_sun_instrumental.mp3'
+collective_consciousness = r'assets\audio\music\mgrr\Collective_Consciousness.mp3'
+
 
 valorant_halftrue_remix = r'assets\audio\music\valorant-halftrue\valorant_halftrue_remix.mp3'

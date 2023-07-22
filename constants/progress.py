@@ -10,7 +10,7 @@ pg = [
     (bg.kazan_city_2050, music.streets),    # 2
     (bg.kazan_city_2050, music.streets),    # 3
     (bg.daun_corp_2050, music.city_center),     # 4
-    (bg.daun_corp_2050, music.the_only_thing_i_know),  # 5
+    (bg.daun_corp_2050, music.the_only_thing_i_know_instrumental),  # 5
     (bg.daun_corp_2050, music.streets),  # 6
     (bg.destroyed_daun_corp, music.digital_justice),  # 7
     (bg.destroyed_daun_corp, music.digital_justice),  # 8
@@ -47,7 +47,7 @@ pg = [
     (bg.shelter, music.lisa_boss2),  # 39
     (bg.shelter, music.lisa_boss2),  # 40
     (bg.city_ruins, music.negrominator_invasion),  # 41
-    (bg.explosion, music.final_boss),  # 42
+    (bg.explosion, music.red_sun_instrumental),  # 42
     (bg.city_ruins, music.negrominator_invasion),  # 43
     (bg.destroyed_daun_corp, music.digital_justice),  # 44
     (bg.destroyed_iskhakov, music.digital_justice),  # 45
@@ -57,7 +57,7 @@ pg = [
     (bg.africa_conveyer, music.war_machines),  # 49
     (bg.broken_conveyer, music.war_machines),  # 50
     (bg.american_collider, music.citadel),  # 51
-    (bg.collider_top_1, music.shadow_lord),  # 52
+    (bg.collider_top_1, music.collective_consciousness),  # 52
     (bg.collider_top_2, music.shadow_throne),  # 53
     (bg.portal_final_battle, music.titan),  # 54
     (bg.portal, music.titan),  # 55

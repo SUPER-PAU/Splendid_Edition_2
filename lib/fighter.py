@@ -2,7 +2,7 @@ import pygame
 from random import randint, choice
 
 from lib.mixer import play_music_bg
-from constants.audio.music import the_stains_of_time, the_only_thing_i_know, a_stranger_i_remain
+from constants.audio.music import the_stains_of_time, the_only_thing_i_know, a_stranger_i_remain, red_sun
 from lib.attack import Attack, Attack2
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_beam, create_rocket, create_bombing, \
@@ -137,11 +137,11 @@ class FighterEnemy:
                         attack_rand = randint(1, 2)
                         if attack_rand == 1:
                             self.attack_type = 1
-                            hit = 22
+                            hit = 18
                             self.attack(target, 1.8, hit)
                         else:
                             self.attack_type = 26
-                            hit = 20
+                            hit = 12
                             self.attack(target, 2.4, hit)
                     self.move_ai((1.7, 1.3), (1.6, 1), SPEED, target)
                 # albinos
@@ -362,7 +362,7 @@ class FighterEnemy:
                 case 14:
                     if game_progress > 11:
                         self.cooldown = 30
-                    elif round > 1:
+                    elif round > 1 and game_progress == 11:
                         self.cooldown = 20
                         if not self.second_phase:
                             self.second_phase = True
@@ -598,6 +598,14 @@ class FighterEnemy:
                     self.move_ai((1.2, 1), (0.5, 1), SPEED, target)
                 # general
                 case 10:
+                    if game_progress == 42 and not self.second_phase:
+                        if round > 0 and self.health < 30:
+                            self.second_phase = True
+                            play_music_bg(red_sun)
+                    if self.second_phase and round > 1:
+                        SPEED += 2
+                        if self.huge_attack_cooldown > 0:
+                            self.huge_attack_cooldown -= 1
                     SPEED -= 8 * display.scr_w
                     # атаковать ли
                     bot_attack_check_rect = pygame.Rect(self.rect.centerx - (4 * self.rect.width * self.flip),
@@ -609,16 +617,16 @@ class FighterEnemy:
                             self.attack_type = 30
                             hit = 45
                             self.attack(target, 1.5, hit)
-                        elif self.shield_cooldown == 0:
+                        elif self.second_phase and round > 1:
+                            self.attack_type = 29
+                            hit = 15
+                            self.attack(target, 1.5, hit)
+                        elif self.shield_cooldown == 0 and not self.second_phase:
                             self.attack_type = 20
                             heal = 15
                             if game_progress > 42:
                                 heal = 5
                             self.attack(target, heal, hit)
-                        else:
-                            self.attack_type = 29
-                            hit = 15
-                            self.attack(target, 1.5, hit)
                     self.move_ai((1.4, 1), (0.5, 1), SPEED, target)
                 # pau enemy
                 case 11:
@@ -996,6 +1004,7 @@ class FighterEnemy:
                                                  1.6 * self.rect.width, self.rect.height * 1.6)
                 case 29:
                     attacking_rect = pygame.Rect(-1, -1, 1, 1)
+                    self.heal(8)
                 case 30:
                     attacking_rect = pygame.Rect(self.rect.centerx - (1.8 * self.rect.width * self.flip),
                                                  self.rect.y - self.rect.height * 0.4,

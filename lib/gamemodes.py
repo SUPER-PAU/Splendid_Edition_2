@@ -495,7 +495,7 @@ class Game:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 4, ["Aksenov", "Aksenov", "Aksenov", "Aksenov"],
                                     ["Negrominator", "Negrominator", "Walker", "Walker"])
             case 42:
-                self.fight(f.player_fighters, f.enemy_figters, 3, "Aksenov", "Army General")
+                self.fight(f.player_fighters, f.enemy_figters, 4, "Aksenov", "Army General")
             case 43:
                 self.fight(f.player_fighters, f.enemy_figters, 1, "Aksenov", "Walker")
             case 44:
