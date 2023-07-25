@@ -7,10 +7,21 @@ from lib.particle import create_particles, create_bullet, create_dash, create_ro
 from constants.audio.effects import shield_sfx, explosion_sounds
 from constants.textures.sprites import shield_parts
 from lib.attack import Attack
+from lib.joystick import get_j, joystick
+import constants.textures.icons as layout
 
 player_spec = [1, 9, 12]
 player_attack3 = [1, 9]
 player_shield = [9]
+
+l_click_rect = pygame.rect.Rect((480 * display.scr_w, 1000 * display.scr_h,
+                                 50 * display.scr_w, 50 * display.scr_h))
+r_click_rect = pygame.rect.Rect((550 * display.scr_w, 1000 * display.scr_h,
+                                 50 * display.scr_w, 50 * display.scr_h))
+ult_click_rect = pygame.rect.Rect((830 * display.scr_w, 45 * display.scr_h,
+                                   45 * display.scr_w, 45 * display.scr_h))
+shield_click_rect = pygame.rect.Rect((240 * display.scr_w, 45 * display.scr_h,
+                                   45 * display.scr_w, 45 * display.scr_h))
 
 
 class FighterPLAYER:
@@ -82,17 +93,22 @@ class FighterPLAYER:
 
     def move(self, target, round_over):
         SPEED = 9 * display.scr_w
+        if not self.jump:
+            SPEED += 4.3 * display.scr_w
         GRAVITY = 2 * display.scr_h
         dx = 0
         dy = 0
         self.running = False
         self.attack_type = 0
+        hit = 10
         # key presses
         key = pygame.key.get_pressed()
-        hit = 10
+        if joystick.get_joystick():
+            joybutton = joystick.main_joystick.get_button
+        else:
+            joybutton = get_j
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
-        if key[pygame.K_LSHIFT] and not self.jump:
-            SPEED += 4.3 * display.scr_w
+
         # if player is stunned by beam
         if self.stunned > 0:
             self.stunned -= 1
@@ -110,34 +126,36 @@ class FighterPLAYER:
                     self.shield_on = False
                     # attack
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] \
-                            or mouse_middle:
+                            or mouse_middle or joybutton(2) or joybutton(0) or joybutton(3):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 9
                             hit = 10
-                        elif key[pygame.K_t] or mouse_right:
+                            self.attack(target, 1.09, hit)
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 3
                             hit = 18
-                        elif key[pygame.K_f] or mouse_middle:
+                            self.attack(target, 1.09, hit)
+                        elif key[pygame.K_f] or mouse_middle or joybutton(3):
                             if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                                 self.attack_type = 7
                                 hit = 15
                                 self.huge_attack_cooldown = 300
-                        self.attack(target, 1.09, hit)
+                                self.attack(target, 1.09, hit)
                 # trio
                 case 11:
                     SPEED += 2 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -50 * display.scr_h
                         self.jump = True
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 17
                             hit = 12
                             self.attack(target, 2.9, hit)
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 16
                             hit = 20
                             self.attack(target, 2.4, hit)
@@ -145,13 +163,13 @@ class FighterPLAYER:
                 case 10:
                     SPEED -= 5 * display.scr_w
                     # атаковать ли
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 22
                             hit = 25
                             self.attack(target, 1.5, hit)
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 14
                             hit = 35
                             self.shield_cooldown = 200
@@ -161,24 +179,24 @@ class FighterPLAYER:
                 case 9:
                     SPEED -= 1 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -46 * display.scr_h
                         self.jump = True
                     # attack
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] \
-                            or mouse_middle:
+                            or mouse_middle or joybutton(2) or joybutton(0) or joybutton(3):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 1
                             hit = 18
                             self.attack(target, 1.5, hit)
-                        elif key[pygame.K_f] or mouse_middle:
+                        elif key[pygame.K_f] or mouse_middle or joybutton(3):
                             if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                                 self.attack_type = 18
                                 hit = 25
                                 self.huge_attack_cooldown = 300
                                 self.attack(target, 2.6, hit)
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             if self.shield_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                                 self.attack_type = 16
                                 self.heal(10)
@@ -188,32 +206,32 @@ class FighterPLAYER:
                 case 8:
                     SPEED += 2 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -50 * display.scr_h
                         self.jump = True
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 17
                             hit = 12
                             self.attack(target, 2.9, hit)
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 16
                             hit = 18
                             self.attack(target, 2.4, hit)
 
                 # kingartema
                 case 7:
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -46 * display.scr_h
                         self.jump = True
                         # attack
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 1
                             hit = 17
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 3
                             hit = 12
                         self.attack(target, 2.5, hit)
@@ -222,16 +240,16 @@ class FighterPLAYER:
                     # movement
                     SPEED += 4 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -52 * display.scr_h
                         self.jump = True
                     # attack
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 5
                             hit = 22
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 2
                             hit = 17
                         self.attack(target, 1.3, hit)
@@ -239,17 +257,17 @@ class FighterPLAYER:
                 case 5:
                     SPEED += 1 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -50 * display.scr_h
                         self.jump = True
                     # attack
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 15
                             hit = 18
                             self.attack(target, 1.09, hit)
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 27
                             hit = 21
                             self.attack(target, 1.09, hit)
@@ -259,30 +277,30 @@ class FighterPLAYER:
                     SPEED += 3 * display.scr_w
                     self.shield_on = False
                     # attack
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 9
                             hit = 10
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 3
                             hit = 18
                         self.attack(target, 1.09, hit)
 
                 # check aks controls
                 case 3:
-                    SPEED += 1
+                    SPEED += 1 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -45 * display.scr_h
                         self.jump = True
                     # attack
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 1
                             hit = 18
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 3
                             hit = 14
                         self.attack(target, 1.09, hit)
@@ -292,16 +310,16 @@ class FighterPLAYER:
                     # movement
                     SPEED += 3 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -52 * display.scr_h
                         self.jump = True
                     # attack
-                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left:
+                    if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 1
                             hit = 18
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 2
                             hit = 12
                         self.attack(target, 1.3, hit)
@@ -311,32 +329,32 @@ class FighterPLAYER:
                     # movement
                     SPEED += 3 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                         self.vel_y = -46 * display.scr_h
                         self.jump = True
                     # attack
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] \
-                            or mouse_middle:
+                            or mouse_middle or joybutton(2) or joybutton(0) or joybutton(3):
                         # determine attack
-                        if key[pygame.K_r] or mouse_left:
+                        if key[pygame.K_r] or mouse_left or joybutton(0):
                             self.attack_type = 8
                             hit = 12
                             self.attack(target, 1.3, hit)
-                        elif key[pygame.K_f] or mouse_middle:
+                        elif key[pygame.K_f] or mouse_middle or joybutton(3):
                             if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                                 self.attack_type = 13
                                 hit = 35
                                 self.huge_attack_cooldown = 300
                                 self.attack(target, 1.3, hit)
-                        elif key[pygame.K_t] or mouse_right:
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 4
                             hit = 14
                             self.attack(target, 2.5, hit)
             # movement
-            if key[pygame.K_a]:
+            if key[pygame.K_a] or joybutton(13):
                 dx = -SPEED
                 self.running = True
-            if key[pygame.K_d]:
+            if key[pygame.K_d] or joybutton(14):
                 dx = SPEED
                 self.running = True
 
@@ -618,9 +636,16 @@ class FighterPLAYER:
         pygame.draw.rect(surface, (0, 0, 0),
                          (30 * display.scr_w, 1020 * display.scr_h, 440 * display.scr_w, 15 * display.scr_h))
         pygame.draw.rect(surface, (204, 51, 0),
-                         (
-                             30 * display.scr_w, 1020 * display.scr_h, (440 - self.attack_cooldown * 8) * display.scr_w,
+                         (30 * display.scr_w, 1020 * display.scr_h, (440 - self.attack_cooldown * 8) * display.scr_w,
                              15 * display.scr_h))
+        if self.attack_cooldown <= 0:
+            if joystick.get_layout() == "mouse":
+                surface.blit(layout.Left_Click, (l_click_rect.x, l_click_rect.y))
+                surface.blit(layout.Richt_Click, (r_click_rect.x, r_click_rect.y))
+            else:
+                surface.blit(layout.button_X, (l_click_rect.x, l_click_rect.y))
+                surface.blit(layout.button_Square, (r_click_rect.x, r_click_rect.y))
+
         # draw huge attack cooldown
         if self.player in player_spec:
 
@@ -646,6 +671,10 @@ class FighterPLAYER:
                 pygame.draw.rect(surface, (0, 255, 255), (
                     520 * display.scr_w, (60 + 7) * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
                     8 * display.scr_h))
+                if joystick.get_layout() == "mouse":
+                    surface.blit(layout.Mid_Click, (ult_click_rect.x, ult_click_rect.y))
+                else:
+                    surface.blit(layout.button_Triangle, (ult_click_rect.x, ult_click_rect.y))
 
         if self.player in player_shield:
             pygame.draw.rect(surface, (255, 255, 255), (
@@ -664,6 +693,10 @@ class FighterPLAYER:
                     20 * display.scr_w, 60 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
                     5 * display.scr_h))
             else:
+                if joystick.get_layout() == "mouse":
+                    surface.blit(layout.Richt_Click, (ult_click_rect.x, ult_click_rect.y))
+                else:
+                    surface.blit(layout.button_Square, (shield_click_rect.x, shield_click_rect.y))
                 pygame.draw.rect(surface, (102, 255, 102), (
                     20 * display.scr_w, 60 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
                     15 * display.scr_h))

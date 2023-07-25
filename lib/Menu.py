@@ -5,11 +5,13 @@ import lib.players_data.online_players as player
 
 from lib.display import display
 from constants.fonts.turok import sys as font
+from lib.joystick import joystick, get_j
 from lib.mixer import play_music_bg
 from lib.Settings import settings
 from lib.drawer import draw_text
 import constants.textures.player_card_sprites as card
 from lib.Database import save_name
+import constants.textures.icons as layout
 
 # from constants.fonts.turok import bigger_sys as big_font
 
@@ -50,7 +52,7 @@ HERO_PICK_BACK = pygame.image.load(
 class Button:
     """Create a button, then blit the surface in the while loop"""
 
-    def __init__(self, size, pos, text, clicked_image=None):
+    def __init__(self, size, pos, text, clicked_image=None, button_layout=None, button=None):
         self.x, self.y = pos
         self.size = self.width, self.height = size
         self.clicked = False
@@ -58,6 +60,8 @@ class Button:
         self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
         self.surface = pygame.Surface(self.size)
         self.render = None
+        self.button = button
+        self.button_image = button_layout
         self.change_text(text)
         self.clicked_image = clicked_image
         if clicked_image:
@@ -71,19 +75,40 @@ class Button:
 
     def show(self):
         self.clicked = False
+        if joystick.get_layout() != "mouse" and self.button_image:
+            click_rect = pygame.rect.Rect((self.rect.centerx - 25 * display.scr_w,
+                                           self.rect.bottom - 30 * display.scr_h,
+                                           50 * display.scr_w, 50 * display.scr_h))
+            display.screen.blit(self.button_image, (click_rect.x, click_rect.y))
         # display.screen.blit(self.surface, (self.x, self.y))
         # pygame.draw.rect(self.surface, (255, 255, 255), self.rect)
 
-    def click(self, mouse_click):
-        x, y = pygame.mouse.get_pos()
-        if self.rect.collidepoint(x, y):
-            if self.clicked_image:
-                display.screen.blit(self.clicked_image, (0, 0))
-            self.change_text(self.text, "Black")
-            if pygame.mouse.get_pressed()[0] and mouse_click:
-                self.clicked = True
+    def click(self, mouse_click, joy_click):
+        if joystick.get_joystick():
+            joybutton = joystick.main_joystick.get_button
         else:
-            self.change_text(self.text)
+            joybutton = get_j
+
+        if joystick.get_layout() != "mouse" and self.button_image:
+            if joybutton(self.button):
+                if self.clicked_image:
+                    display.screen.blit(self.clicked_image, (0, 0))
+                self.change_text(self.text, "Black")
+                if joybutton(self.button) and joy_click:
+                    self.clicked = True
+            else:
+                self.change_text(self.text)
+
+        else:
+            x, y = pygame.mouse.get_pos()
+            if self.rect.collidepoint(x, y):
+                if self.clicked_image:
+                    display.screen.blit(self.clicked_image, (0, 0))
+                self.change_text(self.text, "Black")
+                if pygame.mouse.get_pressed()[0] and mouse_click:
+                    self.clicked = True
+            else:
+                self.change_text(self.text)
 
     def is_clicked(self):
         return self.clicked
@@ -339,13 +364,13 @@ class MainMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.start_button = Button(
             (211 * scr_w, 205 * scr_h),
-            (1003 * scr_w, 341 * scr_h), "", PLAY_BUTTON)
+            (1003 * scr_w, 341 * scr_h), "", PLAY_BUTTON, layout.button_X, 0)
         self.exit_button = Button(
             (503 * scr_w, 28 * scr_h),
-            (1416 * scr_w, 0 * scr_h), "выход")
+            (1416 * scr_w, 0 * scr_h), "выход", None, layout.button_O, 1)
         self.options_button = Button(
             (503 * scr_w, 28 * scr_h),
-            (0 * scr_w, 0 * scr_h), "настройки")
+            (0 * scr_w, 0 * scr_h), "настройки", None, layout.button_Triangle, 3)
         self.bg = bg
         self.GUI = MAIN_MENU_GUI
         self.enabled = False
@@ -353,7 +378,7 @@ class MainMenu:
         self.music = music
         play_music_bg(self.music)
 
-    def show(self, mouse_click):
+    def show(self, mouse_click, joy_click):
         if not self.is_hide:
             scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
             display.screen.blit(scaled_bg, (0, 0))
@@ -361,10 +386,10 @@ class MainMenu:
             display.screen.blit(scaled_GUI, (0, 0))
             self.start_button.show()
             self.exit_button.show()
-            self.exit_button.click(mouse_click)
-            self.start_button.click(mouse_click)
+            self.exit_button.click(mouse_click, joy_click)
+            self.start_button.click(mouse_click, joy_click)
             self.options_button.show()
-            self.options_button.click(mouse_click)
+            self.options_button.click(mouse_click, joy_click)
 
     def is_enabled(self):
         return self.enabled
@@ -446,7 +471,7 @@ class ChooseHeroMenu:
     def __init__(self, bg):
         self.exit_button = Button(
             (60, 60),
-            (1845, 7), "", HERO_PICK_BACK)
+            (1845, 7), "", HERO_PICK_BACK, layout.button_O, 1)
 
         self.super_pau = CardButton(player.super_pau, (100 * display.scr_w, 100 * display.scr_h))
         self.vesisa = CardButton(player.vesisa, (100 * display.scr_w, 400 * display.scr_h))
@@ -465,12 +490,12 @@ class ChooseHeroMenu:
         self.is_hide = False
         self.player_picking = 0
 
-    def show(self, mouse_click, p):
+    def show(self, mouse_click, p, joy_click):
         if not self.is_hide:
             scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
             display.screen.blit(scaled_bg, (0, 0))
             self.exit_button.show()
-            self.exit_button.click(mouse_click)
+            self.exit_button.click(mouse_click, joy_click)
             self.lisa.show()
             self.lisa.click(mouse_click)
             self.super_pau.show()
@@ -520,13 +545,13 @@ class ChooseOnlineModeMenu:
     def __init__(self, scr_w, scr_h, bg, music, player_name):
         self.connect_button = Button(
             (496, 108),
-            (710, 911), "START", ONLINE_MODE_START)
+            (710, 911), "START", ONLINE_MODE_START, layout.button_X, 0)
         # self.start_server = Button(
         #     (418 * scr_w, 333 * scr_h),
         #     (1406 * scr_w, 460 * scr_h), "ranked")
         self.exit_button = Button(
             (60, 60),
-            (21, 19), "", ONLINE_MODE_BACK)
+            (21, 19), "", ONLINE_MODE_BACK, layout.button_O, 1)
 
         self.hero_button_1 = Button(
             (200 * scr_w, 400 * scr_h),
@@ -547,7 +572,7 @@ class ChooseOnlineModeMenu:
         self.is_hide = False
         self.music = music
 
-    def show(self, mouse_click, key_press, team):
+    def show(self, mouse_click, key_press, team, joy_click):
         if not self.is_hide:
             scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
             display.screen.blit(scaled_bg, (0, 0))
@@ -556,8 +581,8 @@ class ChooseOnlineModeMenu:
             self.connect_button.show()
             self.exit_button.show()
             # self.start_server.show()
-            self.exit_button.click(mouse_click)
-            self.connect_button.click(mouse_click)
+            self.exit_button.click(mouse_click, joy_click)
+            self.connect_button.click(mouse_click, joy_click)
             # self.start_server.click(mouse_click)
             self.line_edit.show(key_press)
             self.line_edit.click(mouse_click)
@@ -567,11 +592,11 @@ class ChooseOnlineModeMenu:
             team[2].draw_menu((1260 * display.scr_w, 410 * display.scr_h))
 
             self.hero_button_1.show()
-            self.hero_button_1.click(mouse_click)
+            self.hero_button_1.click(mouse_click, joy_click)
             self.hero_button_2.show()
-            self.hero_button_2.click(mouse_click)
+            self.hero_button_2.click(mouse_click, joy_click)
             self.hero_button_3.show()
-            self.hero_button_3.click(mouse_click)
+            self.hero_button_3.click(mouse_click, joy_click)
 
     def is_enabled(self):
         return self.enabled
@@ -595,13 +620,16 @@ class ChooseModeMenu:
     def __init__(self, scr_w, scr_h, bg, music):
         self.campain_button = Button(
             (450 * scr_w, 699 * scr_h),
-            (928 * scr_w, 95 * scr_h), "История", STORY_MODE_BUTTON)
+            (928 * scr_w, 95 * scr_h), "История", STORY_MODE_BUTTON, layout.button_X, 0)
         self.online_button = Button(
             (450 * scr_w, 699 * scr_h),
-            (1406 * scr_w, 95 * scr_h), "PVP", SURVIVAL_MODE_BUTTON)
+            (1406 * scr_w, 95 * scr_h), "PVP", SURVIVAL_MODE_BUTTON, layout.button_Triangle, 3)
         self.exit_button = Button(
             (997 * scr_w, 173 * scr_h),
-            (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON)
+            (928 * scr_w, 860 * scr_h), "Назад", BACK_BUTTON, layout.button_O, 1)
+        self.boss_rush_button = Button(
+            (300 * scr_w, 200 * scr_h),
+            (50 * scr_w, 850 * scr_h), "BOSS RUSH", None, layout.button_Square, 2)
 
         self.vid = bg
         self.cap = cv2.VideoCapture(self.vid)
@@ -615,7 +643,7 @@ class ChooseModeMenu:
         self.is_hide = False
         self.music = music
 
-    def show(self, mouse_click):
+    def show(self, mouse_click, joy_click):
         if not self.is_hide:
             ret, img = self.cap.read()
             if ret:
@@ -631,9 +659,11 @@ class ChooseModeMenu:
             self.campain_button.show()
             self.exit_button.show()
             self.online_button.show()
-            self.exit_button.click(mouse_click)
-            self.campain_button.click(mouse_click)
-            self.online_button.click(mouse_click)
+            self.exit_button.click(mouse_click, joy_click)
+            self.campain_button.click(mouse_click, joy_click)
+            self.online_button.click(mouse_click, joy_click)
+            self.boss_rush_button.show()
+            self.boss_rush_button.click(mouse_click, joy_click)
 
     def is_enabled(self):
         return self.enabled
@@ -656,20 +686,20 @@ class OptionsMenu:
     def __init__(self, scr_w, scr_h, bg):
         self.exit_button = Button(
             (200 * scr_w, 100 * scr_h),
-            (1550 * scr_w, 950 * scr_h), "Назад", EXIT_OPTIONS)
+            (1550 * scr_w, 950 * scr_h), "Назад", EXIT_OPTIONS, layout.button_O, 1)
         self.volume_button_plus = Button((100 * scr_w, 100 * scr_h),
                                          (1100 * scr_w, 220 * scr_h), "     +", VOL_PLUS)
         self.volume_button_minus = Button((100 * scr_w, 100 * scr_h),
                                           (900 * scr_w, 220 * scr_h), "     -", VOL_MIN)
         self.easy_mode = Button((500 * scr_w, 100 * scr_h),
-                                (600 * scr_w, 800 * scr_h), "БОТИК", EASY_BUTTON)
+                                (600 * scr_w, 800 * scr_h), "БОТИК", EASY_BUTTON, layout.button_X, 0)
         self.normal_mode = Button((500 * scr_w, 100 * scr_h),
-                                  (1200 * scr_w, 800 * scr_h), "NORMAL", NORMAL_BUTTON)
+                                  (1200 * scr_w, 800 * scr_h), "NORMAL", NORMAL_BUTTON, layout.button_Square, 2)
 
         self.bg = bg
         self.enabled = False
 
-    def show(self, mouse_click):
+    def show(self, mouse_click, joy_click):
         scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
         display.screen.blit(scaled_bg, (0, 0))
         self.exit_button.show()
@@ -677,18 +707,18 @@ class OptionsMenu:
         self.volume_button_minus.show()
         self.easy_mode.show()
         self.normal_mode.show()
-        self.volume_button_plus.click(mouse_click)
+        self.volume_button_plus.click(mouse_click, joy_click)
         if settings.get_music_volume() > 0.01:
-            self.volume_button_minus.click(mouse_click)
+            self.volume_button_minus.click(mouse_click, joy_click)
         if settings.get_difficulty() == 0.5:
-            self.normal_mode.click(mouse_click)
+            self.normal_mode.click(mouse_click, joy_click)
         else:
             self.normal_mode.change_text("NORMAL")
         if settings.get_difficulty() == 1:
-            self.easy_mode.click(mouse_click)
+            self.easy_mode.click(mouse_click, joy_click)
         else:
             self.easy_mode.change_text("БОТИК")
-        self.exit_button.click(mouse_click)
+        self.exit_button.click(mouse_click, joy_click)
         draw_text(str(round(settings.get_music_volume(), 2)), font, (255, 255, 255), 1025 * display.scr_w,
                   245 * display.scr_h)
 

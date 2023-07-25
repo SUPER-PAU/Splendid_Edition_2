@@ -5,6 +5,7 @@ import pygame
 from lib.clock import Clock
 from lib.display import display
 from lib.drawer import draw_health_bar, draw_text, check_bg_instance
+from lib.joystick import joystick, get_j
 from lib.mixer import play_music_bg
 from lib.dialogs import dialogs_texts
 from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu, ChooseHeroMenu, OnlineBattle
@@ -17,13 +18,13 @@ import constants.textures.backgrounds as bg
 import constants.audio.music as music
 import constants.colors as color
 import constants.fonts.turok as fonts
+import constants.textures.icons as layout
 from constants.progress import pg
 from lib.online.network import Network
 
 import lib.players_data.online_players as online_fighter
 from lib.players_data.particles_online import on_fire_class_enemy
 from lib.players import fighter_instances as f
-
 
 clocks = Clock()
 
@@ -51,6 +52,7 @@ class Game:
         self.post_fight_dial = False
         self.is_dialogue = False
         self.main_campain_on = False
+        self.boss_rush_on = False
         self.online_on = False
         self.aplication_run = True
         self.playing_cutscene = True
@@ -59,6 +61,8 @@ class Game:
         self.round_over_time = 1
         self.fighter_id = 0
         self.GAME_PROGRESS = get_gp()
+        self.BOSS_RUSH_PROGRESS = 4
+        self.BOSS_RUSH_ADD = 0
 
         self.network = None
         self.online_player = online_fighter.super_pau
@@ -161,12 +165,13 @@ class Game:
         all_sprites.draw(display.screen)
         bullet_sprites.update(fighter2, 1)
 
-    def game_navigation(self, key_click, mouse_click):
+    def game_navigation(self, key_click, mouse_click, joy_click):
         global choose_online_mode_menu, hero_choose_menu
         # navigate menu
         if self.main_campain_on:
-            self.main_campain_game(key_click)
-
+            self.main_campain_game(key_click, joy_click)
+        if self.boss_rush_on:
+            self.boss_rush()
         if self.online_on:
             if self.final_round_over:
                 self.check_game_progress(*pg[self.online_location])
@@ -253,7 +258,7 @@ class Game:
                     self.battle_menu.enable()
 
         if choose_online_mode_menu.is_enabled():
-            choose_online_mode_menu.show(mouse_click, key_click, self.team)
+            choose_online_mode_menu.show(mouse_click, key_click, self.team, joy_click)
             if choose_online_mode_menu.exit_button.is_clicked():
                 choose_online_mode_menu.disable()
                 display.set_normal_window()
@@ -287,7 +292,7 @@ class Game:
                     print("cannot find a server")
 
         if hero_choose_menu.is_enabled():
-            hero_choose_menu.show(mouse_click, self.team[hero_choose_menu.get_pick()])
+            hero_choose_menu.show(mouse_click, self.team[hero_choose_menu.get_pick()], joy_click)
             if hero_choose_menu.super_pau.is_clicked():
                 if not hero_choose_menu.super_pau.get_p() in self.team:
                     self.team[hero_choose_menu.get_pick()] = hero_choose_menu.super_pau.get_p()
@@ -327,13 +332,19 @@ class Game:
                 choose_online_mode_menu.enable(False)
 
         if choose_mode_menu.is_enabled():
-            choose_mode_menu.show(mouse_click)
+            choose_mode_menu.show(mouse_click, joy_click)
+            joy_click = False
             if choose_mode_menu.exit_button.is_clicked():
                 choose_mode_menu.disable()
                 game_menu.enable()
             if choose_mode_menu.campain_button.is_clicked() and not self.GAME_PROGRESS > 54:
                 f.reset_players_story(self.GAME_PROGRESS)
                 self.main_campain_on = True
+                self.final_round_over = True
+                choose_mode_menu.disable()
+            if choose_mode_menu.boss_rush_button.is_clicked():
+                f.reset_players_story(self.BOSS_RUSH_PROGRESS)
+                self.boss_rush_on = True
                 self.final_round_over = True
                 choose_mode_menu.disable()
             if choose_mode_menu.online_button.is_clicked():
@@ -349,7 +360,7 @@ class Game:
                 choose_mode_menu.disable()
 
         if game_menu.is_enabled():
-            game_menu.show(mouse_click)
+            game_menu.show(mouse_click, joy_click)
             if game_menu.exit_button.is_clicked():
                 self.aplication_run = False
             if game_menu.start_button.is_clicked():
@@ -360,7 +371,7 @@ class Game:
                 options_menu.enable()
 
         if options_menu.is_enabled():
-            options_menu.show(mouse_click)
+            options_menu.show(mouse_click, joy_click)
             if options_menu.exit_button.is_clicked():
                 options_menu.disable()
                 settings.save()
@@ -386,9 +397,42 @@ class Game:
             game_menu.enable()
             display.set_fps(60)
 
-    def main_campain_game(self, key_click):
+    def boss_rush(self):
+        self.check_game_progress(*pg[self.BOSS_RUSH_PROGRESS])
+        match self.BOSS_RUSH_PROGRESS:
+            case 4:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 3, "Bt25t", "Albina")
+                self.BOSS_RUSH_ADD = 7
+            case 11:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 4, "Super PAU", "Flying El. Dumpling (Kingartema)")
+                self.BOSS_RUSH_ADD = 9
+            case 20:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 3, "Super PAU", "Moiseev")
+                self.BOSS_RUSH_ADD = 5
+            case 25:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 4, 'Super PAU', "Bulat")
+                self.BOSS_RUSH_ADD = 12
+            case 37:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 4, "Aksenov", "Lisa")
+                self.BOSS_RUSH_ADD = 5
+            case 42:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 4, "Aksenov", "Army General")
+                self.BOSS_RUSH_ADD = 10
+            case 52:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 3, "Vasisa", "Stolberg")
+                self.BOSS_RUSH_ADD = 1
+            case 53:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 3, "Bt25t", "Vasisa")
+                self.BOSS_RUSH_ADD = 1
+            case 54:
+                self.fight_boss(f.player_fighters, f.enemy_figters, 4, "Kamil", "Semen")
+        all_sprites.update()
+        all_sprites.draw(display.screen)
+        bullet_sprites.update()
+
+    def main_campain_game(self, key_click, joy_click):
         self.check_game_progress(*pg[self.GAME_PROGRESS])
-        self.dialog(texts[self.GAME_PROGRESS], key_click)
+        self.dialog(texts[self.GAME_PROGRESS], key_click, joy_click)
         # Временно
         match self.GAME_PROGRESS:
             case 0:
@@ -530,7 +574,7 @@ class Game:
         all_sprites.draw(display.screen)
         bullet_sprites.update()
 
-    def dialog(self, text, key_click):
+    def dialog(self, text, key_click, joy_click):
         if self.final_round_over or self.is_dialogue:
             self.is_dialogue = True
             self.final_round_over = False
@@ -538,7 +582,11 @@ class Game:
             if self.post_fight_dial:
                 sec = 0
             key = pygame.key.get_pressed()
-            if self.is_dialogue and not key[pygame.K_c] and self.idx != len(text[sec]):
+            if joystick.get_joystick():
+                joybutton = joystick.main_joystick.get_button
+            else:
+                joybutton = get_j
+            if self.is_dialogue and not key[pygame.K_c] and not joybutton(3) and self.idx != len(text[sec]):
                 try:
                     check_bg_instance(text[sec][self.idx][2])
                     if text[sec][self.idx][1] != '':
@@ -548,8 +596,18 @@ class Game:
                         display.screen.blit(s, (0, 600 * display.scr_h))
                         # dialog_rect = pygame.Rect(0, 600 * display.scr_h, 1920 * display.scr_w, 600 * display.scr_h)
                         # pygame.draw.rect(display.screen, color.black, dialog_rect)
-                        draw_text("SPACE         C - to skip", font, color.white, 100 * display.scr_w,
-                                  1000 * display.scr_h)
+                        if joystick.get_layout() == "mouse":
+                            draw_text("SPACE         C - to skip", font, color.white, 100 * display.scr_w,
+                                      1000 * display.scr_h)
+                        else:
+                            l_click_rect = pygame.rect.Rect((100 * display.scr_w, 1000 * display.scr_h,
+                                                             50 * display.scr_w, 50 * display.scr_h))
+                            r_click_rect = pygame.rect.Rect((240 * display.scr_w, 1000 * display.scr_h,
+                                                             50 * display.scr_w, 50 * display.scr_h))
+                            display.screen.blit(layout.button_X, (l_click_rect.x, l_click_rect.y))
+                            display.screen.blit(layout.button_Triangle, (r_click_rect.x, r_click_rect.y))
+                            draw_text(" - to skip", font, color.white, 300 * display.scr_w,
+                                      1000 * display.scr_h)
                     if type(text[sec][self.idx][0]) == tuple:
                         scaled_dial = pygame.transform.scale(
                             pygame.image.load(text[sec][self.idx][0][0]).convert_alpha(),
@@ -577,7 +635,7 @@ class Game:
                                   (698 + 60 * index) * display.scr_h)
                         draw_text(txt, font, color.white, 100 * display.scr_w,
                                   (700 + 60 * index) * display.scr_h)
-                if key[pygame.K_SPACE] and self.is_dialogue and key_click:
+                if ((key[pygame.K_SPACE] and key_click) or (joybutton(0) and joy_click)) and self.is_dialogue:
                     self.idx += 1
             else:
                 self.is_dialogue = False
@@ -599,6 +657,82 @@ class Game:
             play_music_bg(mus)
         if not self.is_dialogue:
             check_bg_instance(background)
+
+    def fight_boss(self, fighter1, fighter2, rounds, f1_name, f2_name):
+        if not self.is_dialogue:
+            # show players stats
+            draw_health_bar(fighter1.health, 20 * display.scr_w, 20 * display.scr_h)
+            draw_health_bar(fighter2.health, 1100 * display.scr_w, 20 * display.scr_h)
+            draw_text(f"{f1_name}: {str(self.score[0])} / {rounds}", font, color.black, 17 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{f2_name}: {str(self.score[1])} / {rounds}", font, color.black, 1097 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{f1_name}: {str(self.score[0])} / {rounds}", font, color.red, 20 * display.scr_w,
+                      80 * display.scr_h)
+            draw_text(f"{f2_name}: {str(self.score[1])} / {rounds}", font, color.red, 1100 * display.scr_w,
+                      80 * display.scr_h)
+            # update fighters
+            fighter1.update()
+            fighter2.update()
+
+            # update countdown
+            if self.intro_count <= 0:
+                # move fighter
+                fighter1.move(fighter2, self.round_over)
+                fighter2.move(fighter1, self.round_over,
+                              self.BOSS_RUSH_PROGRESS, self.score[0])
+            elif self.is_dialogue:
+                self.intro_count = 4
+            else:
+                # display count timer
+                draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
+                          10 * display.scr_h)
+                # update count timer
+                if (pygame.time.get_ticks() - self.last_count_update) >= 1000:
+                    self.intro_count -= 1
+                    self.last_count_update = pygame.time.get_ticks()
+            self.final_round_over = False
+            # draw fighters
+            fighter2.draw(display.screen)
+            fighter1.draw(display.screen)
+            # check for player defeat
+            if not self.round_over:
+                if not fighter1.alive:
+                    self.score[1] += 1
+                    self.round_over = True
+                    self.round_over_time = pygame.time.get_ticks()
+                if not fighter2.alive:
+                    self.score[0] += 1
+                    self.round_over = True
+                    self.round_over_time = pygame.time.get_ticks()
+            else:
+                all_sprites.empty()
+                fighter2.round_over_move()
+                if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
+                    self.round_over = False
+                    all_sprites.empty()
+                    bullet_sprites.empty()
+                    if self.score[0] >= rounds:
+                        self.score = [0, 0]
+                        if self.BOSS_RUSH_PROGRESS == 54:
+                            self.BOSS_RUSH_PROGRESS = 4
+                            self.BOSS_RUSH_ADD = 0
+                            self.final_round_over = True
+                            self.boss_rush_on = False
+                            game_menu.enable()
+                        else:
+                            self.final_round_over = True
+                            self.BOSS_RUSH_PROGRESS += self.BOSS_RUSH_ADD
+                            f.reset_players_story(self.BOSS_RUSH_PROGRESS)
+                    elif self.score[1] >= rounds:
+                        self.score = [0, 0]
+                        self.BOSS_RUSH_PROGRESS = 4
+                        self.final_round_over = True
+                        self.boss_rush_on = False
+                        game_menu.enable()
+                    self.intro_count = 4
+                    fighter1.reset_params()
+                    fighter2.reset_params()
 
     def fight(self, fighter1, fighter2, rounds, f1_name, f2_name):
         if not self.is_dialogue:
