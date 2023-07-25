@@ -9,7 +9,7 @@ from lib.joystick import joystick, get_j
 from lib.mixer import play_music_bg
 from lib.dialogs import dialogs_texts
 from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu, ChooseHeroMenu, OnlineBattle
-from lib.Database import update_gp, get_gp, get_player_name
+from lib.Database import update_gp, get_gp, get_player_name, get_game_complete, update_game_complete
 from constants.textures.sprites import all_sprites, bullet_sprites, attack_group, enemy_attack_group, damage_num_group
 from lib.Settings import settings
 
@@ -63,6 +63,7 @@ class Game:
         self.GAME_PROGRESS = get_gp()
         self.BOSS_RUSH_PROGRESS = 4
         self.BOSS_RUSH_ADD = 0
+        self.game_completed = get_game_complete()
 
         self.network = None
         self.online_player = online_fighter.super_pau
@@ -170,6 +171,7 @@ class Game:
         # navigate menu
         if self.main_campain_on:
             self.main_campain_game(key_click, joy_click)
+            joy_click = False
         if self.boss_rush_on:
             self.boss_rush()
         if self.online_on:
@@ -259,6 +261,7 @@ class Game:
 
         if choose_online_mode_menu.is_enabled():
             choose_online_mode_menu.show(mouse_click, key_click, self.team, joy_click)
+            joy_click = False
             if choose_online_mode_menu.exit_button.is_clicked():
                 choose_online_mode_menu.disable()
                 display.set_normal_window()
@@ -293,6 +296,7 @@ class Game:
 
         if hero_choose_menu.is_enabled():
             hero_choose_menu.show(mouse_click, self.team[hero_choose_menu.get_pick()], joy_click)
+            joy_click = False
             if hero_choose_menu.super_pau.is_clicked():
                 if not hero_choose_menu.super_pau.get_p() in self.team:
                     self.team[hero_choose_menu.get_pick()] = hero_choose_menu.super_pau.get_p()
@@ -361,6 +365,7 @@ class Game:
 
         if game_menu.is_enabled():
             game_menu.show(mouse_click, joy_click)
+            joy_click = False
             if game_menu.exit_button.is_clicked():
                 self.aplication_run = False
             if game_menu.start_button.is_clicked():
@@ -646,6 +651,8 @@ class Game:
                     if self.GAME_PROGRESS == 55:
                         bg.end_cutscene_1.play()
                         display.set_fps(24)
+                        self.game_completed = 1
+                        update_game_complete(1)
                         self.playing_cutscene = True
                     else:
                         game_menu.enable()
