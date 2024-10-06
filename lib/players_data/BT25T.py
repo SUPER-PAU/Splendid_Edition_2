@@ -2,6 +2,7 @@ from random import choice
 
 from constants.audio.effects import bt_sound
 from constants.textures.sprites import attack_group
+from lib.joystick import get_j, joystick
 from lib.players_data.particles_online import create_tank_bullet, create_damage_number, create_beam
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
@@ -10,13 +11,13 @@ from lib.display import display
 
 
 class Bt25T(SuperPauPlayer):
-    def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(2, x, y, flip, data, attack_frame)
+    def __init__(self, x, y, flip, data, attack_frame, sprite):
+        super().__init__(2, x, y, flip, data, attack_frame, sprite)
         self.sex = 3
         self.name = "bt25t"
         self.is_tank = True
 
-    def move(self, surface, target, round_over, mouse_click, key_press):
+    def move(self, surface, target, round_over, mouse_click, key_press, joypress):
         SPEED = 8
         GRAVITY = 2
         dx = 0
@@ -27,8 +28,12 @@ class Bt25T(SuperPauPlayer):
         # key presses
         key = pygame.key.get_pressed()
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
+        if joystick.get_joystick():
+            joybutton = joystick.main_joystick.get_button
+        else:
+            joybutton = get_j
 
-        if key[pygame.K_LSHIFT] and not self.jump:
+        if (key[pygame.K_LSHIFT] or joybutton(10)) and not self.jump:
             SPEED += 8.3
             self.sprint = True
         # play emoji
@@ -38,28 +43,29 @@ class Bt25T(SuperPauPlayer):
         # can only perform other actions if not attacking
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
             # attack
-            if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] or mouse_middle or
-               key[pygame.K_e]) and (mouse_click or key_press):
+            if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] or mouse_middle
+                or joybutton(2) or joybutton(0) or joybutton(3)) \
+                    and (mouse_click or key_press or joypress):
                 if self.attack_cooldown <= 0:
                     # determine attack
-                    if key[pygame.K_r] or mouse_left and self.shield_cooldown <= 0:
+                    if (key[pygame.K_r] or mouse_left or joybutton(0)) and self.shield_cooldown <= 0:
                         self.attack_type = 1
                         self.shield_cooldown = 200
                         self.attack(target, attack_group)
-                    elif key[pygame.K_f] or mouse_middle:
+                    elif key[pygame.K_f] or mouse_middle or joybutton(3):
                         if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                             self.attack_type = 3
                             self.huge_attack_cooldown = 300
                             self.attack(target, attack_group)
-                    elif key[pygame.K_t] or mouse_right and self.shield_cooldown <= 0:
+                    elif (key[pygame.K_t] or mouse_right or joybutton(2)) and self.shield_cooldown <= 0:
                         self.attack_type = 2
                         self.shield_cooldown = 200
                         self.attack(target, attack_group)
             # movement
-            if key[pygame.K_a]:
+            if key[pygame.K_a] or joybutton(13):
                 dx = -SPEED
                 self.running = True
-            if key[pygame.K_d]:
+            if key[pygame.K_d] or joybutton(14):
                 dx = SPEED
                 self.running = True
 

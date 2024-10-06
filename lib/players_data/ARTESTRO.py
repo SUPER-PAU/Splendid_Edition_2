@@ -1,5 +1,6 @@
 from constants.audio.effects import shield_sfx
 from constants.textures.sprites import attack_group, dust, knife
+from lib.joystick import get_j, joystick
 from lib.players_data.particles_online import create_knife, create_particles
 from lib.players_data.SUPER_PAU_PLAYER import SuperPauPlayer, Attack
 import pygame
@@ -10,13 +11,13 @@ knife_img = pygame.transform.scale(knife, (60, 60))
 
 
 class ArtestroPlayer(SuperPauPlayer):
-    def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(2, x, y, flip, data, attack_frame)
+    def __init__(self, x, y, flip, data, attack_frame, sprite):
+        super().__init__(2, x, y, flip, data, attack_frame, sprite)
         self.sex = 1
         self.knifes = 0
         self.name = "artestro"
 
-    def move(self, surface, target, round_over, mouse_click, key_press):
+    def move(self, surface, target, round_over, mouse_click, key_press, joypress):
         SPEED = 8
         GRAVITY = 2
         dx = 0
@@ -27,8 +28,12 @@ class ArtestroPlayer(SuperPauPlayer):
         # key presses
         key = pygame.key.get_pressed()
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
+        if joystick.get_joystick():
+            joybutton = joystick.main_joystick.get_button
+        else:
+            joybutton = get_j
 
-        if key[pygame.K_LSHIFT] and not self.jump:
+        if (key[pygame.K_LSHIFT] or joybutton(10)) and not self.jump:
             SPEED += 8.3
             self.sprint = True
 
@@ -40,28 +45,29 @@ class ArtestroPlayer(SuperPauPlayer):
         # can only perform other actions if not attacking
         if not self.attacking and self.alive and not round_over and not self.blocking and not self.hit:
             # jump
-            if (key[pygame.K_w] or key[pygame.K_SPACE]) and self.jump is False:
+            if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
                 self.vel_y = -46
                 self.jump = True
             # attack
             if (key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] or mouse_middle or
-               key[pygame.K_e]) and (mouse_click or key_press):
+                key[pygame.K_e] or joybutton(2) or joybutton(0) or joybutton(1) or joybutton(3)) \
+                    and (mouse_click or key_press or joypress):
                 if self.attack_cooldown <= 0:
                     # determine attack
-                    if key[pygame.K_r] or mouse_left:
+                    if key[pygame.K_r] or mouse_left or joybutton(0):
                         if self.knifes > 0:
                             self.attack_type = 3
                             self.attack(target, attack_group)
                         else:
                             self.attack_type = 1
                             self.attack(target, attack_group)
-                    elif key[pygame.K_f] or mouse_middle:
+                    elif key[pygame.K_f] or mouse_middle or joybutton(3):
                         if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
                             self.knifes += 5
                             self.huge_attack_cooldown = 300
                             shield_sfx.play()
                             create_particles((self.rect.centerx, self.rect.top), self.flip, dust)
-                    elif key[pygame.K_t] or mouse_right:
+                    elif key[pygame.K_t] or mouse_right or joybutton(2):
                         if self.knifes > 0:
                             if self.knifes == 1:
                                 self.attack_type = 3
@@ -82,14 +88,14 @@ class ArtestroPlayer(SuperPauPlayer):
                             if self.shield_cooldown <= 0:
                                 self.attack_type = 2
                                 self.attack(target, attack_group)
-                    elif key[pygame.K_e]:
+                    elif key[pygame.K_e] or joybutton(1):
                         self.attack_type = 4
                         self.attack(target, attack_group)
             # movement
-            if key[pygame.K_a]:
+            if key[pygame.K_a] or joybutton(13):
                 dx = -SPEED
                 self.running = True
-            if key[pygame.K_d]:
+            if key[pygame.K_d] or joybutton(14):
                 dx = SPEED
                 self.running = True
 

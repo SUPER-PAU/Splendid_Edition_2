@@ -19,6 +19,8 @@ class Display:
         self.scr_w = self.screen_width / 1920
         self.scr_h = self.screen_height / 1080
 
+        self.shake_time = 0
+
         # Получение окна
         self.get_screen()
         # Заголовок окна
@@ -38,6 +40,12 @@ class Display:
 
     def set_fps(self, fps):
         self.refresh_rate = fps
+
+    def shake(self, time):
+        self.shake_time = time
+
+    def update_shake(self):
+        self.shake_time -= 1
 
     def set_online_window(self):
         self.screen_width = 1920

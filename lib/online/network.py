@@ -13,7 +13,7 @@ class Network:
         self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         # hostname = socket.gethostname()
         # IPAddr = socket.gethostbyname(hostname)
-        self.server = "188.120.248.249"
+        self.server = "82.146.60.52"
         self.port = 10000
         self.addr = (self.server, self.port)
 

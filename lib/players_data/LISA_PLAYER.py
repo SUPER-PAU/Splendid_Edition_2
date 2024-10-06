@@ -3,10 +3,11 @@ import pygame
 
 
 class LisaPlayer(SuperPauPlayer):
-    def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(1, x, y, flip, data, attack_frame)
+    def __init__(self, x, y, flip, data, attack_frame, sprite):
+        super().__init__(1, x, y, flip, data, attack_frame, sprite)
         self.sex = 2
         self.name = "lisa"
+
 
     def check_action(self):
         # check what action the player is performing
@@ -44,20 +45,21 @@ class LisaPlayer(SuperPauPlayer):
         else:
             self.update_action(0)  # idle
 
-    def update(self, animation_list):
+    def update(self):
         animation_cooldown = 90
+        self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed sinse the last update
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
 
         # check if the animation is finished
-        if self.frame_index >= len(animation_list[self.action]):
+        if self.frame_index >= len(self.animation_list[self.action]):
             # check if the player is dead then end animation
             if not self.alive:
                 self.hit = False
                 self.blocking = False
-                self.frame_index = len(animation_list[self.action]) - 1
+                self.frame_index = len(self.animation_list[self.action]) - 1
             else:
                 self.frame_index = 0
                 # check if attack is executed

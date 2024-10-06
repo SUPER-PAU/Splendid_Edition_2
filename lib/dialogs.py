@@ -46,14 +46,18 @@ question = (r"assets\images\dialog\none.png", "???")
 scientist = (r"assets\images\dialog\scientist.png", "Ученый")
 stolberg_early = (r"assets\images\dialog\stolberg.png", "Столберг")
 stolberg = (r"assets\images\dialog\stolberg_old.png", "Столберг")
-vasisa_normal = (r"assets\images\dialog\civil_dial.png", "Васиса")  # s
+vasisa_normal = (r"assets\images\dialog\none.png", "Васиса")  # s
 
 
 # (, "", bg.),
 def dialogs_texts():
     texts = [
         # 0
-        [[], [(None, "... подключено.", bg.lab_mais),
+        [[], [(None, "2050 год. Государство.", bg.black),
+              (None, "Двое безработных сбежали от трех преследователей, которых ограбили.", bg.black),
+              (None, "И перед ними оказался DAUN Corp.", bg.black),
+              (None, "Они пойдут на все, чтобы заработать денег.", bg.black),
+              (None, "... подключено.", bg.lab_mais),
               (moiseev_old, "ABOBA OS работает!", bg.lab_mais),
               (moiseev_old, "Вы должны были стать теми, о ком вы сейчас думали", bg.lab_mais),
               (semen_old, "Странно, но я совсем не о этом думал", bg.lab_mais),
@@ -220,8 +224,9 @@ def dialogs_texts():
           (None, "Негроминаторы увидев его, быстро разбежались кто куда.", bg.destroyed_daun_corp), ]
          ],
         # 9
-        [[(pau, "Шевцов 47?!", bg.destroyed_daun_corp),
-          (aks_mech, "Tы с кем-то меня спутал", bg.destroyed_daun_corp),
+        [[(pau, "Данил?!", bg.destroyed_daun_corp),
+          (aks_mech, ("Да... Похоже ты все-же пересмотрел",
+                     " свои взгляды на жизнь, Семён"), bg.destroyed_daun_corp),
           (pau, "Как ты узнал?", bg.destroyed_daun_corp),
           (aks_mech, "*Он не помнит...*", bg.destroyed_daun_corp),
           (bt25, "ты же в Японии! Что ты здесь забыл?", bg.destroyed_daun_corp),
@@ -805,7 +810,7 @@ def dialogs_texts():
          [(pau, "ЧМО! Еще пытаешься сопротивляться!", bg.broken_robot),
           (bulat, "Остались только мы с тобой)", bg.broken_robot),
           (pau, "У меня достаточно причин убить тебя.", bg.broken_robot),
-          (bulat, "Потанцуем)", bg.broken_robot)]
+          (bulat_phone, "Потанцуем)", bg.bulat_smile)]
          ],
         # (, "", bg.),
         # 26
@@ -1079,12 +1084,12 @@ def dialogs_texts():
           (pau, 'Я уничтожу тебя!', bg.aboba),
           (lisa, 'Нет! Только не сейчас!', bg.aboba)]],
         # 37
-        [[(aks_mech, 'Она ослаблена! Мне нужно атаковать, пока есть возможность!', bg.shop)],
-         [(lisa, 'Ой...', bg.shop)]],
+        [[(aks_mech, 'Она ослаблена! Мне нужно атаковать, пока есть возможность!', bg.japan_lisa_fight)],
+         [(lisa, 'Ой...', bg.japan_lisa_fight)]],
         # 38
-        [[(aksenov_old, 'Наконец с ней покончено.', bg.shop),
-          (aksenov_old, 'Но такие ублюдки все еще ходят по городу.', bg.shop),
-          (aksenov_old, 'мне необходимо с этим что-то дел...', bg.shop),
+        [[(aksenov_old, 'Наконец с ней покончено.', bg.japan_lisa_fight),
+          (aksenov_old, 'Но такие ублюдки все еще ходят по городу.', bg.japan_lisa_fight),
+          (aksenov_old, 'мне необходимо с этим что-то дел...', bg.japan_lisa_fight),
           (None, '*взрывы*', bg.yellow)],
          [(negrominator, 'УНИЧТОЖИТЬ ВСЕХ НЕДРУЖЕСТВЕННЫХ ОСОБЕЙ!', bg.city_ruins),
           (aks_mech, 'Что происходит?', bg.city_ruins)]],

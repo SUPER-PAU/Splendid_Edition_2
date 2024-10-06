@@ -6,8 +6,8 @@ import pygame
 
 
 class VesisaPlayer(SuperPauPlayer):
-    def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(1, x, y, flip, data, attack_frame)
+    def __init__(self, x, y, flip, data, attack_frame, sprite):
+        super().__init__(1, x, y, flip, data, attack_frame, sprite)
         self.sex = 2
         self.name = "vesisa"
         self.invisible = False
@@ -79,7 +79,7 @@ class VesisaPlayer(SuperPauPlayer):
                 case 3:
                     attacking_rect = pygame.Rect(0, 0, 0, 0)
                     shield_sfx.play()
-                    create_particles((self.rect.centerx, self.rect.top), self.flip, dust)
+                    create_particles((self.rect.centerx, self.rect.top), self.flip, dust, 3)
                     self.invisible = True
                     self.attacking = False
                     # grab

@@ -43,10 +43,12 @@ def get_settings():
     # Выполнение запроса и получение результатов
     music_volume = cur.execute("""SELECT music_volume FROM SETTINGS""").fetchall()
     difficulty = cur.execute("""SELECT difficulty FROM SETTINGS""").fetchall()
+    sound_volume = cur.execute("""SELECT sound_volume FROM SETTINGS""").fetchall()
     con.close()
     mus = float(music_volume[0][0])
     dif = float(difficulty[0][0])
-    return mus, dif
+    sound = float(sound_volume[0][0])
+    return mus, sound, dif
 
 
 def get_game_complete():
@@ -81,9 +83,10 @@ def save_name(name):
     con.close()
 
 
-def save_settings(mus_vol, diffic):
+def save_settings(mus_vol, diffic, sound_vol):
     mus = float(mus_vol)
     dif = float(diffic)
+    soun = float(sound_vol)
     con = sqlite3.connect("G_PROGRESS.sqlite")
     # Создание курсора
     cur = con.cursor()
@@ -91,5 +94,7 @@ def save_settings(mus_vol, diffic):
                     SET music_volume = {mus}""")
     cur.execute(f"""UPDATE SETTINGS
                         SET difficulty = {dif}""")
+    cur.execute(f"""UPDATE SETTINGS
+                        SET sound_volume = {soun}""")
     con.commit()
     con.close()

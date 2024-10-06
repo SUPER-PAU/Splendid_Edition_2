@@ -12,6 +12,8 @@ button_O = pygame.image.load(r"assets\images\UI\o_button.png").convert_alpha()
 Left_Click = pygame.image.load(r"assets\images\UI\left_click.png").convert_alpha()
 Richt_Click = pygame.image.load(r"assets\images\UI\right_click.png").convert_alpha()
 Mid_Click = pygame.image.load(r"assets\images\UI\mid_click.png").convert_alpha()
+none_layout = pygame.image.load(r"assets\images\UI\none_layout.png").convert_alpha()
+home_button_sprite = pygame.image.load(r"assets\images\UI\home_button.png").convert_alpha()
 
 button_X = pygame.transform.scale(button_X, (60 * display.scr_w, 60 * display.scr_h))
 button_Triangle = pygame.transform.scale(button_Triangle, (60 * display.scr_w, 60 * display.scr_h))
@@ -20,3 +22,7 @@ button_O = pygame.transform.scale(button_O, (60 * display.scr_w, 60 * display.sc
 Left_Click = pygame.transform.scale(Left_Click, (60 * display.scr_w, 60 * display.scr_h))
 Richt_Click = pygame.transform.scale(Richt_Click, (60 * display.scr_w, 60 * display.scr_h))
 Mid_Click = pygame.transform.scale(Mid_Click, (60 * display.scr_w, 60 * display.scr_h))
+
+Home_Button = pygame.transform.scale(home_button_sprite, (60 * display.scr_w, 60 * display.scr_h))
+home_button_rect = pygame.rect.Rect((900 * display.scr_w, 20 * display.scr_h,
+                                   45 * display.scr_w, 45 * display.scr_h))

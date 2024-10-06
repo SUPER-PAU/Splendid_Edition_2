@@ -15,9 +15,7 @@ player_shield = [3, 2]
 
 
 class PLAYER:
-
     def __init__(self, player, x, y, flip, data, attack_frame):
-
         self.data = data
         self.player, self.size, self.image_scale, self.offset = player, data[0], data[1], data[2]
         self.attack_frame = attack_frame
@@ -45,6 +43,8 @@ class PLAYER:
         self.health = 100
         self.emoji_cooldown = 0
         self.dash_x = 0
+        self.skin_1 = 1
+        self.skin_2 = 0
         self.stunned = 0
         self.hit = False
         self.shield_on = False
@@ -62,6 +62,7 @@ class PLAYER:
         self.prev_hit = 0
         self.hit_timer = 6
         self.fire_cooldown = 0
+        self.image = None
 
     def set_side(self, player):
         self.side = player
@@ -72,12 +73,13 @@ class PLAYER:
         self.reset_pos()
 
     def load_images(self, sprite_sheet, animation_steps):
+        sprite = pygame.image.load(sprite_sheet).convert_alpha()
         # extract images from sprite_sheets
         animation_list = []
         for y, animation in enumerate(animation_steps):
             temp_img_list = []
             for x in range(animation):
-                temp_img = sprite_sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
+                temp_img = sprite.subsurface(x * self.size, y * self.size, self.size, self.size)
                 temp_img_list.append(
                     pygame.transform.scale(temp_img, (self.size * self.image_scale, self.size * self.image_scale)))
             animation_list.append(temp_img_list)
@@ -189,8 +191,9 @@ class PLAYER:
     def get_animation_params(self):
         return self.action, self.frame_index
 
-    def draw(self, surface, img):
-        img = pygame.transform.flip(img, self.flip, False)
+    def draw(self, surface):
+
+        img = pygame.transform.flip(self.image, self.flip, False)
         # pygame.draw.rect(surface, (255, 0, 0), self.rect)
         surface.blit(img,
                      (self.rect.x - self.offset[0] * self.image_scale, self.rect.y - self.offset[1] * self.image_scale))
@@ -267,36 +270,29 @@ class PLAYER:
     def stun(self):
         self.stunned = 45
 
-    def take_damage(self, hit, block_break=False, sender=2):
+    def take_damage(self, hit, block_break=False):
         hit = round(hit)
-        if not (hit == self.prev_hit and self.hit) and self.hit_timer <= 0:
-            if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
-                if sender == 2:
-                    self.hit_timer = 6
-                    self.prev_hit = hit
-                    self.health -= hit
-                    self.hit = True
-                    self.update_huge_attack_cd(100)
-                create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
-                if self.sex == 1:
-                    choice(human_sound).play()
-                elif self.sex == 2:
-                    choice(woman_sound).play()
+        if block_break or self.jump or self.stunned > 0 or self.sprint or self.attacking:
+            self.health -= hit
+            self.hit = True
+            self.update_huge_attack_cd(100)
+            create_particles((self.rect.centerx, self.rect.top), self.flip, blood)
+            if self.sex == 1:
+                choice(human_sound).play()
+            elif self.sex == 2:
+                choice(woman_sound).play()
+        else:
+            hit = round(hit * 0.2)
+            self.prev_hit = hit
+            self.health -= hit
+            self.blocking = True
+            self.update_huge_attack_cd(60)
+            if self.side == 1:
+                create_damage_number((50, 150),
+                                     self.flip, hit)
             else:
-                hit = round(hit * 0.2)
-                if sender == 2:
-                    self.hit_timer = 6
-                    self.prev_hit = hit
-                    self.health -= hit
-                    self.blocking = True
-                    self.update_huge_attack_cd(60)
-            if sender == 2:
-                if self.side == 1:
-                    create_damage_number((50, 150),
-                                         self.flip, hit)
-                else:
-                    create_damage_number((1750, 150),
-                                         self.flip, hit)
+                create_damage_number((1750, 150),
+                                     self.flip, hit)
 
     def set_on_fire(self):
         self.fire_cooldown = 250

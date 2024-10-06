@@ -2,28 +2,28 @@ import random
 
 import pygame
 
+from lib import mixer
 from lib.clock import Clock
 from lib.display import display
 from lib.drawer import draw_health_bar, draw_text, check_bg_instance
 from lib.joystick import joystick, get_j
-from lib.mixer import play_music_bg
+from lib.mixer import play_music_bg, play_music
 from lib.dialogs import dialogs_texts
-from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu, ChooseHeroMenu, OnlineBattle
-from lib.Database import update_gp, get_gp, get_player_name, get_game_complete, update_game_complete
-from constants.textures.sprites import all_sprites, bullet_sprites, attack_group, enemy_attack_group, damage_num_group
+from lib.Menu import MainMenu, ChooseModeMenu, OptionsMenu, ChooseOnlineModeMenu, ChooseHeroMenu
+from lib.Database import update_gp, get_gp, get_game_complete, update_game_complete
+from constants.textures.sprites import all_sprites, bullet_sprites, attack_group
 from lib.Settings import settings
 
 # Константы/переменные
 import constants.textures.backgrounds as bg
 import constants.audio.music as music
+from constants.audio.effects import update_sounds, bulat_fight
 import constants.colors as color
 import constants.fonts.turok as fonts
 import constants.textures.icons as layout
 from constants.progress import pg
-from lib.online.network import Network
 
 import lib.players_data.online_players as online_fighter
-from lib.players_data.particles_online import on_fire_class_enemy
 from lib.players import fighter_instances as f
 
 clocks = Clock()
@@ -33,10 +33,10 @@ font, count_font, score_font = fonts.sys, fonts.bigger_sys, fonts.bigger_sys
 # dialogs
 texts = dialogs_texts()
 # menus
-game_menu = MainMenu(display.scr_w, display.scr_h, bg.main_menu, music.main_menu)
+game_menu = MainMenu(display.scr_w, display.scr_h, bg.main_menu)
 options_menu = OptionsMenu(display.scr_w, display.scr_h, bg.options_menu)
-choose_mode_menu = ChooseModeMenu(display.scr_w, display.scr_h, bg.game_menu_animated, music.main_menu)
-choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.online_menu, music.main_menu, "")
+choose_mode_menu = ChooseModeMenu(display.scr_w, display.scr_h, bg.game_menu_animated)
+choose_online_mode_menu = ChooseOnlineModeMenu(bg.online_menu, music.main_menu)
 hero_choose_menu = ChooseHeroMenu(bg.hero_pick_menu)
 bg.briff_war.play()
 display.set_fps(24)
@@ -64,61 +64,46 @@ class Game:
         self.BOSS_RUSH_PROGRESS = 4
         self.BOSS_RUSH_ADD = 0
         self.game_completed = get_game_complete()
+        self.home_timer = 0
 
-        self.network = None
-        self.online_player = online_fighter.super_pau
-        self.team = [online_fighter.lisa, online_fighter.super_pau, online_fighter.tagir]
-        self.enemy = None
-        self.chosen = False
-        self.team_player = 6
-        self.choose_hero_window_on = False
-
+        self.online_players = (online_fighter.super_pau, online_fighter.lisa)
+        print(self.online_players)
         self.online_location = None
-        self.playing_emoji = False
-        self.enemy_was_attacking = False
-        self.lost = False
-        self.online_name = str(get_player_name())
-        self.current_player = 1
-        self.battle_menu = OnlineBattle(bg.choose_hero, self.team, self.online_name)
 
-    def online_fight(self, mouse_click, key_press):
+    def online_fight(self):
+        fighter1, fighter2 = self.online_players[0].player, self.online_players[1].player
         self.check_game_progress(*pg[self.online_location])
+        # show players stats
+        draw_health_bar(fighter1.health, 20 * display.scr_w, 20 * display.scr_h)
+        draw_health_bar(fighter2.health, 1100 * display.scr_w, 20 * display.scr_h)
+        draw_text(f"{fighter1}: {str(self.score[0])} / {3}", font, color.black, 17 * display.scr_w,
+                  83 * display.scr_h)
+        draw_text(f"{fighter2}: {str(self.score[1])} / {3}", font, color.black, 1097 * display.scr_w,
+                  83 * display.scr_h)
+        draw_text(f"{fighter1}: {str(self.score[0])} / {3}", font, color.red, 20 * display.scr_w,
+                  80 * display.scr_h)
+        draw_text(f"{fighter2}: {str(self.score[1])} / {3}", font, color.red, 1100 * display.scr_w,
+                  80 * display.scr_h)
 
-        fighter1 = self.online_player.player
-        fighter2 = self.enemy[0]
-
-        fighter1.ready_for_fight()
-
-        attack_group.update(fighter2, fighter1, 1)
-
-        draw_text("YOU", fonts.online_font, (0, 0, 0), fighter1.rect.centerx - 30, 1010)
-        draw_text("YOU", fonts.online_font, (255, 255, 255), fighter1.rect.centerx - 31, 1011)
-
-        fighter1.draw_hp()
-        fighter1.draw_round_statistic(self.online_name, font)
-        fighter2.draw_hp()
-        fighter2.draw_round_statistic(self.enemy[6], font)
-
-        if fighter2.playing_emoji is True and not self.playing_emoji:
-            fighter2.play_emoji()
-            self.playing_emoji = True
-        elif not fighter2.playing_emoji and self.playing_emoji:
-            self.playing_emoji = False
+        draw_text(f"{fighter1.health}/{fighter1.base_health}", font, color.black, 797 * display.scr_w,
+                  83 * display.scr_h)
+        draw_text(f"{fighter2.health}/{fighter2.base_health}", font, color.black, 1797 * display.scr_w,
+                  83 * display.scr_h)
+        draw_text(f"{fighter1.health}/{fighter1.base_health}", font, color.red, 800 * display.scr_w,
+                  80 * display.scr_h)
+        draw_text(f"{fighter2.health}/{fighter2.base_health}", font, color.red, 1800 * display.scr_w,
+                  80 * display.scr_h)
 
         # update fighters
-        fighter1.check_action()
-        fighter2.check_action()
-
-        firgter2_action, fighter2_frame_index = fighter2.get_animation_params()
-
-        # get_image
-        figter2_sprite = online_fighter.animation_list_by_name[fighter2.name][firgter2_action][fighter2_frame_index]
+        fighter1.update()
+        fighter2.update()
 
         # update countdown
         if self.intro_count <= 0:
-            if fighter1.stunned <= 0:
-                # move fighter
-                fighter1.move(display.screen, fighter2, self.round_over, mouse_click, key_press)
+            # move fighter
+            fighter1.move(fighter2, self.round_over)
+            fighter2.move(fighter1, self.round_over,
+                          self.GAME_PROGRESS, self.score[0])
         else:
             # display count timer
             draw_text(str(self.intro_count), count_font, color.red, display.screen_width / 2 - 20 * display.scr_w,
@@ -127,25 +112,15 @@ class Game:
             if (pygame.time.get_ticks() - self.last_count_update) >= 1000:
                 self.intro_count -= 1
                 self.last_count_update = pygame.time.get_ticks()
-
         self.final_round_over = False
-
         # draw fighters
-        fighter2.draw(display.screen, figter2_sprite)
-        self.online_player.draw_p()
-
-        if fighter2.fire_cooldown > 0:
-            on_fire_class_enemy.update()
-            fighter2.burn(on_fire_class_enemy.get_image())
-
+        fighter2.draw(display.screen)
+        fighter1.draw(display.screen)
         # check for player defeat
         if not self.round_over:
             if not fighter1.alive:
-                fighter1.health = 0
                 self.score[1] += 1
                 self.round_over = True
-                self.chosen = False
-                self.team_player = 6
                 self.round_over_time = pygame.time.get_ticks()
             if not fighter2.alive:
                 self.score[0] += 1
@@ -153,15 +128,30 @@ class Game:
                 self.round_over_time = pygame.time.get_ticks()
         else:
             all_sprites.empty()
-            enemy_attack_group.empty()
-            attack_group.empty()
-            bullet_sprites.empty()
+            fighter2.round_over_move()
             if pygame.time.get_ticks() - self.round_over_time > self.ROUND_OVER_COOLDOWN:
+                self.round_over = False
+                all_sprites.empty()
+                bullet_sprites.empty()
+                if self.score[0] >= 3:
+                    self.final_round_over = True
+                    self.score = [0, 0]
+                    choose_mode_menu.enable()
+                    play_music_bg(music.main_menu)
+                elif self.score[1] >= 3:
+                    self.score = [0, 0]
+                    self.final_round_over = True
+                    choose_mode_menu.enable()
+                    play_music_bg(music.main_menu)
                 self.intro_count = 4
-                self.battle_menu.enable()
+                fighter1.reset_params()
+                fighter2.reset_params()
 
-        self.enemy[4].update(fighter1, fighter2, 2)
-        self.enemy[5].update(fighter1, 2)
+        attack_group.update(fighter2, fighter1, 1)
+
+        draw_text("YOU", fonts.online_font, (0, 0, 0), fighter1.rect.centerx - 30, 1010)
+        draw_text("YOU", fonts.online_font, (255, 255, 255), fighter1.rect.centerx - 31, 1011)
+
         all_sprites.update()
         all_sprites.draw(display.screen)
         bullet_sprites.update(fighter2, 1)
@@ -175,172 +165,35 @@ class Game:
         if self.boss_rush_on:
             self.boss_rush()
         if self.online_on:
-            if self.final_round_over:
-                self.check_game_progress(*pg[self.online_location])
-                self.final_round_over = False
-                self.round_over = True
-                self.battle_menu = OnlineBattle(bg.choose_hero, self.team, self.online_name)
-                self.battle_menu.enable()
-            if self.battle_menu.is_enabled():
-                damage_num_group.empty()
-                bullet_sprites.empty()
-                all_sprites.empty()
-                enemy_attack_group.empty()
-                attack_group.empty()
-                self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost,
-                                                [self.team[0].player, self.team[1].player, self.team[2].player],
-                                                attack_group, bullet_sprites, self.online_name])
-                if self.online_player.player.health != 100 and not self.enemy[0]:
-                    self.enemy[2] = True
-                self.intro_count = 4
-                self.battle_menu.show(mouse_click, self.chosen, self.enemy[3], self.enemy[6])
-                if not self.enemy[0]:
-                    if self.battle_menu.cansel_button.is_clicked():
-                        self.battle_menu.disable()
-                        self.score = [0, 0]
-                        self.team_player = 6
-                        choose_online_mode_menu.enable()
-                        self.online_on = False
-                        self.final_round_over = True
-
-                        for player in self.team:
-                            player.reset_params()
-                        self.network.leave()
-                        self.chosen = False
-                        self.lost = False
-                        self.network = None
-                        self.intro_count = 4
-                        mouse_click = False
-                else:
-                    if self.battle_menu.player_hero_1.is_clicked():
-                        self.battle_menu.player_hero_1.set_picked()
-                        self.online_player = self.team[0]
-                        self.chosen = True
-                        self.online_player.player.set_side(self.current_player)
-                    elif self.battle_menu.player_hero_2.is_clicked():
-                        self.battle_menu.player_hero_2.set_picked()
-                        self.online_player = self.team[1]
-                        self.chosen = True
-                        self.online_player.player.set_side(self.current_player)
-                    elif self.battle_menu.player_hero_3.is_clicked():
-                        self.battle_menu.player_hero_3.set_picked()
-                        self.online_player = self.team[2]
-                        self.chosen = True
-                        self.online_player.player.set_side(self.current_player)
-                    if self.lost or self.enemy[2] or (self.score != [0, 0] and not self.enemy[0]):
-                        self.battle_menu.disable()
-                        self.score = [0, 0]
-                        self.team_player = 6
-                        choose_online_mode_menu.enable()
-                        self.online_on = False
-                        self.final_round_over = True
-
-                        for player in self.team:
-                            player.reset_params()
-                        self.network.leave()
-                        self.chosen = False
-                        self.lost = False
-                        self.network = None
-                        self.intro_count = 4
-                    elif not self.team[0].player.alive and not \
-                            self.team[1].player.alive and not self.team[2].player.alive:
-                        self.lost = True
-                        self.network.send([self.online_player.player, self.chosen, self.lost,
-                                          [self.team[0].player, self.team[1].player, self.team[2].player],
-                                           attack_group, bullet_sprites, self.online_name])
-                    if self.enemy[1] and self.chosen:
-                        self.battle_menu.disable()
-                        self.round_over = False
-            else:
-                self.enemy = self.network.send([self.online_player.player, self.chosen, self.lost, None,
-                                       attack_group, bullet_sprites, self.online_name])
-                if self.enemy[0]:
-                    self.online_fight(mouse_click, key_click)
-                else:
-                    self.battle_menu.enable()
+            self.online_fight()
+            joy_click = False
 
         if choose_online_mode_menu.is_enabled():
-            choose_online_mode_menu.show(mouse_click, key_click, self.team, joy_click)
+            choose_online_mode_menu.show(mouse_click, self.online_players, joy_click)
             joy_click = False
             if choose_online_mode_menu.exit_button.is_clicked():
                 choose_online_mode_menu.disable()
                 display.set_normal_window()
                 game_menu.enable()
-
-            if choose_online_mode_menu.hero_button_1.is_clicked():
-                choose_online_mode_menu.disable()
-                hero_choose_menu.enable(0)
-                mouse_click = False
-            elif choose_online_mode_menu.hero_button_2.is_clicked():
-                choose_online_mode_menu.disable()
-                hero_choose_menu.enable(1)
-                mouse_click = False
-            elif choose_online_mode_menu.hero_button_3.is_clicked():
-                choose_online_mode_menu.disable()
-                hero_choose_menu.enable(2)
-                mouse_click = False
             if choose_online_mode_menu.connect_button.is_clicked():
-                self.network = Network()
-                self.current_player = self.network.getP()
-                self.online_name = choose_online_mode_menu.line_edit.get_text()
-                if self.current_player:
-                    choose_online_mode_menu.disable()
-
-                    location = random.randrange(1, 56)
-                    self.online_location = location
-
-                    self.final_round_over = True
-                    self.online_on = True
-                else:
-                    print("cannot find a server")
-
-        if hero_choose_menu.is_enabled():
-            hero_choose_menu.show(mouse_click, self.team[hero_choose_menu.get_pick()], joy_click)
-            joy_click = False
-            if hero_choose_menu.super_pau.is_clicked():
-                if not hero_choose_menu.super_pau.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.super_pau.get_p()
-            elif hero_choose_menu.lisa.is_clicked():
-                if not hero_choose_menu.lisa.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.lisa.get_p()
-            elif hero_choose_menu.vesisa.is_clicked():
-                if not hero_choose_menu.vesisa.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.vesisa.get_p()
-            elif hero_choose_menu.tagir.is_clicked():
-                if not hero_choose_menu.tagir.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.tagir.get_p()
-            elif hero_choose_menu.artestro.is_clicked():
-                if not hero_choose_menu.artestro.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.artestro.get_p()
-            elif hero_choose_menu.aksenov.is_clicked():
-                if not hero_choose_menu.aksenov.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.aksenov.get_p()
-            elif hero_choose_menu.bulat.is_clicked():
-                if not hero_choose_menu.bulat.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bulat.get_p()
-            elif hero_choose_menu.robot_woman.is_clicked():
-                if not hero_choose_menu.robot_woman.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.robot_woman.get_p()
-            elif hero_choose_menu.bt25t.is_clicked():
-                if not hero_choose_menu.bt25t.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.bt25t.get_p()
-            elif hero_choose_menu.egor.is_clicked():
-                if not hero_choose_menu.egor.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.egor.get_p()
-            elif hero_choose_menu.kingartema.is_clicked():
-                if not hero_choose_menu.kingartema.get_p() in self.team:
-                    self.team[hero_choose_menu.get_pick()] = hero_choose_menu.kingartema.get_p()
-
-            if hero_choose_menu.exit_button.is_clicked():
-                hero_choose_menu.disable()
-                choose_online_mode_menu.enable(False)
+                choose_online_mode_menu.disable()
+                location = random.randrange(1, 56)
+                self.online_location = location
+                self.final_round_over = True
+                self.online_on = True
 
         if choose_mode_menu.is_enabled():
-            choose_mode_menu.show(mouse_click, joy_click)
+            choose_mode_menu.show(mouse_click, joy_click, self.GAME_PROGRESS, self.game_completed)
             joy_click = False
             if choose_mode_menu.exit_button.is_clicked():
                 choose_mode_menu.disable()
                 game_menu.enable()
+            if choose_mode_menu.gp_button_minus.is_clicked():
+                if self.GAME_PROGRESS > 0:
+                    self.GAME_PROGRESS -= 1
+            if choose_mode_menu.gp_button_plus.is_clicked():
+                if not self.GAME_PROGRESS + 1 > 54:
+                    self.GAME_PROGRESS += 1
             if choose_mode_menu.campain_button.is_clicked() and not self.GAME_PROGRESS > 54:
                 f.reset_players_story(self.GAME_PROGRESS)
                 self.main_campain_on = True
@@ -352,13 +205,8 @@ class Game:
                 self.final_round_over = True
                 choose_mode_menu.disable()
             if choose_mode_menu.online_button.is_clicked():
-
-                display.set_online_window()
                 online_fighter.load_chara_online()
-                self.online_player = online_fighter.super_pau
-                self.team = [online_fighter.lisa, online_fighter.super_pau, online_fighter.tagir]
-                choose_online_mode_menu = ChooseOnlineModeMenu(display.scr_w, display.scr_h, bg.online_menu,
-                                                               music.main_menu, self.online_name)
+                self.online_players = (online_fighter.super_pau, online_fighter.lisa)
                 hero_choose_menu = ChooseHeroMenu(bg.hero_pick_menu)
                 choose_online_mode_menu.enable()
                 choose_mode_menu.disable()
@@ -378,17 +226,28 @@ class Game:
         if options_menu.is_enabled():
             options_menu.show(mouse_click, joy_click)
             if options_menu.exit_button.is_clicked():
+                update_sounds()
                 options_menu.disable()
                 settings.save()
                 game_menu.enable()
             if options_menu.volume_button_plus.is_clicked():
                 settings.change_music_volume(0.01)
+                mixer.music.set_volume(settings.get_music_volume())
             if options_menu.volume_button_minus.is_clicked():
                 settings.change_music_volume(-0.01)
+                mixer.music.set_volume(settings.get_music_volume())
+            if options_menu.sound_button_plus.is_clicked():
+                settings.change_sound_volume(0.01)
+            if options_menu.sound_button_minus.is_clicked():
+                settings.change_sound_volume(-0.01)
+
             if options_menu.normal_mode.is_clicked():
                 settings.change_difficulty(1)
             if options_menu.easy_mode.is_clicked():
                 settings.change_difficulty(0.5)
+            if options_menu.hard_mode.is_clicked():
+                settings.change_difficulty(1.5)
+                bulat_fight.play()
 
         if bg.briff_war.is_playing():
             bg.briff_war.draw()
@@ -397,9 +256,13 @@ class Game:
                 bg.briff_war.stop()
         elif bg.end_cutscene_1.is_playing():
             bg.end_cutscene_1.draw()
+            key = pygame.key.get_pressed()
+            if key[pygame.K_c]:
+                bg.end_cutscene_1.stop()
         elif self.playing_cutscene is True:
             self.playing_cutscene = False
             game_menu.enable()
+            play_music_bg(music.main_menu)
             display.set_fps(60)
 
     def boss_rush(self):
@@ -412,7 +275,15 @@ class Game:
                 self.fight_boss(f.player_fighters, f.enemy_figters, 4, "Super PAU", "Flying El. Dumpling (Kingartema)")
                 self.BOSS_RUSH_ADD = 9
             case 20:
-                self.fight_boss(f.player_fighters, f.enemy_figters, 3, "Super PAU", "Moiseev")
+                if self.score[0] > 0 and f.enemy_figters[0].dead:
+                    fighter = f.enemy_figters[1]
+                    if not fighter.second_phase:
+                        play_music_bg(music.shadow_lord)
+                        fighter.second_phase = True
+                        fighter.rect.x = f.enemy_figters[0].rect.x
+                else:
+                    fighter = f.enemy_figters[0]
+                self.fight_boss(f.player_fighters, fighter, 3, "Super PAU", "Moiseev")
                 self.BOSS_RUSH_ADD = 5
             case 25:
                 self.fight_boss(f.player_fighters, f.enemy_figters, 4, 'Super PAU', "Bulat")
@@ -453,7 +324,7 @@ class Game:
             case 4:
                 self.fight(f.player_fighters, f.enemy_figters, 3, "Bt25t", "Albina")
             case 5:
-                self.fight(f.player_fighters, f.enemy_figters, 3, "Super PAU", "Bulat")
+                self.fight(f.player_fighters, f.enemy_figters, 2, "Super PAU", "Bulat")
             case 6:
                 self.fight(f.player_fighters, f.enemy_figters, 2, "Bulat", "Moiseev Security")
             case 7:
@@ -484,29 +355,37 @@ class Game:
                 self.fight(f.player_fighters, f.enemy_figters, 2, "Egor", "Moiseev Bot")
             case 18:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 6, ["Super PAU", "Super PAU", "Super PAU",
-                                                                        "Super PAU", "Super PAU", "Super PAU"],
+                                                                            "Super PAU", "Super PAU", "Super PAU"],
                                     ["state mercenary", "state mercenary", "state mercenary",
                                      "state mercenary", "Moiseev Bot", "Moiseev Bot"])
             case 19:
                 self.fight(f.player_fighters, f.enemy_figters, 2, "Bulat", "Moiseev Bot")
             case 20:
-                self.fight(f.player_fighters, f.enemy_figters, 3, "Super PAU", "Moiseev")
+                if self.score[0] > 0 and f.enemy_figters[0].dead:
+                    fighter = f.enemy_figters[1]
+                    if not fighter.second_phase:
+                        play_music_bg(music.shadow_lord)
+                        fighter.second_phase = True
+                        fighter.rect.x = f.enemy_figters[0].rect.x
+                else:
+                    fighter = f.enemy_figters[0]
+                self.fight(f.player_fighters, fighter, 3, "Super PAU", "Moiseev")
             case 21:
                 self.fight(f.player_fighters, f.enemy_figters, 3, "Super PAU", "Bulat Security")
             case 22:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 8, ["Super PAU", "Super PAU", "Super PAU",
-                                    "Super PAU", "Super PAU", "Super PAU", "Super PAU", "Super PAU"],
+                                                                            "Super PAU", "Super PAU", "Super PAU",
+                                                                            "Super PAU", "Super PAU"],
                                     ["Egor", "Egor", "Trio", "Trio", "Flying El. Dumpling (Kingartema)",
                                      "Flying El. Dumpling (Kingartema)", "Bt25t", "Bt25t"])
             case 23:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 4, ["NightButterfly (Tagir)",
-                                                                        "NightButterfly (Tagir)", "Aksenov", "Aksenov"],
+                                                                            "NightButterfly (Tagir)", "Aksenov",
+                                                                            "Aksenov"],
                                     ["Egor", "Trio", "Bt25t", "Flying El. Dumpling (Kingartema)"])
             case 24:
-                self.fight_survival(f.player_fighters, f.enemy_figters, 8, ["Bt25t", "Super PAU", "Bt25t", "Super PAU",
-                                    "Super PAU", "Super PAU", "Bt25t", "Super PAU"], ["Egor", "Egor", "Trio",
-                                     "Trio", "Flying El. Dumpling (Kingartema)", "Flying El. Dumpling (Kingartema)",
-                                     "NightButterfly (Tagir)", "NightButterfly (Tagir)"])
+                self.fight_survival(f.player_fighters, f.enemy_figters, 4, ["Super PAU", "Bt25t", "Super PAU", "Bt25t"],
+                                    ["Egor", "Trio", "Flying El. Dumpling (Kingartema)", "NightButterfly (Tagir)"])
             case 25:
                 self.fight(f.player_fighters, f.enemy_figters, 4, 'Super PAU', "Bulat")
             case 26:
@@ -539,7 +418,8 @@ class Game:
             case 39:
                 self.fight(f.player_fighters, f.enemy_figters, 2, "Aksenov", "survivor")
             case 40:
-                self.fight_survival(f.player_fighters, f.enemy_figters, 2, ["Aksenov", "Aksenov"], ["survivor", "survivor"])
+                self.fight_survival(f.player_fighters, f.enemy_figters, 2, ["Aksenov", "Aksenov"],
+                                    ["survivor", "survivor"])
             case 41:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 4, ["Aksenov", "Aksenov", "Aksenov", "Aksenov"],
                                     ["Negrominator", "Negrominator", "Walker", "Walker"])
@@ -551,18 +431,21 @@ class Game:
                 self.fight(f.player_fighters, f.enemy_figters, 1, "Aksenov", "negrominator")
             case 45:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 5, ["Tagir", "Aksenov", "kingartema", "Bt25t",
-                                     "Egor"], ["Negrominator", "Walker", "Walker", "Walker", "General"])
+                                                                            "Egor"],
+                                    ["Negrominator", "Walker", "Walker", "Walker", "General"])
             case 46:
                 self.fight(f.player_fighters, f.enemy_figters, 3, "Vasisa", "Robot_killer")
             case 47:
-                self.fight_survival(f.player_fighters, f.enemy_figters, 2, ["Trio", "Trio"], ["USA Bot", "Robot_killer"])
+                self.fight_survival(f.player_fighters, f.enemy_figters, 2, ["Trio", "Trio"],
+                                    ["USA Bot", "Robot_killer"])
             case 48:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 3,
-                            ["Aksenov", "Tagir", "Bt25t"], ["Negrominator", "Negrominator", "General"])
+                                    ["Aksenov", "Tagir", "Bt25t"], ["Negrominator", "Negrominator", "General"])
             case 49:
-                self.fight(f.player_fighters, f.enemy_figters, 2, "Walker Hacked", "Negrominator")
+                self.fight(f.player_fighters, f.enemy_figters, 2, "Walker Hacked", "Walker")
             case 50:
-                self.fight_survival(f.player_fighters, f.enemy_figters, 2, ["kingartema", "Egor"], ["USA Bot", "General"])
+                self.fight_survival(f.player_fighters, f.enemy_figters, 2, ["kingartema", "Egor"],
+                                    ["USA Bot", "General"])
             case 51:
                 self.fight_survival(f.player_fighters, f.enemy_figters, 8,
                                     ["Aksenov", "Aksenov", "Tagir", "Tagir", "Trio", "Trio", "Bt25t", "Bt25t"],
@@ -655,7 +538,8 @@ class Game:
                         update_game_complete(1)
                         self.playing_cutscene = True
                     else:
-                        game_menu.enable()
+                        choose_mode_menu.enable()
+                        play_music_bg(music.main_menu)
                 self.intro_count = 4
                 return
 
@@ -667,6 +551,12 @@ class Game:
 
     def fight_boss(self, fighter1, fighter2, rounds, f1_name, f2_name):
         if not self.is_dialogue:
+            key = pygame.key.get_pressed()
+            if joystick.get_joystick():
+                joybutton = joystick.main_joystick.get_button
+            else:
+                joybutton = get_j
+
             # show players stats
             draw_health_bar(fighter1.health, 20 * display.scr_w, 20 * display.scr_h)
             draw_health_bar(fighter2.health, 1100 * display.scr_w, 20 * display.scr_h)
@@ -678,6 +568,26 @@ class Game:
                       80 * display.scr_h)
             draw_text(f"{f2_name}: {str(self.score[1])} / {rounds}", font, color.red, 1100 * display.scr_w,
                       80 * display.scr_h)
+
+            draw_text(f"{int(fighter1.health)}/{fighter1.base_health}", font, color.black, 697 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{int(fighter2.health)}/{fighter2.base_health}", font, color.black, 1777 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{int(fighter1.health)}/{fighter1.base_health}", font, color.red, 700 * display.scr_w,
+                      80 * display.scr_h)
+            draw_text(f"{int(fighter2.health)}/{fighter2.base_health}", font, color.red, 1780 * display.scr_w,
+                      80 * display.scr_h)
+
+            if key[pygame.K_ESCAPE] or joybutton(1):
+                self.home_timer += 1
+            else:
+                self.home_timer = 0
+            if self.home_timer > 0:
+                display.screen.blit(layout.home_button_sprite, (layout.home_button_rect.x, layout.home_button_rect.y))
+                pygame.draw.rect(display.screen, (200, 200, 255),
+                                 (900 * display.scr_w, 20 * display.scr_h, self.home_timer * display.scr_w,
+                                  15 * display.scr_h))
+
             # update fighters
             fighter1.update()
             fighter2.update()
@@ -685,7 +595,7 @@ class Game:
             # update countdown
             if self.intro_count <= 0:
                 # move fighter
-                fighter1.move(fighter2, self.round_over)
+                fighter1.move(fighter2, self.round_over, key)
                 fighter2.move(fighter1, self.round_over,
                               self.BOSS_RUSH_PROGRESS, self.score[0])
             elif self.is_dialogue:
@@ -703,7 +613,7 @@ class Game:
             fighter2.draw(display.screen)
             fighter1.draw(display.screen)
             # check for player defeat
-            if not self.round_over:
+            if not self.round_over or self.home_timer < 100:
                 if not fighter1.alive:
                     self.score[1] += 1
                     self.round_over = True
@@ -727,22 +637,30 @@ class Game:
                             self.final_round_over = True
                             self.boss_rush_on = False
                             game_menu.enable()
+                            play_music_bg(music.main_menu)
                         else:
                             self.final_round_over = True
                             self.BOSS_RUSH_PROGRESS += self.BOSS_RUSH_ADD
                             f.reset_players_story(self.BOSS_RUSH_PROGRESS)
-                    elif self.score[1] >= rounds:
+                    elif self.score[1] >= rounds or self.home_timer >= 100:
                         self.score = [0, 0]
                         self.BOSS_RUSH_PROGRESS = 4
                         self.final_round_over = True
                         self.boss_rush_on = False
                         game_menu.enable()
+                        play_music_bg(music.main_menu)
                     self.intro_count = 4
                     fighter1.reset_params()
                     fighter2.reset_params()
 
     def fight(self, fighter1, fighter2, rounds, f1_name, f2_name):
         if not self.is_dialogue:
+            key = pygame.key.get_pressed()
+            if joystick.get_joystick():
+                joybutton = joystick.main_joystick.get_button
+            else:
+                joybutton = get_j
+
             # show players stats
             draw_health_bar(fighter1.health, 20 * display.scr_w, 20 * display.scr_h)
             draw_health_bar(fighter2.health, 1100 * display.scr_w, 20 * display.scr_h)
@@ -754,6 +672,26 @@ class Game:
                       80 * display.scr_h)
             draw_text(f"{f2_name}: {str(self.score[1])} / {rounds}", font, color.red, 1100 * display.scr_w,
                       80 * display.scr_h)
+
+            draw_text(f"{int(fighter1.health)}/{fighter1.base_health}", font, color.black, 697 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{int(fighter2.health)}/{fighter2.base_health}", font, color.black, 1777 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{int(fighter1.health)}/{fighter1.base_health}", font, color.red, 700 * display.scr_w,
+                      80 * display.scr_h)
+            draw_text(f"{int(fighter2.health)}/{fighter2.base_health}", font, color.red, 1780 * display.scr_w,
+                      80 * display.scr_h)
+
+            if key[pygame.K_ESCAPE] or joybutton(1):
+                self.home_timer += 1
+            else:
+                self.home_timer = 0
+            if self.home_timer > 0:
+                display.screen.blit(layout.home_button_sprite, (layout.home_button_rect.x, layout.home_button_rect.y))
+                pygame.draw.rect(display.screen, (200, 200, 255),
+                                 (900 * display.scr_w, 20 * display.scr_h, self.home_timer * display.scr_w,
+                                  15 * display.scr_h))
+
             # update fighters
             fighter1.update()
             fighter2.update()
@@ -761,7 +699,7 @@ class Game:
             # update countdown
             if self.intro_count <= 0:
                 # move fighter
-                fighter1.move(fighter2, self.round_over)
+                fighter1.move(fighter2, self.round_over, key)
                 fighter2.move(fighter1, self.round_over,
                               self.GAME_PROGRESS, self.score[0])
             elif self.is_dialogue:
@@ -779,13 +717,16 @@ class Game:
             fighter2.draw(display.screen)
             fighter1.draw(display.screen)
             # check for player defeat
-            if not self.round_over:
+            if not self.round_over and self.home_timer < 100:
                 if not fighter1.alive:
                     self.score[1] += 1
                     self.round_over = True
                     self.round_over_time = pygame.time.get_ticks()
                 if not fighter2.alive:
                     self.score[0] += 1
+                    if self.score[0] >= rounds:
+                        if self.GAME_PROGRESS == 25:
+                            play_music(music.the_only_thing_i_know_end)
                     self.round_over = True
                     self.round_over_time = pygame.time.get_ticks()
             else:
@@ -802,17 +743,24 @@ class Game:
                         self.GAME_PROGRESS += 1
                         f.reset_players_story(self.GAME_PROGRESS)
                         update_gp(self.GAME_PROGRESS)
-                    elif self.score[1] >= rounds:
+                    elif self.score[1] >= rounds or self.home_timer >= 100:
                         self.score = [0, 0]
                         self.final_round_over = True
                         self.main_campain_on = False
-                        game_menu.enable()
+                        choose_mode_menu.enable()
+                        play_music_bg(music.main_menu)
                     self.intro_count = 4
                     fighter1.reset_params()
                     fighter2.reset_params()
 
     def fight_survival(self, fighters1, fighters2, rounds, f1_names, f2_names):
         if not self.is_dialogue:
+            key = pygame.key.get_pressed()
+            if joystick.get_joystick():
+                joybutton = joystick.main_joystick.get_button
+            else:
+                joybutton = get_j
+
             fighter1 = fighters1[self.fighter_id]
             fighter2 = fighters2[self.fighter_id]
             # show players stats
@@ -830,6 +778,26 @@ class Game:
                       83 * display.scr_h)
             draw_text(f"{f2_names[self.fighter_id]}: {str(self.score[1])} / {rounds}", font, color.red,
                       1100 * display.scr_w, 80 * display.scr_h)
+
+            draw_text(f"{int(fighter1.health)}/{fighter1.base_health}", font, color.black, 697 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{int(fighter2.health)}/{fighter2.base_health}", font, color.black, 1777 * display.scr_w,
+                      83 * display.scr_h)
+            draw_text(f"{int(fighter1.health)}/{fighter1.base_health}", font, color.red, 700 * display.scr_w,
+                      80 * display.scr_h)
+            draw_text(f"{int(fighter2.health)}/{fighter2.base_health}", font, color.red, 1780 * display.scr_w,
+                      80 * display.scr_h)
+
+            if key[pygame.K_ESCAPE] or joybutton(1):
+                self.home_timer += 1
+            else:
+                self.home_timer = 0
+            if self.home_timer > 0:
+                display.screen.blit(layout.home_button_sprite, (layout.home_button_rect.x, layout.home_button_rect.y))
+                pygame.draw.rect(display.screen, (200, 200, 255),
+                                 (900 * display.scr_w, 20 * display.scr_h, self.home_timer * display.scr_w,
+                                  15 * display.scr_h))
+
             # update fighters
             fighter1.update()
             fighter2.update()
@@ -837,7 +805,7 @@ class Game:
             # update countdown
             if self.intro_count <= 0:
                 # move fighter
-                fighter1.move(fighter2, self.round_over)
+                fighter1.move(fighter2, self.round_over, key)
                 fighter2.move(fighter1, self.round_over, self.GAME_PROGRESS, self.score[0])
             else:
                 # display count timer
@@ -852,7 +820,7 @@ class Game:
             fighter2.draw(display.screen)
             fighter1.draw(display.screen)
             # check for player defeat
-            if not self.round_over:
+            if not self.round_over and self.home_timer < 100:
                 if not fighter1.alive:
                     self.score[1] += 1
                     self.round_over = True
@@ -871,12 +839,13 @@ class Game:
                     fighter2.reset_params()
                     self.fighter_id = self.score[0]
                     self.intro_count = 4
-                    if self.score[1] >= rounds:
+                    if self.score[1] >= rounds or self.home_timer >= 100:
                         self.score = [0, 0]
                         self.fighter_id = 0
                         self.final_round_over = True
                         self.main_campain_on = False
-                        game_menu.enable()
+                        choose_mode_menu.enable()
+                        play_music_bg(music.main_menu)
                     elif self.score[0] >= rounds:
                         self.final_round_over = True
                         self.post_fight_dial = True

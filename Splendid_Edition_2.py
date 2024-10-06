@@ -5,10 +5,10 @@ from lib.display import display
 from lib.gamemodes import Game
 from lib.joystick import joystick
 
+
 # Инициализация
 pygame.init()
 mixer.init()
-
 
 game = Game()
 # Загрузка клока
@@ -21,7 +21,6 @@ mouse_click = False
 keyboard_click = False
 joy_click = False
 new_frame = True
-
 # Луп игры
 while game.aplication_run:
     # Хэндлер
@@ -32,8 +31,6 @@ while game.aplication_run:
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
-            if game.network:
-                game.network.leave()
             game.aplication_run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_click = True

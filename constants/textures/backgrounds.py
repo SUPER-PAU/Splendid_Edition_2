@@ -46,6 +46,7 @@ america_streets = pygame.image.load(r"assets\images\background\america_rooftops.
 destroyed_iskhakov = pygame.image.load(r"assets\images\background\saratov_ruins.png").convert_alpha()
 american_collider = pygame.image.load(r"assets\images\background\american_collider.png").convert_alpha()
 broken_conveyer = pygame.image.load(r"assets\images\background\broken_conveyer.png").convert_alpha()
+japan_lisa_fight = pygame.image.load(r"assets\images\background\japan_lisa_fight.png").convert_alpha()
 
 yellow = pygame.image.load(r"assets\images\background\yellow.png").convert_alpha()
 black = pygame.image.load(r"assets\images\background\black.png").convert_alpha()
@@ -55,6 +56,9 @@ loading_screen = pygame.image.load(r"assets\images\background\loading_screen.png
 online_menu = pygame.image.load(r"assets\images\background\world_collapse.png").convert_alpha()
 choose_hero = pygame.image.load(r"assets\images\background\hero_pick.png").convert_alpha()
 hero_pick_menu = pygame.image.load(r"assets\images\background\hero_pick_menu.png").convert_alpha()
+bulat_boss = pygame.image.load(r"assets\images\background\bulat_boss.png").convert_alpha()
+lisa_boss = pygame.image.load(r"assets\images\background\lisa_boss.png").convert_alpha()
+bulat_smile = pygame.image.load(r"assets\images\background\bulat_smile.png").convert_alpha()
 
 # видео фоны
 game_menu_animated = r"assets\images\animated_background\city_kazan.mp4"
@@ -72,6 +76,7 @@ bgs = [ruins, shop, buildings, broken_robot, lab_mais, parlament, city_ruins, ab
        velicolepnoye, shelter, explosion, city_center, yellow, fight_tip]
 
 # cut-scenes
-briff_war = CutScene(r"assets\images\cut_scenes\briffing_war.mp4", r"assets\images\cut_scenes\briffing_war.mp3")
+briff_war = CutScene(r"assets\images\cut_scenes\se2_short_brief_2.mp4",
+                     r"assets\images\cut_scenes\se2_short_brief_2.mp3")
 end_cutscene_1 = CutScene(r"assets\images\cut_scenes\final_cutscene_1.mp4",
                           r"assets\images\cut_scenes\final_cutscene_1.mp3")

@@ -1,13 +1,16 @@
 from random import choice
 
 import pygame
+
+from lib.Settings import settings
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_rocket, create_stone, \
     create_damage_number, create_beam, create_explosion
-from constants.audio.effects import shield_sfx, explosion_sounds
+from constants.audio.effects import shield_sfx, explosion_sounds, gaubica_sounds
 from constants.textures.sprites import shield_parts
 from lib.attack import Attack
 from lib.joystick import get_j, joystick
+from lib.screen_effects import screen_shake, shake_damage
 import constants.textures.icons as layout
 
 player_spec = [1, 9, 12]
@@ -21,17 +24,18 @@ r_click_rect = pygame.rect.Rect((550 * display.scr_w, 1000 * display.scr_h,
 ult_click_rect = pygame.rect.Rect((830 * display.scr_w, 45 * display.scr_h,
                                    45 * display.scr_w, 45 * display.scr_h))
 shield_click_rect = pygame.rect.Rect((240 * display.scr_w, 45 * display.scr_h,
-                                   45 * display.scr_w, 45 * display.scr_h))
+                                      45 * display.scr_w, 45 * display.scr_h))
 
 
 class FighterPLAYER:
-    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, attack_frame):
+    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, hurt_fx, particle_sprite, partcl_type,
+                 attack_frame):
         self.data = data
         self.player, self.size, self.image_scale, self.offset = player, data[0], data[1], data[2]
         self.attack_frame = attack_frame
         self.start_pos = x, y, flip
         self.flip = flip
-        self.animation_list = self.load_images(sprite_sheet, animation_steps)
+        self.animation_list = self.load_images(pygame.image.load(sprite_sheet).convert_alpha(), animation_steps)
         self.rect = pygame.Rect((x, y, data[3][0], data[3][1]))
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
@@ -53,9 +57,12 @@ class FighterPLAYER:
         self.dash_x = 0
         self.stunned = 0
         self.hurt_sfx, self.particle = hurt_fx, particle_sprite
+        self.particle_type = partcl_type
         self.hit = False
         self.shield_on = False
         self.alive = True
+        self.last_phase = False
+        self.base_health = 100
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
@@ -91,7 +98,7 @@ class FighterPLAYER:
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
 
-    def move(self, target, round_over):
+    def move(self, target, round_over, key):
         SPEED = 9 * display.scr_w
         if not self.jump:
             SPEED += 4.3 * display.scr_w
@@ -101,21 +108,35 @@ class FighterPLAYER:
         self.running = False
         self.attack_type = 0
         hit = 10
-        # key presses
-        key = pygame.key.get_pressed()
+        jump_trigger = False
+
         if joystick.get_joystick():
             joybutton = joystick.main_joystick.get_button
+            stick_horiz_move = joystick.main_joystick.get_axis(0)
+            if abs(stick_horiz_move) < 0.1:
+                stick_horiz_move = 0
+            stick_vert_move = joystick.main_joystick.get_axis(1)
         else:
             joybutton = get_j
+            stick_horiz_move = 0
+            stick_vert_move = 0
+
         mouse_left, mouse_middle, mouse_right = pygame.mouse.get_pressed()
+
 
         # if player is stunned by beam
         if self.stunned > 0:
             self.stunned -= 1
             self.take_damage(0.2)
             self.vel_y = 0
-        # heal player aboba os ability sprint
+            screen_shake(2)
+
+        # heal player aboba os ability
         self.heal(0.017)
+
+        if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11) or stick_vert_move < -0.6) and self.jump is False:
+            jump_trigger = True
+
         # can only perform other actions if not attacking
         if not self.attacking and self.alive and not round_over:
 
@@ -123,6 +144,8 @@ class FighterPLAYER:
                 # bt25t final
                 case 12:
                     SPEED += 3 * display.scr_w
+                    if target.last_phase:
+                        SPEED += 1 * display.scr_w
                     self.shield_on = False
                     # attack
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or key[pygame.K_f] \
@@ -146,7 +169,7 @@ class FighterPLAYER:
                 case 11:
                     SPEED += 2 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -50 * display.scr_h
                         self.jump = True
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
@@ -179,7 +202,7 @@ class FighterPLAYER:
                 case 9:
                     SPEED -= 1 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -46 * display.scr_h
                         self.jump = True
                     # attack
@@ -206,7 +229,7 @@ class FighterPLAYER:
                 case 8:
                     SPEED += 2 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -50 * display.scr_h
                         self.jump = True
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
@@ -222,7 +245,7 @@ class FighterPLAYER:
 
                 # kingartema
                 case 7:
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -46 * display.scr_h
                         self.jump = True
                         # attack
@@ -240,7 +263,7 @@ class FighterPLAYER:
                     # movement
                     SPEED += 4 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -52 * display.scr_h
                         self.jump = True
                     # attack
@@ -257,7 +280,7 @@ class FighterPLAYER:
                 case 5:
                     SPEED += 1 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -50 * display.scr_h
                         self.jump = True
                     # attack
@@ -284,14 +307,14 @@ class FighterPLAYER:
                             hit = 10
                         elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 3
-                            hit = 18
+                            hit = 15
                         self.attack(target, 1.09, hit)
 
                 # check aks controls
                 case 3:
                     SPEED += 1 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -45 * display.scr_h
                         self.jump = True
                     # attack
@@ -310,7 +333,7 @@ class FighterPLAYER:
                     # movement
                     SPEED += 3 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -52 * display.scr_h
                         self.jump = True
                     # attack
@@ -329,7 +352,7 @@ class FighterPLAYER:
                     # movement
                     SPEED += 3 * display.scr_w
                     # jump
-                    if (key[pygame.K_w] or key[pygame.K_SPACE] or joybutton(11)) and self.jump is False:
+                    if jump_trigger and self.jump is False:
                         self.vel_y = -46 * display.scr_h
                         self.jump = True
                     # attack
@@ -350,12 +373,16 @@ class FighterPLAYER:
                             self.attack_type = 4
                             hit = 14
                             self.attack(target, 2.5, hit)
-            # movement
-            if key[pygame.K_a] or joybutton(13):
-                dx = -SPEED
-                self.running = True
-            if key[pygame.K_d] or joybutton(14):
-                dx = SPEED
+            if stick_horiz_move == 0:
+                # movement
+                if key[pygame.K_a] or joybutton(13):
+                    dx = -SPEED
+                    self.running = True
+                if key[pygame.K_d] or joybutton(14):
+                    dx = SPEED
+                    self.running = True
+            else:
+                dx = SPEED * stick_horiz_move
                 self.running = True
 
             # ensure players face each other
@@ -465,7 +492,7 @@ class FighterPLAYER:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)
             attacking_rect = None
-
+            hit = int(hit // settings.get_difficulty())
             # att 1
             match self.attack_type:
 
@@ -499,6 +526,7 @@ class FighterPLAYER:
                     bullet_rect = pygame.Rect(self.rect.centerx - (self.rect.width * self.flip),
                                               self.rect.y + self.rect.height * 0.4,
                                               50 * display.scr_w, 50 * display.scr_h)
+                    choice(gaubica_sounds).play()
                     offset = 10
                     bullet_data = [20, 9.1 * display.scr_w, (offset, 10), [2, 2], self.flip]
                     create_beam(bullet_rect, bullet_data, target, hit)
@@ -558,6 +586,7 @@ class FighterPLAYER:
                 # upd action 7
                 case 18:
                     pygame.mixer.Sound.play(choice(explosion_sounds))
+                    screen_shake(15)
                     explosion_rect1 = pygame.Rect(self.rect.centerx - (400 * display.scr_w),
                                                   display.screen_height - 710 * display.scr_h,
                                                   400 * display.scr_w, 600 * display.scr_h)
@@ -590,6 +619,7 @@ class FighterPLAYER:
                     size = 25
                     bullet_data = [20, 4.55 * display.scr_w, (10, 6), [2, 2], self.flip]
                     if self.player in [4, 12, 7]:
+                        choice(gaubica_sounds).play()
                         size = 50
                         bullet_data = [20, 9.1 * display.scr_w, (10, 6), [2, 2], self.flip]
                     bullet_rect = pygame.Rect(self.rect.right - (self.rect.width * self.flip),
@@ -622,11 +652,11 @@ class FighterPLAYER:
             self.update_time = pygame.time.get_ticks()
 
     def draw(self, surface):
+        self.draw_cooldown_stats(surface)
         img = pygame.transform.flip(self.image, self.flip, False)
         # pygame.draw.rect(surface, (255, 0, 0), self.rect)
         surface.blit(img,
                      (self.rect.x - self.offset[0] * self.image_scale, self.rect.y - self.offset[1] * self.image_scale))
-        self.draw_cooldown_stats(surface)
 
     def draw_cooldown_stats(self, surface):
         # draw atk cooldown
@@ -637,7 +667,7 @@ class FighterPLAYER:
                          (30 * display.scr_w, 1020 * display.scr_h, 440 * display.scr_w, 15 * display.scr_h))
         pygame.draw.rect(surface, (204, 51, 0),
                          (30 * display.scr_w, 1020 * display.scr_h, (440 - self.attack_cooldown * 8) * display.scr_w,
-                             15 * display.scr_h))
+                          15 * display.scr_h))
         if self.attack_cooldown <= 0:
             if joystick.get_layout() == "mouse":
                 surface.blit(layout.Left_Click, (l_click_rect.x, l_click_rect.y))
@@ -714,7 +744,7 @@ class FighterPLAYER:
     def dash(self):
         if self.dashing:
             self.rect.x += self.dash_x * display.scr_w
-            if self.player == 4:
+            if self.player == 4 or self.player == 12:
                 self.shield_on = True
 
     def stun(self):
@@ -724,12 +754,13 @@ class FighterPLAYER:
         if not self.shield_on:
             self.health -= hit
             self.hit = True
+            shake_damage()
             if not self.stunned:
                 create_damage_number((50 * display.scr_w, 150 * display.scr_h),
                                      self.flip, hit)
-                create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle)
+                create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle, self.particle_type)
                 choice(self.hurt_sfx).play()
         else:
             self.shield_on = False
             shield_sfx.play()
-            create_particles((self.rect.centerx, self.rect.top), self.flip, shield_parts)
+            create_particles((self.rect.centerx, self.rect.top), self.flip, shield_parts, 4)

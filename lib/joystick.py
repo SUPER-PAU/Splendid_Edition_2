@@ -1,6 +1,5 @@
 import pygame
 
-
 pygame.joystick.init()
 
 supported_controllers = ['DualSense Wireless Controller', 'PS4 Controller']
@@ -36,12 +35,15 @@ class Joystick:
     def get_joystick(self):
         return self.main_joystick
 
+    def shake_j(self, time):
+        self.main_joystick.rumble(1, 1, time * 10)
+
+    def shake_j_low(self):
+        self.main_joystick.rumble(1, 0, 100)
+
 
 joystick = Joystick()
 
 
 def get_j(*args):
     return False
-
-
-

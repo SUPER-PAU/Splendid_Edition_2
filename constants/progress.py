@@ -25,7 +25,7 @@ pg = [
     (bg.kazan_afterwar, music.city_center),  # 17
     (bg.moiseev_garage, music.night_square),  # 18
     (bg.moiseev_collider, music.collider),  # 19
-    (bg.moiseev_collider_animated, music.collider),  # 20
+    (bg.moiseev_collider_animated, music.roboboss_roof),  # 20
     (bg.subway, music.night_square),  # 21
     (bg.bulat_lab, music.may),  # 22
     (bg.bulats_robot, music.gates_of_shadows),  # 23
@@ -42,7 +42,7 @@ pg = [
     (bg.buildings, music.valorant_halftrue_remix),  # 34
     (bg.shop, music.scyscrapers),  # 35
     (bg.aboba, music.aboba_realm),  # 36
-    (bg.shop, music.a_stranger_i_remain_instrumental),  # 37
+    (bg.japan_lisa_fight, music.a_stranger_i_remain_instrumental),  # 37
     (bg.city_ruins, music.negrominator_invasion),  # 38
     (bg.shelter, music.lisa_boss2),  # 39
     (bg.shelter, music.lisa_boss2),  # 40

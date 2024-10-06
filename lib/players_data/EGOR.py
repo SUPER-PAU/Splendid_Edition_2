@@ -4,8 +4,8 @@ import pygame
 
 
 class EgorPlayer(SuperPauPlayer):
-    def __init__(self, x, y, flip, data, attack_frame):
-        super().__init__(1, x, y, flip, data, attack_frame)
+    def __init__(self, x, y, flip, data, attack_frame, sprite):
+        super().__init__(1, x, y, flip, data, attack_frame, sprite)
         self.sex = 1
         self.name = "egor"
         self.is_tank = True

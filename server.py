@@ -9,7 +9,7 @@ import sys
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
-server = "188.120.248.249"
+server = "82.146.60.52"
 
 port = int(os.environ.get("PORT", 10000))
 print(f"{datetime.datetime.now()}, server {server}:{port}")
