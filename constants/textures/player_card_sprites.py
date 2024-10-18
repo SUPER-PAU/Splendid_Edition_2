@@ -4,6 +4,8 @@ import pygame
 dead = pygame.image.load(r"assets\images\main hero\card_sprites\dead.png").convert_alpha()
 picked = pygame.image.load(r"assets\images\main hero\card_sprites\pikced.png").convert_alpha()
 clicked = pygame.image.load(r"assets\images\main hero\card_sprites\card_click.png").convert_alpha()
+card_lock = pygame.image.load(r"assets\images\main hero\card_sprites\card_lock.png").convert_alpha()
+
 aksenov = pygame.image.load(r"assets\images\main hero\card_sprites\aks.png").convert_alpha()
 pau = pygame.image.load(r"assets\images\main hero\card_sprites\pau.png").convert_alpha()
 bt25 = pygame.image.load(r"assets\images\main hero\card_sprites\bt25.png").convert_alpha()
@@ -17,6 +19,9 @@ kingartema = pygame.image.load(r"assets\images\main hero\card_sprites\kingartema
 artestro = pygame.image.load(r"assets\images\main hero\card_sprites\artestro.png").convert_alpha()
 robot_woman = pygame.image.load(r"assets\images\main hero\card_sprites\robot_woman.png").convert_alpha()
 
+pau_v2 = pygame.image.load(r"assets\images\main hero\card_sprites\pau_v2.png").convert_alpha()
+vesisa_v2 = pygame.image.load(r"assets\images\main hero\card_sprites\vesisa_v2.png").convert_alpha()
+lisa_v2 = pygame.image.load(r"assets\images\main hero\card_sprites\lisa_v2.png").convert_alpha()
 
 card_by_name = {
     "lisa": lisa,

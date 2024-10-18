@@ -194,12 +194,12 @@ class CardButtonEnemy:
 
 
 class CardButton:
-    def __init__(self, player, pos, button_image=None, button=None):
+    def __init__(self, pos, picked, button_image=None, text=None, button=None):
         self.pos = pos
         self.x, self.y = pos
 
         self.picked_pos = (self.x - 38 * display.scr_w, self.y - 50 * display.scr_h)
-
+        self.text = text
         self.normal_size = self.width, self.height = 150 * display.scr_w, 200 * display.scr_h
         self.picked_size = 225 * display.scr_w, 300 * display.scr_h
         self.size = self.normal_size
@@ -210,7 +210,7 @@ class CardButton:
         self.render = None
         self.player = player
         self.clicked_image = card.clicked
-        self.picked = False
+        self.picked = picked
         self.button_image = button_image
         self.button = button
 
@@ -220,17 +220,14 @@ class CardButton:
     def set_picked(self):
         self.picked = True
 
+    def set_unpicked(self):
+        self.picked = False
+
     def show(self):
 
-        img = pygame.transform.scale(self.player.card_img(), self.size)
+        img = pygame.transform.scale(self.button_image, self.size)
         display.screen.blit(img, (self.x, self.y))
-        if not self.player.player.alive:
-            self.size = self.normal_size
-            img = pygame.transform.scale(card.dead, self.size)
-            display.screen.blit(img, (self.x, self.y))
-            self.picked = False
-            self.clicked = False
-        elif self.picked:
+        if self.picked:
             self.size = self.picked_size
             self.x, self.y = self.picked_pos
             img = pygame.transform.scale(card.picked, self.size)
@@ -246,14 +243,27 @@ class CardButton:
         # display.screen.blit(self.surface, (self.x, self.y))
         # pygame.draw.rect(self.surface, (255, 255, 255), self.rect)
 
-    def click(self, mouse_click, joy_click):
+    def show_locked(self):
+        img = pygame.transform.scale(card.card_lock, self.size)
+        display.screen.blit(img, (self.x, self.y))
+        draw_text(self.text, font, "white", self.rect.left - (60 * display.scr_w),
+                  self.rect.bottom + (20 * display.scr_h))
 
+    def show_locked_2_line(self):
+        img = pygame.transform.scale(card.card_lock, self.size)
+        display.screen.blit(img, (self.x, self.y))
+        draw_text(self.text[0], font, "white", self.rect.left - (60 * display.scr_w),
+                  self.rect.bottom + (10 * display.scr_h))
+        draw_text(self.text[1], font, "white", self.rect.left - (60 * display.scr_w),
+                  self.rect.bottom + (50 * display.scr_h))
+
+    def click(self, mouse_click, joy_click):
         self.clicked = False
-        if joystick.get_joystick():
-            joybutton = joystick.main_joystick.get_button
-        else:
-            joybutton = get_j
-        if self.player.player.alive:
+        if not self.picked:
+            if joystick.get_joystick():
+                joybutton = joystick.main_joystick.get_button
+            else:
+                joybutton = get_j
             if joystick.get_layout() != "mouse" and self.button_image:
                 if joybutton(self.button) and joy_click:
                     self.clicked = True
@@ -428,51 +438,107 @@ class MainMenu:
         self.is_hide = False
 
 
-class OnlineBattle:
-    def __init__(self, bg, player_heroes, player_name=None):
+# class OnlineBattle:
+#     def __init__(self, bg, player_heroes, player_name=None):
+#         self.bg = bg
+#         self.enabled = False
+#         self.is_hide = False
+#         self.player_heroes = player_heroes
+#         self.player_name = player_name
+#         self.cansel_button = ButtonVisual("отменить", font, (500, 100), (710, 900))
+#         # self.enemy_heroes = enemy_heroes
+#         self.player_hero_1 = CardButton(player_heroes[0], (100 * display.scr_w, 500 * display.scr_h),
+#                                         layout.button_Square, 2)
+#         self.player_hero_2 = CardButton(player_heroes[1], (350 * display.scr_w, 500 * display.scr_h),
+#                                         layout.button_X, 0)
+#         self.player_hero_3 = CardButton(player_heroes[2], (600 * display.scr_w, 500 * display.scr_h),
+#                                         layout.button_O, 1)
+#
+#     def show(self, mouse_click, chosen, enemy_pick, enemy_name, joy_click):
+#         scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
+#         display.screen.blit(scaled_bg, (0, 0))
+#
+#         if enemy_name:
+#             scaled_found = pygame.transform.scale(BATTLE_MENU_FOUND, (display.screen_width, display.screen_height))
+#             display.screen.blit(scaled_found, (0, 0))
+#             self.player_hero_1.show()
+#             self.player_hero_2.show()
+#             self.player_hero_3.show()
+#             draw_text(self.player_name, font, (255, 255, 255), 100, 300)
+#             if not chosen:
+#                 self.player_hero_1.click(mouse_click, joy_click)
+#                 self.player_hero_2.click(mouse_click, joy_click)
+#                 self.player_hero_3.click(mouse_click, joy_click)
+#             if enemy_pick:
+#                 enemy_hero_1 = CardButtonEnemy(enemy_pick[0],
+#                                          (display.screen_width - 250, 500))
+#                 enemy_hero_2 = CardButtonEnemy(enemy_pick[1],
+#                                          (display.screen_width - 500, 500))
+#                 enemy_hero_3 = CardButtonEnemy(enemy_pick[2],
+#                                          (display.screen_width - 750, 500))
+#                 enemy_hero_1.show()
+#                 enemy_hero_2.show()
+#                 enemy_hero_3.show()
+#             draw_text(enemy_name, font, (255, 255, 255), 1170, 300)
+#         else:
+#             self.cansel_button.show()
+#             self.cansel_button.click(mouse_click)
+#
+#     def is_enabled(self):
+#         return self.enabled
+#
+#     def disable(self):
+#         self.enabled = False
+#
+#     def enable(self):
+#         self.enabled = True
+#
+#     def hide(self):
+#         self.is_hide = True
+#
+#     def show_(self):
+#         self.is_hide = False
+
+
+class ChooseHeroMenu:
+    def __init__(self, bg):
+        self.exit_button = Button(
+            (60, 60),
+            (1845, 7), "", HERO_PICK_BACK, layout.button_O, 1)
+        self.super_pau_v1 = CardButton((100 * display.scr_w, 100 * display.scr_h), True, card.pau)
+        self.super_pau_v2 = CardButton((500 * display.scr_w, 100 * display.scr_h), False, card.pau_v2,
+                                      ("Пройди BOSS RUSH,", "сложность ТЕРПИ"))
+
+        self.vesisa_v1 = CardButton((100 * display.scr_w, 450 * display.scr_h), True, card.vesisa)
+        self.vesisa_v2 = CardButton((500 * display.scr_w, 450 * display.scr_h), False, card.vesisa_v2, "Пройди историю")
+
+        self.lisa_v1 = CardButton((100 * display.scr_w, 800 * display.scr_h), True, card.lisa)
+        self.lisa_v2 = CardButton((500 * display.scr_w, 800 * display.scr_h), False, card.lisa_v2)
+
         self.bg = bg
         self.enabled = False
         self.is_hide = False
-        self.player_heroes = player_heroes
-        self.player_name = player_name
-        self.cansel_button = ButtonVisual("отменить", font, (500, 100), (710, 900))
-        # self.enemy_heroes = enemy_heroes
-        self.player_hero_1 = CardButton(player_heroes[0], (100 * display.scr_w, 500 * display.scr_h),
-                                        layout.button_Square, 2)
-        self.player_hero_2 = CardButton(player_heroes[1], (350 * display.scr_w, 500 * display.scr_h),
-                                        layout.button_X, 0)
-        self.player_hero_3 = CardButton(player_heroes[2], (600 * display.scr_w, 500 * display.scr_h),
-                                        layout.button_O, 1)
+        self.player_picking = 0
 
-    def show(self, mouse_click, chosen, enemy_pick, enemy_name, joy_click):
-        scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
-        display.screen.blit(scaled_bg, (0, 0))
-
-        if enemy_name:
-            scaled_found = pygame.transform.scale(BATTLE_MENU_FOUND, (display.screen_width, display.screen_height))
-            display.screen.blit(scaled_found, (0, 0))
-            self.player_hero_1.show()
-            self.player_hero_2.show()
-            self.player_hero_3.show()
-            draw_text(self.player_name, font, (255, 255, 255), 100, 300)
-            if not chosen:
-                self.player_hero_1.click(mouse_click, joy_click)
-                self.player_hero_2.click(mouse_click, joy_click)
-                self.player_hero_3.click(mouse_click, joy_click)
-            if enemy_pick:
-                enemy_hero_1 = CardButtonEnemy(enemy_pick[0],
-                                         (display.screen_width - 250, 500))
-                enemy_hero_2 = CardButtonEnemy(enemy_pick[1],
-                                         (display.screen_width - 500, 500))
-                enemy_hero_3 = CardButtonEnemy(enemy_pick[2],
-                                         (display.screen_width - 750, 500))
-                enemy_hero_1.show()
-                enemy_hero_2.show()
-                enemy_hero_3.show()
-            draw_text(enemy_name, font, (255, 255, 255), 1170, 300)
-        else:
-            self.cansel_button.show()
-            self.cansel_button.click(mouse_click)
+    def show(self, mouse_click, joy_click):
+        if not self.is_hide:
+            scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
+            display.screen.blit(scaled_bg, (0, 0))
+            self.exit_button.show()
+            self.exit_button.click(mouse_click, joy_click)
+            self.super_pau_v1.show()
+            self.super_pau_v1.click(mouse_click, joy_click)
+            self.vesisa_v1.show()
+            self.vesisa_v1.click(mouse_click, joy_click)
+            self.super_pau_v2.show()
+            self.super_pau_v2.click(mouse_click, joy_click)
+            self.vesisa_v2.show()
+            self.vesisa_v2.click(mouse_click, joy_click)
+            self.lisa_v1.show()
+            self.lisa_v1.click(mouse_click, joy_click)
+            self.lisa_v2.show()
+            self.lisa_v2.click(mouse_click, joy_click)
+            # p.draw_hero_pick_menu()
 
     def is_enabled(self):
         return self.enabled
@@ -482,89 +548,6 @@ class OnlineBattle:
 
     def enable(self):
         self.enabled = True
-
-    def hide(self):
-        self.is_hide = True
-
-    def show_(self):
-        self.is_hide = False
-
-
-class ChooseHeroMenu:
-    def __init__(self, bg):
-        self.exit_button = Button(
-            (60, 60),
-            (1845, 7), "", HERO_PICK_BACK, layout.button_O, 1)
-
-        self.super_pau = CardButton(player.super_pau, (100 * display.scr_w, 100 * display.scr_h))
-        self.vesisa = CardButton(player.vesisa, (100 * display.scr_w, 400 * display.scr_h))
-        self.tagir = CardButton(player.tagir, (100 * display.scr_w, 700 * display.scr_h))
-        self.lisa = CardButton(player.lisa, (350 * display.scr_w, 700 * display.scr_h))
-        self.artestro = CardButton(player.artestro, (350 * display.scr_w, 400 * display.scr_h))
-        self.aksenov = CardButton(player.aksenov, (600 * display.scr_w, 700 * display.scr_h))
-        self.bulat = CardButton(player.bulat, (350 * display.scr_w, 100 * display.scr_h))
-        self.robot_woman = CardButton(player.robot_woman, (600 * display.scr_w, 400 * display.scr_h))
-        self.bt25t = CardButton(player.bt25t, (600 * display.scr_w, 100 * display.scr_h))
-        self.egor = CardButton(player.egor, (850 * display.scr_w, 700 * display.scr_h))
-        self.kingartema = CardButton(player.kingartema, (850 * display.scr_w, 400 * display.scr_h))
-
-        self.skin_1_button = Button(
-            (60, 60),
-            (1845, 7), "", HERO_PICK_BACK, layout.button_O, 1)
-        self.skin_2_button = Button(
-            (60, 60),
-            (1845, 7), "", HERO_PICK_BACK, layout.button_O, 1)
-
-        self.bg = bg
-        self.enabled = False
-        self.is_hide = False
-        self.player_picking = 0
-
-    def show(self, mouse_click, p, joy_click):
-        if not self.is_hide:
-            scaled_bg = pygame.transform.scale(self.bg, (display.screen_width, display.screen_height))
-            display.screen.blit(scaled_bg, (0, 0))
-            self.exit_button.show()
-            self.exit_button.click(mouse_click, joy_click)
-            self.lisa.show()
-            self.lisa.click(mouse_click, joy_click)
-            self.super_pau.show()
-            self.super_pau.click(mouse_click, joy_click)
-            self.vesisa.show()
-            self.vesisa.click(mouse_click, joy_click)
-            self.tagir.show()
-            self.tagir.click(mouse_click, joy_click)
-            self.artestro.show()
-            self.artestro.click(mouse_click, joy_click)
-            self.aksenov.show()
-            self.aksenov.click(mouse_click, joy_click)
-            self.bulat.show()
-            self.bulat.click(mouse_click, joy_click)
-            self.robot_woman.show()
-            self.robot_woman.click(mouse_click, joy_click)
-            self.bt25t.show()
-            self.bt25t.click(mouse_click, joy_click)
-            self.egor.show()
-            self.egor.click(mouse_click, joy_click)
-            self.kingartema.show()
-            self.kingartema.click(mouse_click, joy_click)
-
-            p.draw_hero_pick_menu()
-            if p.player.skin_2 != 0:
-                self.skin_2_button.show()
-                self.skin_1_button.show()
-                self.skin_2_button.click(mouse_click, joy_click)
-                self.skin_1_button.click(mouse_click, joy_click)
-
-    def is_enabled(self):
-        return self.enabled
-
-    def disable(self):
-        self.enabled = False
-
-    def enable(self, p):
-        self.enabled = True
-        self.player_picking = p
 
     def get_pick(self):
         return self.player_picking
@@ -638,6 +621,10 @@ class ChooseModeMenu:
         self.boss_rush_button = Button(
             (300 * scr_w, 200 * scr_h),
             (50 * scr_w, 850 * scr_h), "BOSS RUSH", None, layout.button_Square, 2)
+
+        self.skins_button = Button(
+            (300 * scr_w, 200 * scr_h),
+            (400 * scr_w, 850 * scr_h), "SKINS", None)
         self.gp_button_plus = Button((58 * scr_w, 79 * scr_h),
                                      (1317 * scr_w, 571 * scr_h), "     >", None, layout.none_layout, 14)
         self.gp_button_minus = Button((58 * scr_w, 79 * scr_h),
@@ -667,9 +654,11 @@ class ChooseModeMenu:
             self.campain_button.show()
             self.exit_button.show()
             self.online_button.show()
+            self.skins_button.show()
             self.exit_button.click(mouse_click, joy_click)
             self.campain_button.click(mouse_click, joy_click)
             self.online_button.click(mouse_click, joy_click)
+            self.skins_button.click(mouse_click, joy_click)
             if game_completed == 1:
                 self.gp_button_plus.show()
                 if not game_progress >= 54:

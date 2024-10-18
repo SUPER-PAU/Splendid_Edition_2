@@ -3,7 +3,7 @@ import pygame
 import random
 from constants.textures.sprites import all_sprites, bullet_sprites, explosion, bullet, beam, rocket, energy, stone, \
     green_energy, grenade, on_fire, blood_splash, dust, dust_splash, electricity_splash, bt_splash, shield_splash,\
-    bt_parts
+    bt_parts, shield, knifes
 from constants.audio.effects import explosion_sounds, gaubica_sounds
 from lib.screen_effects import screen_shake
 
@@ -40,7 +40,7 @@ class Particle(pygame.sprite.Sprite):
         self.rect.x += self.velocity[0] * display.scr_w
         self.rect.y += self.velocity[1] * display.scr_h
         # убиваем, если частица ушла за экран
-        if self.rect.bottom * display.scr_h > display.screen_height - 110 * display.scr_h:
+        if self.rect.bottom > display.screen_height - (110 * display.scr_h):
             create_splash(self.rect, [20, 5.6 * display.scr_w, (10, 10), [5], False], self.p_type)
             self.kill()
         if not self.rect.colliderect(screen_rect):
@@ -561,7 +561,7 @@ class CreateBombing:
 class Energy(Stone):
     def __init__(self, rect, sprite_sheet, data, target, damage):
         super().__init__(rect, sprite_sheet, data, target, damage)
-        self.speed = 25
+        self.speed = 25 * display.scr_w
         self.vel_y = -30 * display.scr_h
 
     def create_expl(self):
@@ -682,6 +682,44 @@ class OnFire(pygame.sprite.Sprite):
         a = 1
 
 
+class ShieldParticle(pygame.sprite.Sprite):
+    def __init__(self, im_scale):
+        super().__init__(bullet_sprites)
+        self.size = 200
+        self.image_scale = im_scale
+        self.update_time = pygame.time.get_ticks()
+        self.animation_list = self.load_images(shield, [3])
+        self.image = self.animation_list[0][0]
+        self.frame_index = 0
+
+    def get_image(self):
+        return self.image
+
+    def load_images(self, sprite_sheet, animation_steps):
+        # extract images from sprite_sheets
+        animation_list = []
+        for y, animation in enumerate(animation_steps):
+            temp_img_list = []
+            for x in range(animation):
+                temp_img = sprite_sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
+                temp_img_list.append(
+                    pygame.transform.scale(temp_img, (self.size * self.image_scale, self.size * self.image_scale)))
+            animation_list.append(temp_img_list)
+        return animation_list
+
+    def update(self):
+        animation_cooldown = 70
+        # update image
+        self.image = self.animation_list[0][self.frame_index]
+
+        # check if enough time has passed sinse the last update
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.frame_index += 1
+            self.update_time = pygame.time.get_ticks()
+        if self.frame_index >= len(self.animation_list[0]):
+            self.frame_index = 0
+
+
 def create_green_energy(rect, data, target, damage):
     GreenEnergy(rect, green_energy, data, target, damage)
 
@@ -713,6 +751,10 @@ def create_bullet(rect, data, target, damage):
     if damage > 15:
         screen_shake(5)
     Bullet(rect, bullet, data, target, damage)
+
+
+def create_knife(rect, data, target, damage):
+    Bullet(rect, knifes, data, target, damage)
 
 
 def create_dash(rect, flip, target, player, damage):

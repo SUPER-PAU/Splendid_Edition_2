@@ -23,6 +23,17 @@ def update_game_complete(gp_value):
     con.close()
 
 
+def update_bossr_H_complete(gp_value):
+    gp = int(gp_value)
+    con = sqlite3.connect("G_PROGRESS.sqlite")
+    # Создание курсора
+    cur = con.cursor()
+    cur.execute(f"""UPDATE GP
+                SET BOSSR_COMPLETED_H = {gp}""")
+    con.commit()
+    con.close()
+
+
 def get_gp():
     con = sqlite3.connect("G_PROGRESS.sqlite")
     # Создание курсора
@@ -58,6 +69,18 @@ def get_game_complete():
 
     # Выполнение запроса и получение результатов
     result = cur.execute("""SELECT GAME_COMPLETED FROM GP""").fetchall()
+    con.close()
+    gp = int(result[0][0])
+    return gp
+
+
+def get_bossr_H_complete():
+    con = sqlite3.connect("G_PROGRESS.sqlite")
+    # Создание курсора
+    cur = con.cursor()
+
+    # Выполнение запроса и получение результатов
+    result = cur.execute("""SELECT BOSSR_COMPLETED_H FROM GP""").fetchall()
     con.close()
     gp = int(result[0][0])
     return gp

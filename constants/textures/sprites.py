@@ -21,7 +21,7 @@ artestro = r"assets\images\main hero\Sprites\artestro.png"
 general = r"assets\images\main hero\Sprites\generall.png"
 super_pau = r"assets\images\main hero\Sprites\SUPERPAUK.png"
 super_pau_boss = r"assets\images\main hero\Sprites\Superpau.png"
-SUPER_PAU = r"assets\images\main hero\Sprites\SUPER_PAU.png"
+super_pau_player = r"assets\images\main hero\Sprites\SUPER_PAU.png"
 bt25t = r"assets\images\main hero\Sprites\bt.png"
 moiseev = r"assets\images\main hero\Sprites\moiseev.png"
 tagir = r"assets\images\main hero\Sprites\tagir.png"
@@ -37,6 +37,12 @@ supertank = r"assets\images\main hero\Sprites\supertank.png"
 albinos = r"assets\images\main hero\Sprites\albinos.png"
 moiseev_bot = r"assets\images\main hero\Sprites\moiseev_bot.png"
 moiseev_robot = r"assets\images\main hero\Sprites\mois_robot.png"
+
+# skins
+vesisa_v2 = r"assets\images\main hero\Skins\vesisa_se3.png"
+super_pau_player_v2 = r"assets\images\main hero\Skins\SUPER_PAU-3d.png"
+lisa_player_v2 = r"assets\images\main hero\Skins\lisa_ver_2.png"
+
 
 super_pau_2 = r"assets\images\main hero\Sprites_2\SUPER_PAU.png"
 lisa_2 = r"assets\images\main hero\Sprites_2\lisa.png"
@@ -58,7 +64,9 @@ dumplings = pygame.image.load(r"assets\images\main hero\particles\dumpling.png")
 dust = pygame.image.load(r"assets\images\main hero\particles\dust.png").convert_alpha()
 shield_parts = pygame.image.load(r"assets\images\main hero\particles\shield_parts.png").convert_alpha()
 bag = pygame.image.load(r"assets\images\main hero\particles\bag.png").convert_alpha()
+
 on_fire = pygame.image.load(r"assets\images\main hero\particles\fire.png").convert_alpha()
+shield = pygame.image.load(r"assets\images\main hero\particles\shield.png").convert_alpha()
 
 blood_splash = pygame.image.load(r"assets\images\main hero\particles\blood_splash.png").convert_alpha()
 electricity_splash = pygame.image.load(r"assets\images\main hero\particles\electricity_splash.png").convert_alpha()

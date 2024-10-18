@@ -5,7 +5,7 @@ import pygame
 from lib.Settings import settings
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_rocket, create_stone, \
-    create_damage_number, create_beam, create_explosion
+    create_damage_number, create_beam, create_explosion, ShieldParticle
 from constants.audio.effects import shield_sfx, explosion_sounds, gaubica_sounds
 from constants.textures.sprites import shield_parts
 from lib.attack import Attack
@@ -15,7 +15,7 @@ import constants.textures.icons as layout
 
 player_spec = [1, 9, 12]
 player_attack3 = [1, 9]
-player_shield = [9]
+player_shield = [9, 12]
 
 l_click_rect = pygame.rect.Rect((480 * display.scr_w, 1000 * display.scr_h,
                                  50 * display.scr_w, 50 * display.scr_h))
@@ -64,6 +64,10 @@ class FighterPLAYER:
         self.last_phase = False
         self.base_health = 100
 
+        self.shield_eff = None
+        if self.player in [12]:
+            self.shield_eff = ShieldParticle(self.image_scale)
+
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
         animation_list = []
@@ -97,6 +101,8 @@ class FighterPLAYER:
         self.health = 100
         self.action = 0  # 0 - idle, 1 - run, 2 - jump, 3 - attack1, 4 - attack2, 5 -hit, 6 - death
         self.frame_index = 0
+        if self.player in [12]:
+            self.shield_eff = ShieldParticle(self.image_scale)
 
     def move(self, target, round_over, key):
         SPEED = 9 * display.scr_w
@@ -129,7 +135,7 @@ class FighterPLAYER:
             self.stunned -= 1
             self.take_damage(0.2)
             self.vel_y = 0
-            screen_shake(2)
+            screen_shake(1)
 
         # heal player aboba os ability
         self.heal(0.017)
@@ -152,12 +158,12 @@ class FighterPLAYER:
                             or mouse_middle or joybutton(2) or joybutton(0) or joybutton(3):
                         # determine attack
                         if key[pygame.K_r] or mouse_left or joybutton(0):
-                            self.attack_type = 9
-                            hit = 10
-                            self.attack(target, 1.09, hit)
-                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 3
                             hit = 18
+                            self.attack(target, 1.09, hit)
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
+                            self.attack_type = 9
+                            hit = 10
                             self.attack(target, 1.09, hit)
                         elif key[pygame.K_f] or mouse_middle or joybutton(3):
                             if self.huge_attack_cooldown <= 0 and self.attack_cooldown <= 0 and not self.hit:
@@ -303,11 +309,11 @@ class FighterPLAYER:
                     if key[pygame.K_r] or key[pygame.K_t] or mouse_right or mouse_left or joybutton(2) or joybutton(0):
                         # determine attack
                         if key[pygame.K_r] or mouse_left or joybutton(0):
-                            self.attack_type = 9
-                            hit = 10
-                        elif key[pygame.K_t] or mouse_right or joybutton(2):
                             self.attack_type = 3
                             hit = 15
+                        elif key[pygame.K_t] or mouse_right or joybutton(2):
+                            self.attack_type = 9
+                            hit = 10
                         self.attack(target, 1.09, hit)
 
                 # check aks controls
@@ -474,6 +480,9 @@ class FighterPLAYER:
                     self.attacking = False
                     self.attack_cooldown = 55
                     self.dashing = False
+                    if self.player == 12:
+                        if self.action == 3 and self.shield_cooldown <= 0:
+                            self.shield_cooldown = 200
                 # check if damage was taken
 
                 if self.action == 5:
@@ -485,7 +494,8 @@ class FighterPLAYER:
         if self.alive:
             if self.action == 3 or self.action == 4 or self.action == 7:
                 self.attack_cooldown = 55
-                self.dash()
+                if self.dashing:
+                    self.dash()
 
     def attack(self, target, hg_att, hit):
         if self.attack_cooldown == 0 and not self.hit:
@@ -586,7 +596,7 @@ class FighterPLAYER:
                 # upd action 7
                 case 18:
                     pygame.mixer.Sound.play(choice(explosion_sounds))
-                    screen_shake(15)
+                    screen_shake(25)
                     explosion_rect1 = pygame.Rect(self.rect.centerx - (400 * display.scr_w),
                                                   display.screen_height - 710 * display.scr_h,
                                                   400 * display.scr_w, 600 * display.scr_h)
@@ -657,6 +667,16 @@ class FighterPLAYER:
         # pygame.draw.rect(surface, (255, 0, 0), self.rect)
         surface.blit(img,
                      (self.rect.x - self.offset[0] * self.image_scale, self.rect.y - self.offset[1] * self.image_scale))
+        if self.shield_on:
+            self.draw_shield(display.screen)
+
+    def draw_shield(self, surface):
+        img = pygame.transform.flip(self.shield_eff.get_image(), self.flip, False)
+        simg = pygame.transform.scale(img, (self.rect.width, self.rect.height))
+        # pygame.draw.rect(surface, (255, 0, 0), self.rect)
+        surface.blit(simg,
+                     (self.rect.x,
+                      self.rect.y))
 
     def draw_cooldown_stats(self, surface):
         # draw atk cooldown
@@ -680,8 +700,8 @@ class FighterPLAYER:
         if self.player in player_spec:
 
             pygame.draw.rect(surface, (255, 255, 255),
-                             ((520 - 2) * display.scr_w, (60 - 2) * display.scr_h, (300 + 4) * display.scr_w,
-                              19 * display.scr_h * display.scr_h))
+                             (518 * display.scr_w, 58 * display.scr_h, 304 * display.scr_w,
+                              19 * display.scr_h))
             pygame.draw.rect(surface, (0, 0, 0),
                              (520 * display.scr_w, 60 * display.scr_h, 300 * display.scr_w, 15 * display.scr_h))
             if self.huge_attack_cooldown > 0:
@@ -699,7 +719,7 @@ class FighterPLAYER:
                     520 * display.scr_w, 60 * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
                     15 * display.scr_h))
                 pygame.draw.rect(surface, (0, 255, 255), (
-                    520 * display.scr_w, (60 + 7) * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
+                    520 * display.scr_w, (67) * display.scr_h, (300 - self.huge_attack_cooldown) * display.scr_w,
                     8 * display.scr_h))
                 if joystick.get_layout() == "mouse":
                     surface.blit(layout.Mid_Click, (ult_click_rect.x, ult_click_rect.y))
@@ -708,7 +728,7 @@ class FighterPLAYER:
 
         if self.player in player_shield:
             pygame.draw.rect(surface, (255, 255, 255), (
-                (20 - 2) * display.scr_w, (60 - 2) * display.scr_h, (200 + 4) * display.scr_w,
+                18 * display.scr_w, 58 * display.scr_h, 204 * display.scr_w,
                 19 * display.scr_h))
             pygame.draw.rect(surface, (0, 0, 0),
                              (20 * display.scr_w, 60 * display.scr_h, 200 * display.scr_w, 15 * display.scr_h))
@@ -724,14 +744,14 @@ class FighterPLAYER:
                     5 * display.scr_h))
             else:
                 if joystick.get_layout() == "mouse":
-                    surface.blit(layout.Richt_Click, (ult_click_rect.x, ult_click_rect.y))
+                    surface.blit(layout.Richt_Click, (shield_click_rect.x, shield_click_rect.y))
                 else:
                     surface.blit(layout.button_Square, (shield_click_rect.x, shield_click_rect.y))
                 pygame.draw.rect(surface, (102, 255, 102), (
                     20 * display.scr_w, 60 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
                     15 * display.scr_h))
                 pygame.draw.rect(surface, (102, 255, 153), (
-                    20 * display.scr_w, (60 + 7) * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
+                    20 * display.scr_w, 67 * display.scr_h, (200 - self.shield_cooldown) * display.scr_w,
                     8 * display.scr_h))
 
     def heal(self, amount):
@@ -742,10 +762,9 @@ class FighterPLAYER:
                 self.health += amount
 
     def dash(self):
-        if self.dashing:
-            self.rect.x += self.dash_x * display.scr_w
-            if self.player == 4 or self.player == 12:
-                self.shield_on = True
+        self.rect.x += self.dash_x * display.scr_w
+        if self.player == 12 and self.shield_cooldown <= 0:
+            self.shield_on = True
 
     def stun(self):
         self.stunned = 45
@@ -754,8 +773,8 @@ class FighterPLAYER:
         if not self.shield_on:
             self.health -= hit
             self.hit = True
-            shake_damage()
             if not self.stunned:
+                shake_damage()
                 create_damage_number((50 * display.scr_w, 150 * display.scr_h),
                                      self.flip, hit)
                 create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle, self.particle_type)

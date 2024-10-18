@@ -21,6 +21,7 @@ EGOR_DATA = [486, 1.5 * display.scr_h, [216, 168], (100 * display.scr_w, 200 * d
 WARRIOR_ANIMATION_STEPS = [10, 8, 1, 8, 8, 3, 7]
 MAGE_ANIMATION_STEPS = [8, 8, 1, 5, 5, 3, 7]
 AKSENOV_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6]
+ARTESTRO_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6, 5]
 LISA_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6]
 LISA_BOSS_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 6, 10]
 KINGARTEMA_ANIMATION_STEPS = [8, 8, 1, 7, 7, 3, 7]
@@ -43,7 +44,25 @@ LISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 10, 3, 5, 6]
 SUPER_PAU_PLAYER_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 6, 7, 8, 3, 5, 6]
 VESISA_2_ANIMATION_STEPS = [8, 8, 1, 3, 3, 6, 7, 7, 0, 3, 5, 6]
 
+spau_skin = sheet.super_pau_player
 
+
+def change_pau_skin(skin):
+    global spau_skin
+    spau_skin = skin
+
+
+vesisa_skin = sheet.vesisa
+
+def change_ves_skin(skin):
+    global vesisa_skin
+    vesisa_skin = skin
+
+lisa_skin = sheet.lisa
+
+def change_lisa_skin(skin):
+    global lisa_skin
+    lisa_skin = skin
 # create instances of fighters
 
 # players_for_online = [
@@ -81,7 +100,7 @@ def bulat():
 
 
 def vasisa():
-    return FighterPLAYER(8, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.vesisa,
+    return FighterPLAYER(8, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, vesisa_skin,
                          LISA_ANIMATION_STEPS,
                          female_robot_sound, sheet.blood, 1, [2, 2])
 
@@ -99,13 +118,13 @@ def egor():
 
 
 def super_pau():
-    return FighterPLAYER(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.SUPER_PAU,
+    return FighterPLAYER(1, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, spau_skin,
                          SUPER_PAU_PLAYER_ANIMATION_STEPS, human_sound,
                          sheet.blood, 1, [2, 3, 6])
 
 
 def lisa():
-    return FighterPLAYER(2, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, sheet.lisa,
+    return FighterPLAYER(2, 400 * display.scr_w, 540 * display.scr_h, False, LISA_DATA, lisa_skin,
                          LISA_ANIMATION_STEPS,
                          woman_sound,
                          sheet.blood, 1, [2, 1])
@@ -260,8 +279,8 @@ def negrominator():
 
 def artestro():
     return FighterEnemy(8, 1400 * display.scr_w, 540 * display.scr_h, True, AKSENOV_DATA, sheet.artestro,
-                        AKSENOV_ANIMATION_STEPS,
-                        human_sound, sheet.blood, 1, [1, 2])
+                        ARTESTRO_ANIMATION_STEPS,
+                        human_sound, sheet.blood, 1, [1, 2, 3])
 
 
 def lisa_boss():

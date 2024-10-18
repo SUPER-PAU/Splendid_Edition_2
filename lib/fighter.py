@@ -6,12 +6,13 @@ from constants.audio.music import the_stains_of_time, the_only_thing_i_know, a_s
 from lib.attack import Attack, Attack2
 from lib.display import display
 from lib.particle import create_particles, create_bullet, create_dash, create_beam, create_rocket, create_bombing, \
-    create_energy, create_stone, create_damage_number, create_explosion, create_grenade, OnFire
+    create_energy, create_stone, create_damage_number, create_explosion, create_grenade, OnFire, ShieldParticle, \
+    create_knife
 from constants.audio.effects import shield_sfx, shield_on_sfx, explosion_sounds, charge_sounds, gaubica_sounds, \
     bulat_fight, pain_sounds
 from lib.Settings import settings
-from constants.textures.sprites import shield_parts, dust
-from lib.screen_effects import screen_shake
+from constants.textures.sprites import shield_parts, dust, knife
+from lib.screen_effects import screen_shake, shake_damage
 
 player_spec = [7, 8, 10, 11, 1, 15, 16, 18, 22, 25, 9, 26]
 player_attack3 = [1, 15, 16, 18, 22, 9, 10, 26]
@@ -44,10 +45,15 @@ class FighterEnemy:
         self.shield_cooldown = 200
 
         self.base_health = 100
+
         if self.player == 26:
             self.base_health = 200
         if self.player == 18:
             self.fire_eff = OnFire(self.size, self.image_scale, self.rect)
+
+        self.shield_eff = None
+        if self.player in [10, 22]:
+            self.shield_eff = ShieldParticle(self.image_scale)
 
         self.health = self.base_health
         self.charging = False
@@ -67,6 +73,9 @@ class FighterEnemy:
         self.second_phase = False
         self.dead = False
         self.last_phase = 0
+        self.kinfe_count = 0
+        if self.player == 8:
+            self.knife_img = pygame.transform.scale(knife, (100 * display.scr_w, 100 * display.scr_h))
 
     def reset_params(self):
         x, y, self.flip = self.start_pos
@@ -95,6 +104,9 @@ class FighterEnemy:
         self.frame_index = 0
         if self.player == 18:
             self.fire_eff = OnFire(self.size, self.image_scale, self.rect)
+        if self.player in [10, 22]:
+            self.shield_eff = ShieldParticle(self.image_scale)
+        self.kinfe_count = 0
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images from sprite_sheets
@@ -636,7 +648,14 @@ class FighterEnemy:
                     self.move_ai((2.6, 1.3), (1.13, 1), SPEED, target)
                 # artestro
                 case 8:
+                    if round > 0:
+                        self.second_phase = True
+                    if round > 1:
+                        self.last_phase = True
                     SPEED -= 2 * display.scr_w
+                    if 3 > self.kinfe_count > 0:
+                        if self.attack_cooldown > 0:
+                            self.attack_cooldown -= 5
                     # атаковать ли
                     bot_attack_check_rect = pygame.Rect(self.rect.centerx - (4 * self.rect.width * self.flip),
                                                         self.rect.y / 1.3,
@@ -645,10 +664,14 @@ class FighterEnemy:
                         # determine attack
                         if self.huge_attack_cooldown == 0:
                             self.attack_type = 7
-                            hit = 55
+                            hit = 35
                         else:
-                            self.attack_type = 6
-                            hit = 20
+                            if self.kinfe_count > 0:
+                                self.attack_type = 35
+                                hit = 20
+                            else:
+                                self.attack_type = 6
+                                hit = 20
                         self.attack(target, 1.5, hit)
                     self.move_ai((2.6, 1.3), (1.13, 1), SPEED, target)
                 # lisa boss
@@ -862,7 +885,7 @@ class FighterEnemy:
                 case 20 | 11 | 8 | 2 | 6 | 3 | 14 | 17 | 21 | 23 | 26 | 27:
                     self.update_action(4)
                 # 3rd attack
-                case 12 | 13 | 24 | 19 | 28 | 30:
+                case 12 | 13 | 24 | 19 | 28 | 30 | 35:
                     self.update_action(7)
                 case 31 | 32 | 34:
                     self.update_action(9)
@@ -929,7 +952,8 @@ class FighterEnemy:
         # update cooldown
         if self.alive:
             if self.action in [3, 4, 7, 9]:
-                self.dash()
+                if self.dashing:
+                    self.dash()
                 if self.player == 22:
                     self.shield_on = False
                 if self.player == 23:
@@ -959,7 +983,7 @@ class FighterEnemy:
             # check if damage was taken
 
     def attack(self, target, hg_att, hit):
-        if self.attack_cooldown == 0 and not self.hit and not self.charging:
+        if self.attack_cooldown <= 0 and not self.hit and not self.charging:
             self.attacking = True
             attacking_rect_2 = pygame.Rect(0, 0, 0, 0)
             attacking_rect = None
@@ -1236,6 +1260,15 @@ class FighterEnemy:
                     pygame.mixer.Sound.play(gaubica_sounds[2])
                     self.recharged -= 1
                     screen_shake(3)
+                # artestro knife
+                case 35:
+                    size = 50
+                    bullet_data = [200, 0.6 * display.scr_w, (10, 6), [2, 2], self.flip]
+                    bullet_rect = pygame.Rect(self.rect.right - (self.rect.width * self.flip),
+                                              self.rect.y + self.rect.height * 0.4,
+                                              size * display.scr_w, size * display.scr_h)
+                    create_knife(bullet_rect, bullet_data, target, hit)
+                    self.kinfe_count -= 1
                 case _:
                     attacking_rect = pygame.Rect(self.rect.centerx - (0 * self.rect.width * self.flip), self.rect.y * 0,
                                                  0 * self.rect.width, self.rect.height * 0)
@@ -1253,18 +1286,47 @@ class FighterEnemy:
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
 
-    def draw(self, surface):
-        self.draw_cooldown_stats(surface)
+    def draw(self):
+        self.draw_cooldown_stats(display.screen)
         if not self.invisibility:
             img = pygame.transform.flip(self.image, self.flip, False)
             # pygame.draw.rect(surface, (255, 0, 0), self.rect)
-            surface.blit(img,
-                         (self.rect.x - self.offset[0] * self.image_scale,
-                          self.rect.y - self.offset[1] * self.image_scale))
+            display.screen.blit(img,
+                                (self.rect.x - self.offset[0] * self.image_scale,
+                                 self.rect.y - self.offset[1] * self.image_scale))
         if self.player == 18:
             if self.alive and self.base_health == 200:
                 if self.health < 100:
-                    self.draw_fire(surface)
+                    self.draw_fire(display.screen)
+        if self.player == 8:
+            self.draw_knifes()
+        if self.shield_on:
+            self.draw_shield(display.screen)
+
+    def draw_knifes(self):
+        img = pygame.transform.flip(self.knife_img, self.flip, False)
+        if self.flip:
+            if self.kinfe_count >= 1:
+                if self.kinfe_count >= 1:
+                    display.screen.blit(img, (self.rect.right - self.rect.width,
+                                              self.rect.y + self.rect.height * 0.4))
+                if self.kinfe_count >= 2:
+                    display.screen.blit(img, (self.rect.right - (self.rect.width - 80 * display.scr_w),
+                                              self.rect.y + self.rect.height * 0.4))
+                if self.kinfe_count >= 3:
+                    display.screen.blit(img, (self.rect.right - (self.rect.width - 160 * display.scr_w),
+                                              self.rect.y + self.rect.height * 0.4))
+        else:
+            if self.kinfe_count >= 1:
+                if self.kinfe_count >= 1:
+                    display.screen.blit(img, (self.rect.right - self.rect.width,
+                                              self.rect.y + self.rect.height * 0.4))
+                if self.kinfe_count >= 2:
+                    display.screen.blit(img, (self.rect.right - (self.rect.width + 80 * display.scr_w),
+                                              self.rect.y + self.rect.height * 0.4))
+                if self.kinfe_count >= 3:
+                    display.screen.blit(img, (self.rect.right - (self.rect.width + 160 * display.scr_w),
+                                              self.rect.y + self.rect.height * 0.4))
 
     def draw_fire(self, surface):
         img = pygame.transform.flip(self.fire_eff.get_image(), self.flip, False)
@@ -1272,6 +1334,14 @@ class FighterEnemy:
         surface.blit(img,
                      (self.rect.x - self.offset[0] * self.image_scale,
                       self.rect.y - self.offset[1] * self.image_scale))
+
+    def draw_shield(self, surface):
+        img = pygame.transform.flip(self.shield_eff.get_image(), self.flip, False)
+        simg = pygame.transform.scale(img, (self.rect.width, self.rect.height))
+        # pygame.draw.rect(surface, (255, 0, 0), self.rect)
+        surface.blit(simg,
+                     (self.rect.x,
+                      self.rect.y))
 
     def draw_cooldown_stats(self, surface):
         # draw atk cooldown
@@ -1344,20 +1414,31 @@ class FighterEnemy:
                 self.health += amount
 
     def dash(self):
-        if self.dashing:
-            self.rect.x += self.dash_x * display.scr_w
-            if self.player == 25:
-                self.shield_on = True
+        self.rect.x += self.dash_x * display.scr_w
 
     def stun(self):
         self.stunned = 50
 
     def take_damage(self, hit, block_break=False):
         if not self.shield_on:
-            if not self.last_phase:
+            if not (self.last_phase and self.player == 18):
+
+                if self.player == 8:
+                    if self.second_phase:
+                        if (self.health - hit <= 70) and self.health > 70:
+                            self.kinfe_count = 3
+                            shield_sfx.play()
+                            create_particles((self.rect.centerx, self.rect.top), self.flip, dust, 3)
+                    if self.last_phase:
+                        if (self.health - hit <= 40) and self.health > 40:
+                            self.kinfe_count = 3
+                            shield_sfx.play()
+                            create_particles((self.rect.centerx, self.rect.top), self.flip, dust, 3)
+
                 self.health -= hit
                 self.hit = True
                 if self.stunned <= 0:
+                    shake_damage()
                     create_particles((self.rect.centerx, self.rect.top), self.flip, self.particle, self.particle_type)
                     choice(self.hurt_sfx).play()
                     create_damage_number((1750 * display.scr_w, 150 * display.scr_h),

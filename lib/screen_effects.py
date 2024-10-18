@@ -11,3 +11,4 @@ def screen_shake(time):
 def shake_damage():
     if joystick.get_joystick():
         joystick.shake_j_low()
+    display.shake(15)

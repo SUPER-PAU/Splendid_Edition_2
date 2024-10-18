@@ -36,9 +36,10 @@ def draw_health_bar(health, x, y):
                      (x - 2 * display.scr_w, y - 2 * display.scr_h, 804 * display.scr_w, 34 * display.scr_h))
     if health > 100:
         ratio = (health - 100) / 100
-        pygame.draw.rect(display.screen, (250, 200, 0), (x, y, 800, 30 * display.scr_h))
-        pygame.draw.rect(display.screen, (195, 155, 0), (x, y + 20 * display.scr_h, 800, 10 * display.scr_h))
-        pygame.draw.rect(display.screen, color.yellow, (x, y, 800, 10 * display.scr_h))
+        pygame.draw.rect(display.screen, (250, 200, 0), (x, y, 800 * display.scr_w, 30 * display.scr_h))
+        pygame.draw.rect(display.screen, (195, 155, 0), (x, y + 20 * display.scr_h,
+                                                         800 * display.scr_w, 10 * display.scr_h))
+        pygame.draw.rect(display.screen, color.yellow, (x, y, 800 * display.scr_w, 10 * display.scr_h))
 
         pygame.draw.rect(display.screen, (140, 140, 140),
                          (x, y, 800 * ratio * display.scr_w, 30 * display.scr_h))
@@ -50,7 +51,7 @@ def draw_health_bar(health, x, y):
         pygame.draw.rect(display.screen, color.red,
                          (x, y, 800 * display.scr_w, 30 * display.scr_h))
         pygame.draw.rect(display.screen, (100, 0, 0),
-                         (x, (y + 15) * display.scr_w, 800 * display.scr_w, 15 * display.scr_h))
+                         (x, (y + 15 * display.scr_h), 800 * display.scr_w, 15 * display.scr_h))
         pygame.draw.rect(display.screen, (250, 200, 0),
                          (x, y, 800 * ratio * display.scr_w, 30 * display.scr_h))
         pygame.draw.rect(display.screen, (195, 155, 0),
